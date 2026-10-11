@@ -10,7 +10,7 @@ several messages is refused once the pieces add up, and the refusal names every 
 ## Why
 
 This is the third of the three things the filter exists to catch: no single message is refused by
-the encoded-data checks or by [SL07](README.md), yet together they are a file. A payload cut into
+the encoded-data checks or by [SL07](README.md#sl07), yet together they are a file. A payload cut into
 pieces inside one message is already caught ([`doc/detectors.md`](../doc/detectors.md)); this is the
 correlation across messages. How it would be built is
 [SL08-Refuse-A-Payload-Spread-Over-Several-Messages_design.md](SL08-Refuse-A-Payload-Spread-Over-Several-Messages_design.md).
@@ -25,7 +25,7 @@ correlation across messages. How it would be built is
   never the source of truth, and holds fragment metadata only, never full text.
 - What one check reads is capped, so the cost per message does not grow with the life of the task.
 - **The detector is built-in**: correlation cannot be delegated to an external engine invoked once
-  per message, as measured in [SL04](README.md).
+  per message, as measured in [SL04](README.md#sl04).
 
 ## Plan
 

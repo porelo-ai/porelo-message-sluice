@@ -1,6 +1,6 @@
 # SL07 — Refuse credentials and personal data, design
 
-How [SL07](README.md) would be built. **Nothing here exists yet**, and none of it has been measured.
+How [SL07](README.md#sl07) would be built. **Nothing here exists yet**, and none of it has been measured.
 Moved here unchanged from the design of the original issue 001, where it was stage B, step 5, and
 the catalog.
 
@@ -52,5 +52,5 @@ produced it, and a detector returns offsets rather than excerpts.
 
 | Limit | What would lift it |
 |---|---|
-| Secret patterns age as new token prefixes appear | load the pattern catalog from an external, versioned resource - or an external detector behind the interface, which is issue [SL04](README.md) |
+| Secret patterns age as new token prefixes appear | load the pattern catalog from an external, versioned resource - or an external detector behind the interface, which is issue [SL04](README.md#sl04) |
 | A secret described rather than written | nothing within the rule against a language model; stated in [`doc/filter.md`](../doc/filter.md) |

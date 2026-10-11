@@ -27,7 +27,7 @@ specialist's game. The interface and the built-in detectors are described in
 - **Its findings pass through the frame's redaction** like any other detector's, and it can neither
   release a message nor turn a report into a block.
 - **Only single-message detectors are pluggable.** Correlation across messages stays built-in
-  ([SL08](README.md)): measured with the surveyed scanner on a VM, it reassembles a payload split
+  ([SL08](README.md#sl08)): measured with the surveyed scanner on a VM, it reassembles a payload split
   over two requests only while one long-running process holds the session, and a process per
   message - how this filter invokes a detector - starts empty every time.
 

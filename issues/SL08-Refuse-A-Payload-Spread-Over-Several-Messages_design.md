@@ -1,6 +1,6 @@
 # SL08 — Refuse a payload spread over several messages, design
 
-How [SL08](README.md) would be built. **Nothing here exists yet**, and none of it has been measured.
+How [SL08](README.md#sl08) would be built. **Nothing here exists yet**, and none of it has been measured.
 Moved here unchanged from the design of the original issue 001, where it was stage C.
 
 ## Correlation across the context

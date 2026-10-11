@@ -1,8 +1,8 @@
 # SL24 — A code comment, the filter's side
 
-**Status:** Analyzed; blocked by Sokar B166, which defines the comment model and what the host checks.
+**Status:** Analyzed; blocked by Sokar [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166), which defines the comment model and what the host checks.
 **Size:** L - new envelope rules, a second set of detector thresholds measured on a code corpus, and a
-shape still to be decided in B166.
+shape still to be decided in [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166).
 
 **What must be true.** A comment on code - a message of the kind `comment` - passes the filter only in
 its exact shape: an anchor that names a place, prose that is prose, and at most a suggestion that is
@@ -27,7 +27,7 @@ rule for today:
 - **The anchor is checked by its shape, field by field, and is not text:** repository a peer name,
   commit 40 or 64 lower-case hex digits, file a relative path (no `..`, no leading `/`, bounded
   length, printable characters only), lines one number or a range within a bound, side `old` or `new`.
-  Whether that commit, file and line exist is the host's to check, as B166 decides; the filter only
+  Whether that commit, file and line exist is the host's to check, as [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166) decides; the filter only
   makes sure the anchor can hold nothing but a place.
 - **The text is prose**, judged by the detectors as every text part is, with today's length limit.
 - **The suggestion is a field of its own, optional:** at most as many lines as the anchor spans plus a
@@ -72,9 +72,9 @@ rule for today:
 
 ## To be checked
 
-- How the comment kind sits beside SL23's five kinds: a sixth kind of the narrowed schema, or a part
-  of its own - Agent Core's, in B166, with me.
-- The suggestion's bounds (lines beyond the anchor, line length, total) - taken from B166 once it says
+- How the comment kind sits beside [SL23](README.md#sl23)'s five kinds: a sixth kind of the narrowed schema, or a part
+  of its own - Agent Core's, in [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166), with me.
+- The suggestion's bounds (lines beyond the anchor, line length, total) - taken from [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166) once it says
   them (Agent Core's), or measured here on real review suggestions (mine).
 - Whether the host already refuses an anchor that does not exist before the filter sees the comment -
-  Agent Core's, in B166.
+  Agent Core's, in [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166).
