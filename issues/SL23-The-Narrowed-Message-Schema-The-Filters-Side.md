@@ -1,6 +1,8 @@
 # SL23 — The narrowed message schema, the filter's side
 
 **Status:** soon; blocked by Sokar B108, which decides the schema and which side checks what.
+**Size:** M - several new envelope rules and a kind's data part let through by shape, against a
+schema document shared with Sokar: one contract change.
 
 **What must be true.** A message Sokar sends has exactly the shape B14's narrowed schema allows, and
 the filter refuses anything else by a rule that names what is wrong.
@@ -34,6 +36,19 @@ host's.
   grammar (`@` a lower-case localpart of `a-z 0-9 . _ = - / +`, `:` a host name or IPv4 address, an
   optional port), and the detectors still judge it as text.
 
+## Plan
+
+- **`a2a/EnvelopeCheck`:** a rule each for a `metadata` key outside the four, a `kind` outside the five,
+  a second text part and a foreign extension URI, added to its list of rule ids. Where it refuses a
+  `data` part today (`ENVELOPE/DATA_PART_NOT_ALLOWED`), a kind's fixed data part is let through when it
+  matches its shape, and its strings are added to the texts the detectors read, as `metadata`'s are.
+- **The schema read, not compiled in:** the shapes come from B108's document, loaded by `a2a/CheckConfig`;
+  a test reads the same document and fails when it and the rules disagree.
+- **Fixtures** named for where they land (`envelope-*.json` refused, `accept-*.json` passing),
+  counted by `FixturesTest` and by the Build's packaged-binary step; `doc/filter.md`'s envelope table
+  gains the rules.
+- **Red first:** a message with a fifth `metadata` key passes today; it must be refused by its own rule.
+
 ## Acceptance
 
 - One fixture per refused shape - an extra `metadata` key, an unknown `kind`, a second text part, a
@@ -46,5 +61,7 @@ host's.
 
 ## To be checked
 
-- Whether the host checks the same shape before the filter sees it, or leaves it to the filter.
-- Where the one schema document lives, and how both sides' tests read it.
+- Whether the host checks the same shape before the filter sees it, or leaves it to the filter - Agent
+  Core's, in B108.
+- Where the one schema document lives, and how both sides' tests read it - Agent Core's and mine
+  together, in B108.

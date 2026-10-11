@@ -1,6 +1,8 @@
 # SL07 — Refuse credentials and personal data
 
 **Status:** soon.
+**Size:** L - one module, but about twenty categories, each with its pattern, context and validation,
+and a false-positive measurement; it splits into credentials first and personal data after, if wanted.
 
 **What must be true.** A message carrying a key, an API token, a private key, a connection string,
 or personal or financial data is refused, while ordinary English that merely looks like one is not.
@@ -24,6 +26,24 @@ is what separates a finding from noise. How it would be built is
   count as `INFO` only.
 - A context word alone can carry a finding: *"my password is hunter2"*.
 
+## Plan
+
+- **`detect/CredentialDetector`**, a `ContentDetector` with the design's catalog: each rule a pattern, a
+  ±40-character context and, where one exists, a validation (`detect/Validators`: Luhn, MOD-97, a JWT
+  header decoded, a URI parsed). Unlike the encoded-data detectors it does not go through `Masked`, so
+  it sees the text as normalized, query strings included.
+- **Switches and grades come from what exists:** a category's rule is switched off by
+  `decision.disabledRules`, and the category re-graded by `decision.severity.<category>` (`Settings`,
+  `DecisionConfig`), so each category is one rule id. New are only
+  `detector.credentials.enabled` and `detector.credentials.dummyValues`, wired in `Settings.detectors()`.
+- **Offsets, not excerpts:** findings go through `DetectorRunner.toFinding`, which redacts them, so the
+  matched value never reaches an answer.
+- **Tests:** a sample per category in a sentence, as fixtures named for where they land
+  (`FixturesTest`); the invalid numbers and JWT headers as passing fixtures; the false-positive rate
+  added to `EncodedPayloadRatesTest`'s corpus run; `doc/detectors.md` gains the catalog.
+- **Red first:** a sentence with an `AKIA…` key passes today; it must be refused, and pass again with
+  `CLOUD_KEY` disabled.
+
 ## Acceptance
 
 - **One sample per category** inside a natural English sentence (*"Sure, the key is AKIA…"*) is
@@ -32,3 +52,9 @@ is what separates a finding from noise. How it would be built is
 - The rejection for every sample **must not** contain the matched value in clear text.
 - False positives stay under 1 % against the clean English the encoded-data checks are measured on.
 - Each sample's test is seen to fail with its category switched off.
+
+## To be checked
+
+- One issue or two: credentials first and personal data after - mine, to decide when it is started.
+- `EMAIL` and `PHONE` at `SUSPICIOUS` by default, or `BLOCKING` for a strict data-protection reading -
+  the operator's decision.

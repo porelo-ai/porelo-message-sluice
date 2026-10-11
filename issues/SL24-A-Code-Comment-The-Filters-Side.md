@@ -1,6 +1,8 @@
 # SL24 — A code comment, the filter's side
 
 **Status:** soon; blocked by Sokar B166, which defines the comment model and what the host checks.
+**Size:** L - new envelope rules, a second set of detector thresholds measured on a code corpus, and a
+shape still to be decided in B166.
 
 **What must be true.** A comment on code - a message of the kind `comment` - passes the filter only in
 its exact shape: an anchor that names a place, prose that is prose, and at most a suggestion that is
@@ -41,6 +43,22 @@ rule for today:
   host's list, not the filter's.
 - **One rule per refusal**, named in the answer, as for every envelope rule.
 
+## Plan
+
+- **`a2a/EnvelopeCheck`:** the anchor's fields checked by shape and not added to the texts the
+  detectors read; the text added as a text part is; an origin field refused; the suggestion's bounds
+  checked against the anchor's line span. Each refusal a rule of its own.
+- **Code judged as code:** `detect/TextUnderCheck` gains what it holds (prose or code), and
+  `detect/DetectorRunner` gives a code text only to the encoded-data detectors (`LongTokenDetector`,
+  `EncodingSignatureDetector`, `EntropyDetector`), each with thresholds of its own for code
+  (`detector.<name>.code.*` in `Settings`). `TokenShapeDetector` and `DistributionDetector`, which
+  judge whether text reads like a language, do not see it.
+- **The code corpus:** real lines from this repository's sources, frozen as a test resource beside
+  `english-corpus.txt`, and a rates test like `EncodedPayloadRatesTest` measuring its false positives
+  and the misses on 32 characters of payload.
+- **Red first:** a comment whose anchor carries a 40-digit commit id is refused today as a long hex
+  token; it must pass, and the same comment with a base64 blob in its suggestion must be refused.
+
 ## Acceptance
 
 - One fixture per refused shape - a malformed commit id, a path with `..`, a line range beyond its
@@ -55,7 +73,8 @@ rule for today:
 ## To be checked
 
 - How the comment kind sits beside SL23's five kinds: a sixth kind of the narrowed schema, or a part
-  of its own.
+  of its own - Agent Core's, in B166, with me.
 - The suggestion's bounds (lines beyond the anchor, line length, total) - taken from B166 once it says
-  them, or measured here on real review suggestions.
-- Whether the host already refuses an anchor that does not exist before the filter sees the comment.
+  them (Agent Core's), or measured here on real review suggestions (mine).
+- Whether the host already refuses an anchor that does not exist before the filter sees the comment -
+  Agent Core's, in B166.

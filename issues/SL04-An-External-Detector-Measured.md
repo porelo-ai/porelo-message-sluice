@@ -1,6 +1,8 @@
 # SL04 — An external content detector, measured before it is adopted
 
 **Status:** later.
+**Size:** L - a new detector kind with its own process protocol and pinning, plus a measurement of a
+catalog still to be chosen.
 
 **What must be true.** Somebody else's detector catalog can sit behind the filter's detector
 interface and is adopted only once a measurement shows it catches something the built-in detectors
@@ -37,6 +39,22 @@ specialist's game. The interface and the built-in detectors are described in
 - **A catalog in another language is allowed**: reusing a maintained catalog beats keeping our own.
   It is pinned, in the bill of materials, and named in `AGENTS.md` with its reason once adopted.
 
+## Plan
+
+- **`detect/ExternalDetector`**, a `ContentDetector` whose `inspect` writes the text to a pinned program
+  and reads findings back (JSON lines: rule id, category, severity, offsets). Its `id()` carries the
+  program's name and version, so `Answers` already records which one answered in a receipt's
+  `detectors`.
+- **Fails closed through what exists:** absent, timed out, non-zero or unparseable throws, and
+  `DetectorRunner` turns that into `FRAME/DETECTOR_FAILED`, which always refuses. Findings go through
+  `toFinding`, so redaction and the rule-id check apply unchanged.
+- **`Settings`:** `detector.external.command`, `.sha256` and `.timeoutMillis`; the program's digest is
+  checked at startup and a mismatch is a `ConfigException`.
+- **The measurement:** a rates test beside `EncodedPayloadRatesTest`, against `english-corpus.txt` and
+  the fixtures, tagged so it runs only where the program is installed.
+- **Red first:** in `MessageSluiceTest`, a stand-in program that hangs, exits 1 and prints garbage -
+  each message must not reach `accepted/`.
+
 ## Acceptance
 
 - One external implementation behind the interface is **measured** on this repository's fixtures:
@@ -47,3 +65,10 @@ specialist's game. The interface and the built-in detectors are described in
   reaches `accepted/`, not on a log line.
 - The same fixture through the built-in and the external implementation **must** give findings of
   the same shape, differing only in rule ids and what was caught.
+
+## To be checked
+
+- Which catalog is measured, and whether its licence and distribution allow pinning it here - the
+  operator's decision, on a proposal of mine.
+- Whether a process per text is affordable, or the interface needs a per-message call for an external
+  detector - mine, measured with the chosen catalog.

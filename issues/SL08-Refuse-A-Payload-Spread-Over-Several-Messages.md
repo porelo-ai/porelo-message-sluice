@@ -1,6 +1,8 @@
 # SL08 — Refuse a payload spread over several messages
 
 **Status:** later.
+**Size:** XL - a corpus index, seven rules and a reconstruction; it splits into three issues of L or
+smaller, as the plan says.
 
 **What must be true.** A payload cut into pieces that are each unremarkable and sent by one task over
 several messages is refused once the pieces add up, and the refusal names every message involved.
@@ -25,6 +27,21 @@ correlation across messages. How it would be built is
 - **The detector is built-in**: correlation cannot be delegated to an external engine invoked once
   per message, as measured in [SL04](README.md).
 
+## Plan
+
+- **Not a `ContentDetector`:** that interface is stateless and sees one text. Correlation is a stage of
+  its own in `MessageSluice.process`, after the envelope and the content checks, reading the corpus
+  (`config.corpus()`, today read only for message ids by `io/MessageArchive`).
+- **Split into three, each its own issue when started:**
+  1. **L - the corpus and the accumulated payload:** the fragment index (`filter/.index/`, metadata
+     only) written forward and rebuilt by `--rebuild-index` (`cli/Main`), the grouping by `contextId`,
+     `taskId` and `metadata.thread`, the history cap, `AccumulatedPayloadRule` and `ReconstructionRule`.
+  2. **M - pieces that only add up as a secret:** `SplitSecretRule`, `SequenceMarkerRule`,
+     `ConsistentAlphabetRule`, on the index of the first.
+  3. **M - a script rather than a dialogue:** `NearDuplicateRule` and `BurstRateRule`, `SUSPICIOUS` only.
+- **Red first, for the first:** a base64 ZIP spread over five messages of one task - each passes today
+  through `Mailbox` in `MessageSluiceTest`; the fifth must be refused naming all five.
+
 ## Acceptance
 
 - A ZIP or a PEM file, base64-encoded and spread over 2, 5, 20 and 100 messages of one task, is
@@ -34,3 +51,10 @@ correlation across messages. How it would be built is
   messages in between, and with messages that have no `contextId` - each have a stated outcome, and
   each test is seen to fail with the detector switched off.
 - The index deleted between two runs gives the same verdicts after it is rebuilt.
+
+## To be checked
+
+- Whether a refusal that names earlier, already accepted messages changes anything for Sokar, which
+  delivered them - Agent Core's, as the answer format is part of the directory contract.
+- The thresholds (512 characters, 500 messages or 30 days) - mine, measured against the 200 real
+  messages of the acceptance.
