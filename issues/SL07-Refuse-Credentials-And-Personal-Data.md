@@ -1,6 +1,6 @@
 # SL07 — Refuse credentials and personal data
 
-**Status:** Analyzed.
+**Status:** Estimated.
 **Size:** L - one module, but about twenty categories, each with its pattern, context and validation,
 and a false-positive measurement; it splits into credentials first and personal data after, if wanted.
 
@@ -21,7 +21,8 @@ is what separates a finding from noise. How it would be built is
   detector interface and nothing else. **It always sees the original text**, so a token inside a
   URL's query string cannot slip through the masking the encoded-data checks use.
 - Every category can be switched on or off and re-graded between `INFO`, `SUSPICIOUS` and
-  `BLOCKING`, with the defaults in the design.
+  `BLOCKING`, with the defaults in the design. `EMAIL` and `PHONE` are `SUSPICIOUS` by default; a
+  project with a strict data-protection reading tightens them to `BLOCKING`.
 - Known test values - `4111 1111 1111 1111`, `AKIAIOSFODNN7EXAMPLE` - are in an extensible list and
   count as `INFO` only.
 - A context word alone can carry a finding: *"my password is hunter2"*.
@@ -52,10 +53,8 @@ is what separates a finding from noise. How it would be built is
 - The rejection for every sample **must not** contain the matched value in clear text.
 - False positives stay under 1 % against the clean English the encoded-data checks are measured on.
 - Each sample's test is seen to fail with its category switched off.
-
-## Open questions
-
-- `EMAIL` and `PHONE` at `SUSPICIOUS` by default, or `BLOCKING` for a strict data-protection reading.
+- An e-mail address or a phone number is a `SUSPICIOUS` finding by default, and refused once
+  `decision.severity.EMAIL` (or `PHONE`) says `BLOCKING`.
 
 ## To be checked
 

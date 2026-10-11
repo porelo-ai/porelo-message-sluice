@@ -36,7 +36,8 @@ credential part), `SSH_AUTH` - all `BLOCKING`. `CERTIFICATE` and `HASH` are `SUS
 **Personal and financial.** `CREDIT_CARD` (Luhn + IIN), `IBAN` (MOD-97) and `NATIONAL_ID` are
 `BLOCKING`; `EMAIL`, `PHONE`, `IP_ADDRESS` and `DATE_OF_BIRTH` are `SUSPICIOUS`; `POSTAL_ADDRESS` is
 `INFO`. **`EMAIL`/`PHONE` is the practical dial**: contact data is a legitimate part of many business
-processes, and a strict data-protection reading puts it on `BLOCKING`.
+processes, so both stay `SUSPICIOUS` by default, and a project with a strict data-protection reading
+tightens them to `BLOCKING`.
 
 **Infrastructure.** `INTERNAL_HOSTNAME` (configurable suffixes), `FILE_PATH`, `STACK_TRACE`,
 `SQL_STATEMENT` - `SUSPICIOUS`.
