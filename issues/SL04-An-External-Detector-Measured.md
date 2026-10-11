@@ -1,6 +1,6 @@
 # SL04 — An external content detector, measured before it is adopted
 
-**Status:** later.
+**Status:** Analyzed.
 **Size:** L - a new detector kind with its own process protocol and pinning, plus a measurement of a
 catalog still to be chosen.
 

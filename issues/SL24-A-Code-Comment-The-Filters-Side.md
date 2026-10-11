@@ -1,6 +1,6 @@
 # SL24 — A code comment, the filter's side
 
-**Status:** soon; blocked by Sokar B166, which defines the comment model and what the host checks.
+**Status:** Analyzed; blocked by Sokar B166, which defines the comment model and what the host checks.
 **Size:** L - new envelope rules, a second set of detector thresholds measured on a code corpus, and a
 shape still to be decided in B166.
 
