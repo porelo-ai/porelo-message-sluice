@@ -55,6 +55,6 @@ correlation across messages. How it would be built is
 ## To be checked
 
 - Whether a refusal that names earlier, already accepted messages changes anything for Sokar, which
-  delivered them - Agent Core's, as the answer format is part of the directory contract.
-- The thresholds (512 characters, 500 messages or 30 days) - mine, measured against the 200 real
-  messages of the acceptance.
+  delivered them - to ask Agent Core, as the answer format is part of the directory contract.
+- The thresholds (512 characters, 500 messages or 30 days) - measured against the 200 real messages
+  of the acceptance.

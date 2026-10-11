@@ -53,8 +53,10 @@ is what separates a finding from noise. How it would be built is
 - False positives stay under 1 % against the clean English the encoded-data checks are measured on.
 - Each sample's test is seen to fail with its category switched off.
 
+## Open questions
+
+- `EMAIL` and `PHONE` at `SUSPICIOUS` by default, or `BLOCKING` for a strict data-protection reading.
+
 ## To be checked
 
-- One issue or two: credentials first and personal data after - mine, to decide when it is started.
-- `EMAIL` and `PHONE` at `SUSPICIOUS` by default, or `BLOCKING` for a strict data-protection reading -
-  the operator's decision.
+- One issue or two: credentials first and personal data after - decided when it is started.

@@ -66,9 +66,12 @@ specialist's game. The interface and the built-in detectors are described in
 - The same fixture through the built-in and the external implementation **must** give findings of
   the same shape, differing only in rule ids and what was caught.
 
+## Open questions
+
+- Which catalog is measured, and whether its licence and distribution allow pinning it here - on a
+  proposal of mine.
+
 ## To be checked
 
-- Which catalog is measured, and whether its licence and distribution allow pinning it here - the
-  operator's decision, on a proposal of mine.
 - Whether a process per text is affordable, or the interface needs a per-message call for an external
-  detector - mine, measured with the chosen catalog.
+  detector - measured with the chosen catalog.

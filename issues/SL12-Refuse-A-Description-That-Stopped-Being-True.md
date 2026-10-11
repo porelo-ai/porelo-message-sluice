@@ -46,6 +46,6 @@ reactor held, and no pointer check could see it, since everything it named exist
 ## To be checked
 
 - What "every module has a contract in `doc/`" means for `app`, `dist-deb` and `dist-rpm`, which
-  `doc/filter.md` covers as one program - mine.
+  `doc/filter.md` covers as one program.
 - Whether the prose-to-reactor check belongs in the shared `check-readmes` instead, for every
-  repository - Agent Core's, as the shared tools are his.
+  repository - to ask Agent Core, as the shared tools are his.

@@ -30,7 +30,7 @@ host's.
 - A message from before the schema is enforced is refused, not converted: the filter never rewrites
   a message.
 - **A person as a sender:** `metadata.from` must be a plain name today, so a Matrix user id
-  (`@michi:localhost`) is refused (`ENVELOPE/PEER_NAME_MALFORMED`). A person's message is not
+  (`@person:localhost`) is refused (`ENVELOPE/PEER_NAME_MALFORMED`). A person's message is not
   filtered, so nothing needs it now. If [B108](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b108)'s schema names a person by a Matrix id, the rule takes
   it only in a `ROLE_USER` message's `from`, never in `to` and never from an agent, in Matrix's own
   grammar (`@` a lower-case localpart of `a-z 0-9 . _ = - / +`, `:` a host name or IPv4 address, an
@@ -61,7 +61,7 @@ host's.
 
 ## To be checked
 
-- Whether the host checks the same shape before the filter sees it, or leaves it to the filter - Agent
-  Core's, in [B108](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b108).
-- Where the one schema document lives, and how both sides' tests read it - Agent Core's and mine
-  together, in [B108](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b108).
+- Whether the host checks the same shape before the filter sees it, or leaves it to the filter - to settle
+  with Agent Core in [B108](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b108).
+- Where the one schema document lives, and how both sides' tests read it - to settle
+  with Agent Core in [B108](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b108).

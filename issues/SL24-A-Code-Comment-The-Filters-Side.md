@@ -1,8 +1,9 @@
 # SL24 — A code comment, the filter's side
 
-**Status:** Analyzed; blocked by Sokar [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166), which defines the comment model and what the host checks.
-**Size:** L - new envelope rules, a second set of detector thresholds measured on a code corpus, and a
-shape still to be decided in [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166).
+**Status:** Analyzed; blocked by Sokar [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166), which defines the comment model and what the host checks, and by
+[SL23](README.md#sl23), whose narrowed schema it adds a kind to.
+**Size:** L - new envelope rules and a second set of detector thresholds measured on a code corpus,
+for the shape [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166) sets.
 
 **What must be true.** A comment on code - a message of the kind `comment` - passes the filter only in
 its exact shape: an anchor that names a place, prose that is prose, and at most a suggestion that is
@@ -25,13 +26,13 @@ rule for today:
 ## The shape
 
 - **The anchor is checked by its shape, field by field, and is not text:** repository a peer name,
-  commit 40 or 64 lower-case hex digits, file a relative path (no `..`, no leading `/`, bounded
-  length, printable characters only), lines one number or a range within a bound, side `old` or `new`.
-  Whether that commit, file and line exist is the host's to check, as [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166) decides; the filter only
-  makes sure the anchor can hold nothing but a place.
+  commit 40 or 64 lower-case hex digits, path a relative path (no `..`, no leading `/`, bounded
+  length, printable characters only), side `old` or `new`, and first and last line, at most 100 lines
+  apart, as [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166) sets it. Whether that commit, path and lines exist is the host's to check; the
+  filter only makes sure the anchor can hold nothing but a place.
 - **The text is prose**, judged by the detectors as every text part is, with today's length limit.
-- **The suggestion is a field of its own, optional:** at most as many lines as the anchor spans plus a
-  small allowance, each line bounded, the whole bounded. It goes to the detectors that find encoded
+- **The suggestion is a field of its own, optional:** at most as many lines as the anchor spans plus
+  10, at most 400 characters a line and 8 KiB in all, as [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166) sets it. It goes to the detectors that find encoded
   data (long tokens, signatures, window entropy), with thresholds measured against code rather than
   prose; the detectors that judge whether text reads like a language do not see it. A suggestion
   without an anchor, or longer than its bounds, is refused by its own rule.
@@ -41,6 +42,8 @@ rule for today:
 - **The same rules both ways.** An inbound comment from a forge is held to the same shape and the same
   detectors before it is delivered into a task; which forge accounts are delivered at all is the
   host's list, not the filter's.
+- **`comment` is a sixth kind of [SL23](README.md#sl23)'s narrowed schema**, as [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166) decides, so it
+  is built on [SL23](README.md#sl23)'s envelope rules.
 - **One rule per refusal**, named in the answer, as for every envelope rule.
 
 ## Plan
@@ -69,12 +72,3 @@ rule for today:
 - **A code corpus** beside the English one: real code lines from this repository's own sources, frozen
   as a test resource, on which the suggestion's detectors measure their false positives, and 32
   characters of encoded payload per encoding on which they measure their misses, as for prose.
-
-## To be checked
-
-- How the comment kind sits beside [SL23](README.md#sl23)'s five kinds: a sixth kind of the narrowed schema, or a part
-  of its own - Agent Core's, in [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166), with me.
-- The suggestion's bounds (lines beyond the anchor, line length, total) - taken from [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166) once it says
-  them (Agent Core's), or measured here on real review suggestions (mine).
-- Whether the host already refuses an anchor that does not exist before the filter sees the comment -
-  Agent Core's, in [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166).
