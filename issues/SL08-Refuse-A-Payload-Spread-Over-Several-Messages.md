@@ -39,6 +39,10 @@ correlation across messages. How it would be built is
   2. **M - pieces that only add up as a secret:** `SplitSecretRule`, `SequenceMarkerRule`,
      `ConsistentAlphabetRule`, on the index of the first.
   3. **M - a script rather than a dialogue:** `NearDuplicateRule` and `BurstRateRule`, `SUSPICIOUS` only.
+- **Nothing changes for Sokar:** it reads only the filter's exit code and dispatches `accepted/`, and
+  matches an answer only to its `rejectedMessageId`; earlier messages are recorded as sent and never
+  re-read. A refusal that names earlier, already delivered messages reaches the agent and the person
+  as words, in the answer's text, and the directory contract stays as it is.
 - **Red first, for the first:** a base64 ZIP spread over five messages of one task - each passes today
   through `Mailbox` in `MessageSluiceTest`; the fifth must be refused naming all five.
 
@@ -54,7 +58,5 @@ correlation across messages. How it would be built is
 
 ## To be checked
 
-- Whether a refusal that names earlier, already accepted messages changes anything for Sokar, which
-  delivered them - to ask Agent Core, as the answer format is part of the directory contract.
 - The thresholds (512 characters, 500 messages or 30 days) - measured against the 200 real messages
   of the acceptance.

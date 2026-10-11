@@ -32,7 +32,9 @@ reactor held, and no pointer check could see it, since everything it named exist
   `dist-deb` and `dist-rpm` count), and the directories that carry a `pom.xml`.
 - **The `doc/` side:** each module named in the prose has its page in `doc/`, and each page a module.
 - **Next to `check-readmes`,** which already holds every directory with a `pom.xml` to a `README.md`
-  that links its submodules; this test adds the prose and `doc/`, which that check does not read.
+  that links its submodules; this test adds the prose and `doc/`, which that check does not read. It
+  stays this repository's own test: the shared check reads no prose, and takes a convention only
+  once a second repository holds it.
 - **Red first:** today's prose names `filter/` and the reactor holds `filter` - green; with a module
   added to the reactor only, the test must name both sides.
 
@@ -47,5 +49,3 @@ reactor held, and no pointer check could see it, since everything it named exist
 
 - What "every module has a contract in `doc/`" means for `app`, `dist-deb` and `dist-rpm`, which
   `doc/filter.md` covers as one program.
-- Whether the prose-to-reactor check belongs in the shared `check-readmes` instead, for every
-  repository - to ask Agent Core, as the shared tools are his.

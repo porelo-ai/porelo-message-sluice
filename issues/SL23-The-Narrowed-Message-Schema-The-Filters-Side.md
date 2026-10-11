@@ -25,8 +25,10 @@ host's.
   nothing else, and every string in it still goes to the detectors, as `metadata` does now.
 - **`metadata` outside the four keys, a `kind` outside the five, more than one text part, an
   `extensions` other than the one URI** - each is refused by a rule of its own, named in the answer.
-- **The schema is written down, not compiled against**: Sokar and the filter each read it from one
-  document, and a test on each side holds them to it.
+- **The schema is written down, not compiled against**: one document, kept in `sokar`, which Sokar and
+  the filter each read, and a test on each side holds them to it.
+- **The filter checks the shape; the host checks only the role, whom `to` may name, and, for a
+  comment, that its lines exist.** Nothing of the shape is left to the host.
 - A message from before the schema is enforced is refused, not converted: the filter never rewrites
   a message.
 - **A person as a sender:** `metadata.from` must be a plain name today, so a Matrix user id
@@ -61,7 +63,5 @@ host's.
 
 ## To be checked
 
-- Whether the host checks the same shape before the filter sees it, or leaves it to the filter - to settle
-  with Agent Core in [B108](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b108).
-- Where the one schema document lives, and how both sides' tests read it - to settle
-  with Agent Core in [B108](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b108).
+- How the filter's build reads the schema document that lives in `sokar` - a copy pinned here and
+  held to `sokar`'s by a test, or read from a published artifact - once [B108](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b108) publishes it.
