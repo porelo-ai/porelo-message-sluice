@@ -1,6 +1,6 @@
 # SL24 — A code comment, the filter's side
 
-**Status:** Analyzed; blocked by Sokar [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166), which defines the comment model and what the host checks, and by
+**Status:** Estimated; blocked by Sokar [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166), which defines the comment model and what the host checks, and by
 [SL23](README.md#sl23), whose narrowed schema it adds a kind to.
 **Size:** L - new envelope rules and a second set of detector thresholds measured on a code corpus,
 for the shape [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166) sets.

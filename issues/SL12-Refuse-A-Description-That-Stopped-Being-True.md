@@ -1,6 +1,6 @@
 # SL12 — Refuse a description that stopped being true
 
-**Status:** Analyzed.
+**Status:** Estimated.
 **Size:** S - one test that reads `AGENTS.md`, the poms and the directories, in this repository's own
 build; no contract another repository reads.
 

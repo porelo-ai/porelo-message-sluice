@@ -1,6 +1,6 @@
 # SL23 — The narrowed message schema, the filter's side
 
-**Status:** Analyzed; blocked by Sokar [B108](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b108), which decides the schema and which side checks what.
+**Status:** Estimated; blocked by Sokar [B108](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b108), which decides the schema and which side checks what.
 **Size:** M - several new envelope rules and a kind's data part let through by shape, against a
 schema document shared with Sokar: one contract change.
 

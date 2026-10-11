@@ -1,6 +1,6 @@
 # SL08 — Refuse a payload spread over several messages
 
-**Status:** Analyzed.
+**Status:** Estimated.
 **Size:** XL - a corpus index, seven rules and a reconstruction; it splits into three issues of L or
 smaller, as the plan says.
 
