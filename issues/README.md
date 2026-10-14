@@ -8,6 +8,12 @@ the order is the priority. Only the operator sets Accepted, Rejected, Estimated,
 Finished; this repository's agent sets Analyzed, Implementing and Review, and proposes the rest in the
 channel.
 
+## Analyzed
+
+| # | Size | Blocked by | What it covers | Open questions |
+|---|---|---|---|---|
+| <a id="sl25"></a>[SL25](SL25-The-Code-Changed-Since-The-Skills-Reading.md) | M | — | The code changed since the reading of 2026-09-27 (`ddea1c3`), read against the seven skills, after Phase 0's rename and code style window. | 0 |
+
 ## Estimated
 
 | # | Size | Blocked by | What it covers |
@@ -19,7 +25,7 @@ channel.
 | <a id="sl08"></a>[SL08](SL08-Refuse-A-Payload-Spread-Over-Several-Messages.md) | XL | — | A payload cut into pieces and sent over several messages, caught by correlating against what the task already sent. |
 | <a id="sl12"></a>[SL12](SL12-Refuse-A-Description-That-Stopped-Being-True.md) | S | — | A test that refuses a description contradicted by something the build can read - the modules named against the modules that exist. |
 
-Nothing is in Review, Rework, Implementing, Backlog, Analyzed, Accepted, Idea, Finished or Rejected.
+Nothing is in Review, Rework, Implementing, Backlog, Accepted, Idea, Finished or Rejected.
 
 **Open questions**, in *Analyzed* only, counts what waits on the operator; what this repository's
 agent finds out itself stands under each issue's *To be checked* and is not counted.
