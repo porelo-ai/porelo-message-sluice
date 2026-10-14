@@ -12,6 +12,7 @@ channel.
 
 | # | Size | Blocked by | What it covers | Open questions |
 |---|---|---|---|---|
+| <a id="sl26"></a>[SL26](SL26-Sokar-Is-Renamed-Porelo-Here.md) | S | sokar-project [PJ41](https://github.com/sokar-ai/sokar-project/blob/main/issues/README.md#pj41) | The rename to Porelo here: the coordinates, the paths Porelo reads, the signature's namespace, a fixture signed again, and a test that refuses the old name. | 0 |
 | <a id="sl25"></a>[SL25](SL25-The-Code-Changed-Since-The-Skills-Reading.md) | M | — | The code changed since the reading of 2026-09-27 (`ddea1c3`), read against the seven skills, after Phase 0's rename and code style window. | 0 |
 
 ## Estimated
