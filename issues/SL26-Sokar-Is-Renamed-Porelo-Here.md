@@ -1,6 +1,6 @@
 # SL26 — Sokar Is Renamed Porelo Here
 
-**Status:** Analyzed; blocked by sokar-project [PJ41](https://github.com/sokar-ai/sokar-project/blob/main/issues/README.md#pj41), its steps 1 to 3.
+**Status:** Estimated; blocked by sokar-project [PJ41](https://github.com/sokar-ai/sokar-project/blob/main/issues/README.md#pj41), its steps 1 to 3.
 **Size:** S - one script run over 144 files, one signature fixture made again, and the build, the
 documents and the acceptance on the VM; every contract here only follows one Sokar renames first.
 

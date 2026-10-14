@@ -12,13 +12,13 @@ channel.
 
 | # | Size | Blocked by | What it covers | Open questions |
 |---|---|---|---|---|
-| <a id="sl26"></a>[SL26](SL26-Sokar-Is-Renamed-Porelo-Here.md) | S | sokar-project [PJ41](https://github.com/sokar-ai/sokar-project/blob/main/issues/README.md#pj41) | The rename to Porelo here: the coordinates, the paths Porelo reads, the signature's namespace, a fixture signed again, and a test that refuses the old name. | 0 |
 | <a id="sl25"></a>[SL25](SL25-The-Code-Changed-Since-The-Skills-Reading.md) | M | — | The code changed since the reading of 2026-09-27 (`ddea1c3`), read against the seven skills, after Phase 0's rename and code style window. | 0 |
 
 ## Estimated
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
+| <a id="sl26"></a>[SL26](SL26-Sokar-Is-Renamed-Porelo-Here.md) | S | sokar-project [PJ41](https://github.com/sokar-ai/sokar-project/blob/main/issues/README.md#pj41) | The rename to Porelo here: the coordinates, the paths Porelo reads, the signature's namespace, a fixture signed again, and a test that refuses the old name. |
 | <a id="sl07"></a>[SL07](SL07-Refuse-Credentials-And-Personal-Data.md) | L | — | Credentials and personal data, caught by a catalog of pattern, context and checksum. |
 | <a id="sl04"></a>[SL04](SL04-An-External-Detector-Measured.md) | L | — | Somebody else's detector catalog behind the interface, measured before anything is adopted. |
 | <a id="sl23"></a>[SL23](SL23-The-Narrowed-Message-Schema-The-Filters-Side.md) | M | Sokar [B108](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b108) | [B14](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b14)'s narrowed message schema enforced in the envelope: four `metadata` keys, five kinds with their fixed data parts, one text part, one extension URI. |
