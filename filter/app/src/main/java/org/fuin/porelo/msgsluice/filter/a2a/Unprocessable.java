@@ -3,8 +3,9 @@ package org.fuin.porelo.msgsluice.filter.a2a;
 import java.util.Objects;
 
 /**
- * A file that cannot be judged as a message at all. It goes to {@code error/} and still gets a rejection.
- * The message never quotes the file: it is built from fixed text, a rule id and at most a position.
+ * A file that cannot be judged as a message at all. It goes to {@code error/} and still gets a
+ * rejection. The message never quotes the file: it is built from fixed text, a rule id and at most
+ * a position.
  */
 public final class Unprocessable extends Exception {
 
@@ -26,5 +27,4 @@ public final class Unprocessable extends Exception {
     public String reason() {
         return Objects.requireNonNull(getMessage());
     }
-
 }

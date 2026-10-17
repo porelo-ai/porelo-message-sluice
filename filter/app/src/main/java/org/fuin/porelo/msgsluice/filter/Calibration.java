@@ -12,7 +12,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
-
 import org.fuin.porelo.msgsluice.filter.a2a.A2aReader;
 import org.fuin.porelo.msgsluice.filter.a2a.EnvelopeCheck;
 import org.fuin.porelo.msgsluice.filter.a2a.EnvelopeResult;
@@ -20,24 +19,24 @@ import org.fuin.porelo.msgsluice.filter.a2a.Unprocessable;
 import org.fuin.porelo.msgsluice.filter.decision.DecisionModel;
 import org.fuin.porelo.msgsluice.filter.decision.Finding;
 import org.fuin.porelo.msgsluice.filter.decision.Redactor;
-import org.fuin.porelo.msgsluice.filter.io.FileOps;
 import org.fuin.porelo.msgsluice.filter.detect.DetectorRunner;
 import org.fuin.porelo.msgsluice.filter.detect.DistributionDetector;
 import org.fuin.porelo.msgsluice.filter.detect.EntropyDetector;
 import org.fuin.porelo.msgsluice.filter.detect.Masked;
 import org.fuin.porelo.msgsluice.filter.detect.Normalizer;
 import org.fuin.porelo.msgsluice.filter.detect.TextUnderCheck;
+import org.fuin.porelo.msgsluice.filter.io.FileOps;
 
 /**
- * Calibration: checks a directory of messages without moving anything, and prints what it measured as a
- * properties file the filter reads. Point it at a mailbox's own traffic - its {@code sent/}, say - before
- * switching that mailbox to blocking.
+ * Calibration: checks a directory of messages without moving anything, and prints what it measured
+ * as a properties file the filter reads. Point it at a mailbox's own traffic - its {@code sent/},
+ * say - before switching that mailbox to blocking.
  *
- * <p>
- * For each threshold it reports the distribution over the directory and, beside it, the same measure over random
- * data encoded as base64, generated here. The suggestion lies between the 99th percentile of the directory and
- * the 5th of the encodings - see doc/detectors.md. Where the two overlap it keeps the current value and
- * says that the directory cannot be told apart from encoded data on this measure.
+ * <p>For each threshold it reports the distribution over the directory and, beside it, the same
+ * measure over random data encoded as base64, generated here. The suggestion lies between the 99th
+ * percentile of the directory and the 5th of the encodings - see doc/detectors.md. Where the two
+ * overlap it keeps the current value and says that the directory cannot be told apart from encoded
+ * data on this measure.
  */
 public final class Calibration {
 
@@ -52,7 +51,8 @@ public final class Calibration {
         final FilterConfig config = settings.config();
         final A2aReader reader = new A2aReader();
         final EnvelopeCheck envelope = new EnvelopeCheck(config.check());
-        final DetectorRunner runner = new DetectorRunner(settings.detectors(), new Redactor(config.redaction()));
+        final DetectorRunner runner =
+                new DetectorRunner(settings.detectors(), new Redactor(config.redaction()));
         final DecisionModel model = new DecisionModel(config.decision());
 
         final int window = settings.intValue("detector.entropy.windowSize");
@@ -75,16 +75,21 @@ public final class Calibration {
         }
         Collections.sort(files);
         for (final Path file : files) {
-            // As the filter itself reads: a plain file with one name, never through a link, never past the most a
+            // As the filter itself reads: a plain file with one name, never through a link, never
+            // past the most a
             // message may be. Anything else is counted as no message.
             final FileOps.Stamp stamp = FileOps.stamp(file);
-            final byte[] bytes = stamp != null && stamp.plain() && stamp.size() <= config.check().maxFileSizeBytes()
-                    ? FileOps.read(file, config.check().maxFileSizeBytes()).bytes()
-                    : null;
+            final byte[] bytes =
+                    stamp != null
+                                    && stamp.plain()
+                                    && stamp.size() <= config.check().maxFileSizeBytes()
+                            ? FileOps.read(file, config.check().maxFileSizeBytes()).bytes()
+                            : null;
             final EnvelopeResult result;
             try {
                 if (bytes == null) {
-                    throw new Unprocessable("FILE/NOT_PLAIN", "not a plain file of a message's size");
+                    throw new Unprocessable(
+                            "FILE/NOT_PLAIN", "not a plain file of a message's size");
                 }
                 result = envelope.check(reader.parse(bytes));
             } catch (final Unprocessable ex) {
@@ -114,25 +119,46 @@ public final class Calibration {
         final Reference reference = reference(window, step, minDistribution);
         final StringBuilder out = new StringBuilder();
         out.append("# porelo-message-sluice calibration over ").append(dir).append('\n');
-        out.append(String.format(Locale.ROOT, "# %d messages, %d texts, %d files unprocessable%n", messages, texts,
-                unprocessable));
-        out.append(String.format(Locale.ROOT, "# with the current settings, blocking mode would refuse %d (%s)%n",
-                wouldRefuse, percent(wouldRefuse, messages)));
-        out.append("# findings per rule: ").append(byRule.isEmpty() ? "none" : byRule.toString()).append("\n\n");
+        out.append(
+                String.format(
+                        Locale.ROOT,
+                        "# %d messages, %d texts, %d files unprocessable%n",
+                        messages,
+                        texts,
+                        unprocessable));
+        out.append(
+                String.format(
+                        Locale.ROOT,
+                        "# with the current settings, blocking mode would refuse %d (%s)%n",
+                        wouldRefuse,
+                        percent(wouldRefuse, messages)));
+        out.append("# findings per rule: ")
+                .append(byRule.isEmpty() ? "none" : byRule.toString())
+                .append("\n\n");
 
         suggestAbove(out, "detector.entropy.threshold", entropy, reference.entropy, 2);
         suggestAbove(out, "detector.distribution.maxChiSquarePerLetter", chi, reference.chi, 2);
-        suggestBelow(out, "detector.distribution.minWhitespaceShare", whitespace, reference.whitespace, 3);
+        suggestBelow(
+                out,
+                "detector.distribution.minWhitespaceShare",
+                whitespace,
+                reference.whitespace,
+                3);
         return out.toString();
     }
 
     /** A value above everything the directory does and below what encodings do. */
-    private void suggestAbove(final StringBuilder out, final String key, final List<Double> observed,
-            final List<Double> encoded, final int decimals) {
+    private void suggestAbove(
+            final StringBuilder out,
+            final String key,
+            final List<Double> observed,
+            final List<Double> encoded,
+            final int decimals) {
         header(out, key, observed, encoded);
         final String current = settings.value(key);
         if (observed.isEmpty()) {
-            out.append("# nothing in the directory was long enough to measure; the current value stays\n");
+            out.append(
+                    "# nothing in the directory was long enough to measure; the current value stays\n");
             out.append(key).append('=').append(current).append("\n\n");
             return;
         }
@@ -141,18 +167,24 @@ public final class Calibration {
         if (clean < data) {
             out.append(key).append('=').append(format((clean + data) / 2, decimals)).append("\n\n");
         } else {
-            out.append("# the directory reaches what encoded data does: this measure cannot tell them apart here\n");
+            out.append(
+                    "# the directory reaches what encoded data does: this measure cannot tell them apart here\n");
             out.append(key).append('=').append(current).append("\n\n");
         }
     }
 
     /** A value below everything the directory does and above what encodings do. */
-    private void suggestBelow(final StringBuilder out, final String key, final List<Double> observed,
-            final List<Double> encoded, final int decimals) {
+    private void suggestBelow(
+            final StringBuilder out,
+            final String key,
+            final List<Double> observed,
+            final List<Double> encoded,
+            final int decimals) {
         header(out, key, observed, encoded);
         final String current = settings.value(key);
         if (observed.isEmpty()) {
-            out.append("# nothing in the directory was long enough to measure; the current value stays\n");
+            out.append(
+                    "# nothing in the directory was long enough to measure; the current value stays\n");
             out.append(key).append('=').append(current).append("\n\n");
             return;
         }
@@ -161,12 +193,16 @@ public final class Calibration {
         if (clean > data) {
             out.append(key).append('=').append(format((clean + data) / 2, decimals)).append("\n\n");
         } else {
-            out.append("# the directory reaches what encoded data does: this measure cannot tell them apart here\n");
+            out.append(
+                    "# the directory reaches what encoded data does: this measure cannot tell them apart here\n");
             out.append(key).append('=').append(current).append("\n\n");
         }
     }
 
-    private void header(final StringBuilder out, final String key, final List<Double> observed,
+    private void header(
+            final StringBuilder out,
+            final String key,
+            final List<Double> observed,
             final List<Double> encoded) {
         out.append("# ").append(key).append(" (now ").append(settings.value(key)).append(")\n");
         out.append("#   directory ").append(distribution(observed)).append('\n');
@@ -174,10 +210,10 @@ public final class Calibration {
     }
 
     /** Random bytes as base64, in an English sentence, measured the same way as the directory. */
-    private record Reference(List<Double> entropy, List<Double> chi, List<Double> whitespace) {
-    }
+    private record Reference(List<Double> entropy, List<Double> chi, List<Double> whitespace) {}
 
-    private static Reference reference(final int window, final int step, final int minDistribution) {
+    private static Reference reference(
+            final int window, final int step, final int minDistribution) {
         final Random random = new Random(20260918L);
         final List<Double> entropy = new ArrayList<>();
         final List<Double> chi = new ArrayList<>();
@@ -208,9 +244,15 @@ public final class Calibration {
         if (values.isEmpty()) {
             return "no values";
         }
-        return String.format(Locale.ROOT, "n=%d  min %.3f  median %.3f  p95 %.3f  p99 %.3f  max %.3f",
-                values.size(), percentile(values, 0), percentile(values, 50), percentile(values, 95),
-                percentile(values, 99), percentile(values, 100));
+        return String.format(
+                Locale.ROOT,
+                "n=%d  min %.3f  median %.3f  p95 %.3f  p99 %.3f  max %.3f",
+                values.size(),
+                percentile(values, 0),
+                percentile(values, 50),
+                percentile(values, 95),
+                percentile(values, 99),
+                percentile(values, 100));
     }
 
     static double percentile(final List<Double> values, final int p) {
@@ -227,5 +269,4 @@ public final class Calibration {
     private static String percent(final int part, final int whole) {
         return whole == 0 ? "0 %" : String.format(Locale.ROOT, "%.1f %%", 100.0 * part / whole);
     }
-
 }

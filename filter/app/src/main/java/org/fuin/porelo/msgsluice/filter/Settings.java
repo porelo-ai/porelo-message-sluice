@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.fuin.porelo.msgsluice.filter.a2a.CheckConfig;
 import org.fuin.porelo.msgsluice.filter.a2a.EnvelopeCheck;
 import org.fuin.porelo.msgsluice.filter.decision.DecisionConfig;
@@ -34,14 +33,14 @@ import org.fuin.porelo.msgsluice.filter.detect.TokenShapeDetector;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The configuration, later sources beating earlier: built-in defaults, a properties file, command-line options.
- * Never the environment: what decides whether a message may leave is configured where somebody wrote it on
- * purpose, not by whatever a shell, a profile or an agent's session had exported.
+ * The configuration, later sources beating earlier: built-in defaults, a properties file,
+ * command-line options. Never the environment: what decides whether a message may leave is
+ * configured where somebody wrote it on purpose, not by whatever a shell, a profile or an agent's
+ * session had exported.
  *
- * <p>
- * An unknown key aborts the start. A typo in a threshold's name would otherwise silently leave the default in
- * place, and a configuration that quietly differs from what was intended is indistinguishable from a working
- * check.
+ * <p>An unknown key aborts the start. A typo in a threshold's name would otherwise silently leave
+ * the default in place, and a configuration that quietly differs from what was intended is
+ * indistinguishable from a working check.
  */
 public final class Settings {
 
@@ -49,7 +48,9 @@ public final class Settings {
 
     private static final String SEVERITY = "decision.severity.";
 
-    /** Every plain key and its default; an empty default means none. In the order they are logged. */
+    /**
+     * Every plain key and its default; an empty default means none. In the order they are logged.
+     */
     private static final Map<String, String> DEFAULTS = new LinkedHashMap<>();
 
     static {
@@ -66,7 +67,9 @@ public final class Settings {
         DEFAULTS.put("stabilityDelayMillis", "200");
         DEFAULTS.put("watchIntervalMillis", "2000");
         final CheckConfig check = CheckConfig.defaults();
-        DEFAULTS.put("check.allowedRoles", String.join(",", new java.util.TreeSet<>(check.allowedRoles())));
+        DEFAULTS.put(
+                "check.allowedRoles",
+                String.join(",", new java.util.TreeSet<>(check.allowedRoles())));
         DEFAULTS.put("check.urlPartSeverity", check.urlPartSeverity().name());
         DEFAULTS.put("check.maxParts", String.valueOf(check.maxParts()));
         DEFAULTS.put("check.maxTextLengthPerPart", String.valueOf(check.maxTextLengthPerPart()));
@@ -78,12 +81,16 @@ public final class Settings {
         final DecisionConfig decision = DecisionConfig.defaults();
         DEFAULTS.put("decision.mode", decision.mode().name());
         DEFAULTS.put("decision.suspiciousPolicy", decision.suspiciousPolicy().name());
-        DEFAULTS.put("decision.suspiciousCombineCount", String.valueOf(decision.suspiciousCombineCount()));
+        DEFAULTS.put(
+                "decision.suspiciousCombineCount",
+                String.valueOf(decision.suspiciousCombineCount()));
         DEFAULTS.put("decision.scoreThreshold", String.valueOf(decision.scoreThreshold()));
         DEFAULTS.put("decision.disabledRules", "");
         DEFAULTS.put("redaction.mode", Redactor.Mode.PARTIAL.name());
         DEFAULTS.put("detector.longToken.enabled", "true");
-        DEFAULTS.put("detector.longToken.maxTokenLength", String.valueOf(LongTokenDetector.DEFAULT_MAX_TOKEN_LENGTH));
+        DEFAULTS.put(
+                "detector.longToken.maxTokenLength",
+                String.valueOf(LongTokenDetector.DEFAULT_MAX_TOKEN_LENGTH));
         // Every default here was measured - see doc/detectors.md.
         DEFAULTS.put("detector.tokenShape.enabled", "true");
         DEFAULTS.put("detector.tokenShape.maxDigitUpperShare", "0.5");
@@ -103,9 +110,22 @@ public final class Settings {
     }
 
     /** Directory keys a {@code mail} root supplies when they are not set themselves. */
-    private static final Map<String, String> UNDER_MAIL = Map.of("incoming", "incoming", "accepted",
-            "filter/accepted", "corpus", "sent", "feedback", "filter/feedback", "rejected", "filter/rejected",
-            "error", "filter/error", "lock", "filter/.lock");
+    private static final Map<String, String> UNDER_MAIL =
+            Map.of(
+                    "incoming",
+                    "incoming",
+                    "accepted",
+                    "filter/accepted",
+                    "corpus",
+                    "sent",
+                    "feedback",
+                    "filter/feedback",
+                    "rejected",
+                    "filter/rejected",
+                    "error",
+                    "filter/error",
+                    "lock",
+                    "filter/.lock");
 
     private final Map<String, String> values;
 
@@ -115,7 +135,8 @@ public final class Settings {
 
     private final FilterConfig config;
 
-    private Settings(final Map<String, String> values, final Map<String, String> sources) throws ConfigException {
+    private Settings(final Map<String, String> values, final Map<String, String> sources)
+            throws ConfigException {
         this.values = values;
         this.sources = sources;
         this.detectors = buildDetectors();
@@ -124,7 +145,7 @@ public final class Settings {
 
     /**
      * @param file the properties file, or {@code null}
-     * @param cli  keys and values given on the command line
+     * @param cli keys and values given on the command line
      */
     public static Settings load(final @Nullable Path file, final Map<String, String> cli)
             throws ConfigException {
@@ -137,7 +158,8 @@ public final class Settings {
             try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
                 properties.load(reader);
             } catch (final IOException ex) {
-                throw new ConfigException("Cannot read the configuration file " + file + ": " + ex.getMessage());
+                throw new ConfigException(
+                        "Cannot read the configuration file " + file + ": " + ex.getMessage());
             }
             for (final String key : properties.stringPropertyNames()) {
                 set(values, sources, key, properties.getProperty(key), "file " + file);
@@ -159,8 +181,13 @@ public final class Settings {
         return new Settings(values, sources);
     }
 
-    private static void set(final Map<String, String> values, final Map<String, String> sources, final String key,
-            final String value, final String source) throws ConfigException {
+    private static void set(
+            final Map<String, String> values,
+            final Map<String, String> sources,
+            final String key,
+            final String value,
+            final String source)
+            throws ConfigException {
         if (!DEFAULTS.containsKey(key) && !key.startsWith(WEIGHT) && !key.startsWith(SEVERITY)) {
             throw new ConfigException("Unknown configuration key '" + key + "' (" + source + ")");
         }
@@ -168,7 +195,10 @@ public final class Settings {
         sources.put(key, source);
     }
 
-    /** Every key read is a default or one set over a default, so a missing one is a defect here, not a setting. */
+    /**
+     * Every key read is a default or one set over a default, so a missing one is a defect here, not
+     * a setting.
+     */
     private static String valueIn(final Map<String, String> values, final String key) {
         final String value = values.get(key);
         if (value == null) {
@@ -205,10 +235,21 @@ public final class Settings {
         }
     }
 
-    /** The effective configuration, one line per key with where it came from, for the startup log. */
+    /**
+     * The effective configuration, one line per key with where it came from, for the startup log.
+     */
     public List<String> describe() {
-        return new TreeMap<>(values).entrySet().stream()
-                .map(e -> e.getKey() + "=" + e.getValue() + "  (" + sources.get(e.getKey()) + ")").toList();
+        return new TreeMap<>(values)
+                .entrySet().stream()
+                        .map(
+                                e ->
+                                        e.getKey()
+                                                + "="
+                                                + e.getValue()
+                                                + "  ("
+                                                + sources.get(e.getKey())
+                                                + ")")
+                        .toList();
     }
 
     private List<ContentDetector> buildDetectors() throws ConfigException {
@@ -218,21 +259,30 @@ public final class Settings {
         }
         try {
             if (bool("detector.tokenShape.enabled")) {
-                list.add(new TokenShapeDetector(share("detector.tokenShape.maxDigitUpperShare"),
-                        share("detector.tokenShape.minVowelShare"), share("detector.tokenShape.maxSymbolShare")));
+                list.add(
+                        new TokenShapeDetector(
+                                share("detector.tokenShape.maxDigitUpperShare"),
+                                share("detector.tokenShape.minVowelShare"),
+                                share("detector.tokenShape.maxSymbolShare")));
             }
             if (bool("detector.entropy.enabled")) {
-                list.add(new EntropyDetector(nonNegativeDouble("detector.entropy.threshold"),
-                        positiveInt("detector.entropy.windowSize"), positiveInt("detector.entropy.step"),
-                        positiveInt("detector.entropy.minLength")));
+                list.add(
+                        new EntropyDetector(
+                                nonNegativeDouble("detector.entropy.threshold"),
+                                positiveInt("detector.entropy.windowSize"),
+                                positiveInt("detector.entropy.step"),
+                                positiveInt("detector.entropy.minLength")));
             }
             if (bool("detector.distribution.enabled")) {
-                list.add(new DistributionDetector(positiveInt("detector.distribution.minLength"),
-                        nonNegativeDouble("detector.distribution.maxChiSquarePerLetter"),
-                        share("detector.distribution.minWhitespaceShare")));
+                list.add(
+                        new DistributionDetector(
+                                positiveInt("detector.distribution.minLength"),
+                                nonNegativeDouble("detector.distribution.maxChiSquarePerLetter"),
+                                share("detector.distribution.minWhitespaceShare")));
             }
             if (bool("detector.signature.enabled")) {
-                list.add(new EncodingSignatureDetector(positiveInt("detector.signature.minLength")));
+                list.add(
+                        new EncodingSignatureDetector(positiveInt("detector.signature.minLength")));
             }
         } catch (final IllegalArgumentException ex) {
             throw new ConfigException(reason(ex));
@@ -243,20 +293,33 @@ public final class Settings {
     private FilterConfig buildConfig() throws ConfigException {
         final CheckConfig check;
         try {
-            check = new CheckConfig(roles("check.allowedRoles"), severity("check.urlPartSeverity"),
-                    positiveInt("check.maxParts"), positiveInt("check.maxTextLengthPerPart"),
-                    positiveLong("check.maxFileSizeBytes"), positiveInt("check.maxIdLength"),
-                    positiveInt("check.maxMetadataDepth"), positiveInt("check.maxMetadataChars"),
-                    positiveInt("check.maxReferenceTaskIds"));
+            check =
+                    new CheckConfig(
+                            roles("check.allowedRoles"),
+                            severity("check.urlPartSeverity"),
+                            positiveInt("check.maxParts"),
+                            positiveInt("check.maxTextLengthPerPart"),
+                            positiveLong("check.maxFileSizeBytes"),
+                            positiveInt("check.maxIdLength"),
+                            positiveInt("check.maxMetadataDepth"),
+                            positiveInt("check.maxMetadataChars"),
+                            positiveInt("check.maxReferenceTaskIds"));
         } catch (final IllegalArgumentException ex) {
             throw new ConfigException(reason(ex));
         }
 
-        // The normalizer's rules count as a detector's: they can be weighed, re-graded and disabled.
-        final Set<String> detectorRules = Stream.concat(Normalizer.RULE_IDS.stream(),
-                detectors.stream().flatMap(d -> d.ruleIds().stream())).collect(Collectors.toSet());
-        final Set<String> categories = Stream.concat(Stream.of(Normalizer.CATEGORY),
-                detectors.stream().flatMap(d -> d.categories().stream())).collect(Collectors.toSet());
+        // The normalizer's rules count as a detector's: they can be weighed, re-graded and
+        // disabled.
+        final Set<String> detectorRules =
+                Stream.concat(
+                                Normalizer.RULE_IDS.stream(),
+                                detectors.stream().flatMap(d -> d.ruleIds().stream()))
+                        .collect(Collectors.toSet());
+        final Set<String> categories =
+                Stream.concat(
+                                Stream.of(Normalizer.CATEGORY),
+                                detectors.stream().flatMap(d -> d.categories().stream()))
+                        .collect(Collectors.toSet());
         final Map<String, Double> weights = new HashMap<>();
         final Map<String, Severity> overrides = new HashMap<>();
         for (final Map.Entry<String, String> e : values.entrySet()) {
@@ -269,45 +332,81 @@ public final class Settings {
             } else if (e.getKey().startsWith(SEVERITY)) {
                 final String category = e.getKey().substring(SEVERITY.length());
                 if (!categories.contains(category)) {
-                    throw new ConfigException("Unknown category '" + category + "' in " + e.getKey()
-                            + "; the envelope's severities are not configurable");
+                    throw new ConfigException(
+                            "Unknown category '"
+                                    + category
+                                    + "' in "
+                                    + e.getKey()
+                                    + "; the envelope's severities are not configurable");
                 }
                 overrides.put(category, severity(e.getKey()));
             }
         }
-        final Set<String> disabled = Arrays.stream(valueIn(values, "decision.disabledRules").split(","))
-                .map(String::strip).filter(s -> !s.isEmpty()).collect(Collectors.toSet());
+        final Set<String> disabled =
+                Arrays.stream(valueIn(values, "decision.disabledRules").split(","))
+                        .map(String::strip)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toSet());
         for (final String rule : disabled) {
             if (!detectorRules.contains(rule)) {
-                throw new ConfigException("Cannot disable '" + rule + "': "
-                        + (EnvelopeCheck.RULE_IDS.contains(rule) ? "the envelope's rules always apply"
-                                : "no such rule"));
+                throw new ConfigException(
+                        "Cannot disable '"
+                                + rule
+                                + "': "
+                                + (EnvelopeCheck.RULE_IDS.contains(rule)
+                                        ? "the envelope's rules always apply"
+                                        : "no such rule"));
             }
         }
         final DecisionConfig.Mode mode = enumValue(DecisionConfig.Mode.class, "decision.mode");
         if (mode != DecisionConfig.Mode.SCORE && !weights.isEmpty()) {
-            // Only the score reads a weight; one set in another mode would be a check that quietly differs.
-            throw new ConfigException("'" + WEIGHT + new TreeMap<>(weights).firstKey() + "' has no effect unless "
-                    + "decision.mode is SCORE");
+            // Only the score reads a weight; one set in another mode would be a check that quietly
+            // differs.
+            throw new ConfigException(
+                    "'"
+                            + WEIGHT
+                            + new TreeMap<>(weights).firstKey()
+                            + "' has no effect unless "
+                            + "decision.mode is SCORE");
         }
         if (mode != DecisionConfig.Mode.SCORE
-                && !valueIn(values, "decision.scoreThreshold").equals(DEFAULTS.get("decision.scoreThreshold"))) {
-            // The same for the threshold: the default is always present, so only a changed value was set on purpose.
-            throw new ConfigException("'decision.scoreThreshold' has no effect unless decision.mode is SCORE");
+                && !valueIn(values, "decision.scoreThreshold")
+                        .equals(DEFAULTS.get("decision.scoreThreshold"))) {
+            // The same for the threshold: the default is always present, so only a changed value
+            // was set on purpose.
+            throw new ConfigException(
+                    "'decision.scoreThreshold' has no effect unless decision.mode is SCORE");
         }
         final DecisionConfig decision;
         try {
-            decision = new DecisionConfig(mode,
-                    enumValue(DecisionConfig.SuspiciousPolicy.class, "decision.suspiciousPolicy"),
-                    positiveInt("decision.suspiciousCombineCount"), nonNegativeDouble("decision.scoreThreshold"),
-                    weights, disabled, overrides);
+            decision =
+                    new DecisionConfig(
+                            mode,
+                            enumValue(
+                                    DecisionConfig.SuspiciousPolicy.class,
+                                    "decision.suspiciousPolicy"),
+                            positiveInt("decision.suspiciousCombineCount"),
+                            nonNegativeDouble("decision.scoreThreshold"),
+                            weights,
+                            disabled,
+                            overrides);
         } catch (final IllegalArgumentException ex) {
             throw new ConfigException(reason(ex));
         }
 
-        return new FilterConfig(path("incoming"), path("accepted"), path("corpus"), path("feedback"),
-                path("rejected"), path("error"), path("lock"), check, decision,
-                enumValue(Redactor.Mode.class, "redaction.mode"), bool("blocking"), bool("receiptOnApproval"),
+        return new FilterConfig(
+                path("incoming"),
+                path("accepted"),
+                path("corpus"),
+                path("feedback"),
+                path("rejected"),
+                path("error"),
+                path("lock"),
+                check,
+                decision,
+                enumValue(Redactor.Mode.class, "redaction.mode"),
+                bool("blocking"),
+                bool("receiptOnApproval"),
                 Duration.ofMillis(nonNegativeLong("stabilityDelayMillis")),
                 Duration.ofMillis(positiveLong("watchIntervalMillis")));
     }
@@ -315,7 +414,8 @@ public final class Settings {
     private Path path(final String key) throws ConfigException {
         final String value = valueIn(values, key);
         if (value.isBlank()) {
-            throw new ConfigException("'" + key + "' is not set, and no 'mail' directory supplies it");
+            throw new ConfigException(
+                    "'" + key + "' is not set, and no 'mail' directory supplies it");
         }
         return Path.of(value);
     }
@@ -353,7 +453,8 @@ public final class Settings {
             }
             return value;
         } catch (final NumberFormatException ex) {
-            throw new ConfigException("'" + key + "' is not a whole number: " + valueIn(values, key));
+            throw new ConfigException(
+                    "'" + key + "' is not a whole number: " + valueIn(values, key));
         }
     }
 
@@ -370,8 +471,11 @@ public final class Settings {
     }
 
     private Set<String> roles(final String key) throws ConfigException {
-        final Set<String> roles = Arrays.stream(valueIn(values, key).split(",")).map(String::strip)
-                .filter(s -> !s.isEmpty()).collect(Collectors.toSet());
+        final Set<String> roles =
+                Arrays.stream(valueIn(values, key).split(","))
+                        .map(String::strip)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toSet());
         for (final String role : roles) {
             if (!Set.of("ROLE_AGENT", "ROLE_USER", "ROLE_UNSPECIFIED").contains(role)) {
                 throw new ConfigException("'" + key + "' names an unknown role: " + role);
@@ -392,14 +496,19 @@ public final class Settings {
         return enumValue(Severity.class, key);
     }
 
-    private <E extends Enum<E>> E enumValue(final Class<E> type, final String key) throws ConfigException {
+    private <E extends Enum<E>> E enumValue(final Class<E> type, final String key)
+            throws ConfigException {
         final String value = valueIn(values, key);
         try {
             return Enum.valueOf(type, value.toUpperCase(Locale.ROOT));
         } catch (final IllegalArgumentException ex) {
-            throw new ConfigException("'" + key + "' must be one of " + Arrays.toString(type.getEnumConstants())
-                    + ": " + value);
+            throw new ConfigException(
+                    "'"
+                            + key
+                            + "' must be one of "
+                            + Arrays.toString(type.getEnumConstants())
+                            + ": "
+                            + value);
         }
     }
-
 }

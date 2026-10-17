@@ -5,7 +5,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -21,14 +20,15 @@ public final class DecisionModel {
 
     /**
      * @param reported every finding, envelope and detectors alike
-     * @param blocking {@code false} while the directory only reports: content findings are then recorded but
-     *                 never refuse. An envelope finding refuses in both modes, because it is a format decision
-     *                 and not a heuristic.
+     * @param blocking {@code false} while the directory only reports: content findings are then
+     *     recorded but never refuse. An envelope finding refuses in both modes, because it is a
+     *     format decision and not a heuristic.
      */
     public Verdict decide(final List<Finding> reported, final boolean blocking) {
         final List<Finding> findings = new ArrayList<>();
         for (final Finding finding : reported) {
-            // The envelope is not configurable away: a payload part is a data transfer by definition.
+            // The envelope is not configurable away: a payload part is a data transfer by
+            // definition.
             if (finding.stage().alwaysRefuses()) {
                 findings.add(finding);
             } else if (!config.disabledRules().contains(finding.ruleId())) {
@@ -37,13 +37,25 @@ public final class DecisionModel {
             }
         }
 
-        final String envelopeRule = findings.stream()
-                .filter(f -> f.stage().alwaysRefuses() && f.severity() == Severity.BLOCKING)
-                .map(Finding::ruleId).findFirst().orElse(null);
-        // Everything but a blocking envelope finding is weighed, a suspicious envelope finding included.
-        final List<Finding> weighed = findings.stream()
-                .filter(f -> !f.stage().alwaysRefuses() || f.severity() != Severity.BLOCKING).toList();
-        final String weighedRule = config.mode() == DecisionConfig.Mode.SCORE ? byScore(weighed) : byThreshold(weighed);
+        final String envelopeRule =
+                findings.stream()
+                        .filter(f -> f.stage().alwaysRefuses() && f.severity() == Severity.BLOCKING)
+                        .map(Finding::ruleId)
+                        .findFirst()
+                        .orElse(null);
+        // Everything but a blocking envelope finding is weighed, a suspicious envelope finding
+        // included.
+        final List<Finding> weighed =
+                findings.stream()
+                        .filter(
+                                f ->
+                                        !f.stage().alwaysRefuses()
+                                                || f.severity() != Severity.BLOCKING)
+                        .toList();
+        final String weighedRule =
+                config.mode() == DecisionConfig.Mode.SCORE
+                        ? byScore(weighed)
+                        : byThreshold(weighed);
 
         final String rule = envelopeRule != null ? envelopeRule : weighedRule;
         final boolean accepted = blocking ? rule == null : envelopeRule == null;
@@ -57,12 +69,17 @@ public final class DecisionModel {
             }
         }
         final Set<String> suspicious = new LinkedHashSet<>();
-        findings.stream().filter(f -> f.severity() == Severity.SUSPICIOUS).forEach(f -> suspicious.add(f.ruleId()));
+        findings.stream()
+                .filter(f -> f.severity() == Severity.SUSPICIOUS)
+                .forEach(f -> suspicious.add(f.ruleId()));
         return switch (config.suspiciousPolicy()) {
             case IGNORE -> null;
             case REJECT -> suspicious.isEmpty() ? null : suspicious.iterator().next();
             // Different rules, so that one rule cannot reject on its own by repeating itself.
-            case COMBINE -> suspicious.size() >= config.suspiciousCombineCount() ? suspicious.iterator().next() : null;
+            case COMBINE ->
+                    suspicious.size() >= config.suspiciousCombineCount()
+                            ? suspicious.iterator().next()
+                            : null;
         };
     }
 
@@ -71,8 +88,9 @@ public final class DecisionModel {
         String heaviest = null;
         double heaviestContribution = 0.0;
         for (final Finding finding : findings) {
-            final double contribution = config.weights().getOrDefault(finding.ruleId(), 1.0)
-                    * finding.severity().factor();
+            final double contribution =
+                    config.weights().getOrDefault(finding.ruleId(), 1.0)
+                            * finding.severity().factor();
             score += contribution;
             if (contribution > heaviestContribution) {
                 heaviestContribution = contribution;
@@ -81,5 +99,4 @@ public final class DecisionModel {
         }
         return score >= config.scoreThreshold() ? heaviest : null;
     }
-
 }

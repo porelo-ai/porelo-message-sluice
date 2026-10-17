@@ -1,5 +1,8 @@
 package org.fuin.porelo.msgsluice.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -8,28 +11,24 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
-
 import org.fuin.porelo.msgsluice.filter.a2a.MessageFacts;
 import org.fuin.porelo.msgsluice.filter.decision.Finding;
 import org.fuin.porelo.msgsluice.filter.decision.Redactor;
 import org.fuin.porelo.msgsluice.filter.decision.Verdict;
 import org.jspecify.annotations.Nullable;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 /**
- * Builds the answers: a receipt or a rejection, each itself a valid A2A 1.0 message with {@code ROLE_AGENT}, a
- * text part a person or an agent can read and a {@code data} part a program can. Nothing goes in that a
- * finding matched: every excerpt is already redacted, and ids are echoed only when they passed the id check.
+ * Builds the answers: a receipt or a rejection, each itself a valid A2A 1.0 message with {@code
+ * ROLE_AGENT}, a text part a person or an agent can read and a {@code data} part a program can.
+ * Nothing goes in that a finding matched: every excerpt is already redacted, and ids are echoed
+ * only when they passed the id check.
  */
 public final class Answers {
 
     public static final String TOOL_NAME = "porelo-message-sluice-filter";
 
-    private static final DateTimeFormatter FILE_TIME = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssSSS'Z'")
-            .withZone(ZoneOffset.UTC);
+    private static final DateTimeFormatter FILE_TIME =
+            DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssSSS'Z'").withZone(ZoneOffset.UTC);
 
     private static final Pattern SAFE_FILE_NAME = Pattern.compile("[A-Za-z0-9._-]{1,64}");
 
@@ -39,28 +38,37 @@ public final class Answers {
 
     private final List<String> detectorIds;
 
-    public Answers(final ObjectMapper mapper, final String version, final List<String> detectorIds) {
+    public Answers(
+            final ObjectMapper mapper, final String version, final List<String> detectorIds) {
         this.mapper = Objects.requireNonNull(mapper, "mapper");
         this.version = Objects.requireNonNull(version, "version");
         this.detectorIds = List.copyOf(detectorIds);
     }
 
     /** An answer, and the name it is written under. */
-    public record Answer(String fileName, ObjectNode message) {
-    }
+    public record Answer(String fileName, ObjectNode message) {}
 
-    /** The answer to a message that could be judged: a receipt when it was accepted, a rejection otherwise. */
-    public Answer verdict(final MessageFacts facts, final Verdict verdict, final boolean blocking, final Instant now) {
+    /**
+     * The answer to a message that could be judged: a receipt when it was accepted, a rejection
+     * otherwise.
+     */
+    public Answer verdict(
+            final MessageFacts facts,
+            final Verdict verdict,
+            final boolean blocking,
+            final Instant now) {
         final StringBuilder text = new StringBuilder();
         if (verdict.accepted()) {
             text.append("Your message was accepted and handed on for delivery.");
             if (!blocking && verdict.wouldReject()) {
-                text.append(" This mailbox is still being calibrated and only reports: in blocking mode the message ")
+                text.append(
+                                " This mailbox is still being calibrated and only reports: in blocking mode the message ")
                         .append("would have been refused for the reasons below.");
             }
         } else {
             text.append("Your message was not accepted, and nothing of it was sent.");
-            text.append(" Only plain English prose may leave; send it again without what is listed below.");
+            text.append(
+                    " Only plain English prose may leave; send it again without what is listed below.");
         }
         appendFindings(text, verdict.findings());
 
@@ -81,14 +89,25 @@ public final class Answers {
     }
 
     /**
-     * The rejection of a file that could not be judged at all. It carries no excerpt of the content - a payload
-     * wrapped in broken JSON would otherwise be a direct bypass - only the file's name, size and hash.
+     * The rejection of a file that could not be judged at all. It carries no excerpt of the content
+     * - a payload wrapped in broken JSON would otherwise be a direct bypass - only the file's name,
+     * size and hash.
      */
-    public Answer unprocessable(final String ruleId, final String reason, final String sourceFileName,
-            final String sourceSha256, final long sourceSize, final @Nullable String recoveredMessageId,
-            final MessageFacts facts, final Instant now) {
-        final String text = "Your message could not be read as an A2A 1.0 message, so it was not accepted and "
-                + "nothing of it was sent.\n1. [BLOCKING] " + ruleId + ": " + reason;
+    public Answer unprocessable(
+            final String ruleId,
+            final String reason,
+            final String sourceFileName,
+            final String sourceSha256,
+            final long sourceSize,
+            final @Nullable String recoveredMessageId,
+            final MessageFacts facts,
+            final Instant now) {
+        final String text =
+                "Your message could not be read as an A2A 1.0 message, so it was not accepted and "
+                        + "nothing of it was sent.\n1. [BLOCKING] "
+                        + ruleId
+                        + ": "
+                        + reason;
         final ObjectNode data = mapper.createObjectNode();
         data.put("decision", "rejected");
         data.put("rejectionKind", "unprocessable");
@@ -105,10 +124,15 @@ public final class Answers {
         return answer(facts, text, data, now);
     }
 
-    /** A file name as it may appear in an answer or a log line: itself if short and plain, otherwise its hash. */
+    /**
+     * A file name as it may appear in an answer or a log line: itself if short and plain, otherwise
+     * its hash.
+     */
     public static String safeFileName(final String name) {
-        return SAFE_FILE_NAME.matcher(name).matches() ? name
-                : "sha256:" + Redactor.sha256(name.getBytes(StandardCharsets.UTF_8)).substring(0, 12);
+        return SAFE_FILE_NAME.matcher(name).matches()
+                ? name
+                : "sha256:"
+                        + Redactor.sha256(name.getBytes(StandardCharsets.UTF_8)).substring(0, 12);
     }
 
     private void common(final ObjectNode data, final Instant now) {
@@ -120,7 +144,8 @@ public final class Answers {
         detectorIds.forEach(detectors::add);
     }
 
-    private Answer answer(final MessageFacts facts, final String text, final ObjectNode data, final Instant now) {
+    private Answer answer(
+            final MessageFacts facts, final String text, final ObjectNode data, final Instant now) {
         final String messageId = "sluice-" + UUID.randomUUID();
         final ObjectNode message = mapper.createObjectNode();
         message.put("messageId", messageId);
@@ -168,7 +193,12 @@ public final class Answers {
     private static void appendFindings(final StringBuilder text, final List<Finding> findings) {
         int i = 1;
         for (final Finding f : findings) {
-            text.append('\n').append(i++).append(". [").append(f.severity()).append("] ").append(f.ruleId());
+            text.append('\n')
+                    .append(i++)
+                    .append(". [")
+                    .append(f.severity())
+                    .append("] ")
+                    .append(f.ruleId());
             if (f.location() != null) {
                 text.append(" at ").append(f.location());
             }
@@ -181,5 +211,4 @@ public final class Answers {
             text.append(": ").append(f.reason());
         }
     }
-
 }

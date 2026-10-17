@@ -9,16 +9,25 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
 
-/** Generators for the detectors' negative samples: random bytes in each encoding, cut to a given length. */
+/**
+ * Generators for the detectors' negative samples: random bytes in each encoding, cut to a given
+ * length.
+ */
 final class Payloads {
 
-    private Payloads() {
-    }
+    private Payloads() {}
 
     static Map<String, Function<Random, String>> generators(final int length) {
         final Map<String, Function<Random, String>> g = new LinkedHashMap<>();
         g.put("base64", r -> cut(Base64.getEncoder().encodeToString(bytes(r, length)), length));
-        g.put("base64url", r -> cut(Base64.getUrlEncoder().withoutPadding().encodeToString(bytes(r, length)), length));
+        g.put(
+                "base64url",
+                r ->
+                        cut(
+                                Base64.getUrlEncoder()
+                                        .withoutPadding()
+                                        .encodeToString(bytes(r, length)),
+                                length));
         g.put("base32", r -> cut(base32(bytes(r, length)), length));
         g.put("base58", r -> cut(base58(bytes(r, length)), length));
         g.put("base85", r -> cut(ascii85(bytes(r, length)), length));
@@ -26,12 +35,24 @@ final class Payloads {
         g.put("url-encoding", r -> cut(urlEncode(bytes(r, length)), length));
         g.put("quoted-printable", r -> cut(quotedPrintable(bytes(r, length)), length));
         g.put("uuencode", r -> cut(uuencodeLine(bytes(r, 45)), length));
-        g.put("pem", r -> "-----BEGIN PRIVATE KEY-----" + cut(Base64.getEncoder().encodeToString(bytes(r, 48)),
-                Math.max(0, length - 27)));
-        g.put("data-uri", r -> "data:application/octet-stream;base64,"
-                + cut(Base64.getEncoder().encodeToString(bytes(r, 48)), Math.max(0, length - 37)));
+        g.put(
+                "pem",
+                r ->
+                        "-----BEGIN PRIVATE KEY-----"
+                                + cut(
+                                        Base64.getEncoder().encodeToString(bytes(r, 48)),
+                                        Math.max(0, length - 27)));
+        g.put(
+                "data-uri",
+                r ->
+                        "data:application/octet-stream;base64,"
+                                + cut(
+                                        Base64.getEncoder().encodeToString(bytes(r, 48)),
+                                        Math.max(0, length - 37)));
         g.put("binary", r -> cut(binary(bytes(r, length)), length));
-        g.put("ciphertext", r -> cut("U2FsdGVkX1" + Base64.getEncoder().encodeToString(bytes(r, 48)), length));
+        g.put(
+                "ciphertext",
+                r -> cut("U2FsdGVkX1" + Base64.getEncoder().encodeToString(bytes(r, 48)), length));
         return g;
     }
 
@@ -77,8 +98,11 @@ final class Payloads {
     static String ascii85(final byte[] data) {
         final StringBuilder sb = new StringBuilder();
         for (int i = 0; i + 4 <= data.length; i += 4) {
-            long v = (data[i] & 0xffL) << 24 | (data[i + 1] & 0xffL) << 16 | (data[i + 2] & 0xffL) << 8
-                    | data[i + 3] & 0xffL;
+            long v =
+                    (data[i] & 0xffL) << 24
+                            | (data[i + 1] & 0xffL) << 16
+                            | (data[i + 2] & 0xffL) << 8
+                            | data[i + 3] & 0xffL;
             final char[] c = new char[5];
             for (int k = 4; k >= 0; k--) {
                 c[k] = (char) ('!' + v % 85);
@@ -90,7 +114,8 @@ final class Payloads {
     }
 
     static String urlEncode(final byte[] data) {
-        return java.net.URLEncoder.encode(new String(data, StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1);
+        return java.net.URLEncoder.encode(
+                new String(data, StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1);
     }
 
     static String quotedPrintable(final byte[] data) {
@@ -125,5 +150,4 @@ final class Payloads {
         }
         return sb.toString();
     }
-
 }

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The build takes `porelo-parent` 0.2.1-SNAPSHOT and `porelo-buildtools` 0.5.1-SNAPSHOT. `validate` checks
+  the shared code style - `google-java-format` in its AOSP style for Java, `shfmt` for the scripts - and the
+  code is formatted to it. The workflows check out without keeping the job's token.
+
 ## [0.5.0] - 2026-10-17
 
 ### Changed

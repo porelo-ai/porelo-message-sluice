@@ -5,14 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class FileOpsTest {
 
-    @TempDir
-    Path tmp;
+    @TempDir Path tmp;
 
     @Test
     void aLinkPlantedWhereTheTemporaryFileWouldGoIsNotWrittenThrough() throws Exception {
@@ -20,15 +18,19 @@ class FileOpsTest {
         final Path victim = Files.writeString(tmp.resolve("victim.txt"), "precious");
         Files.createSymbolicLink(dir.resolve(".m.json.error.txt.tmp"), victim);
 
-        final Path written = FileOps.writeAtomically(dir, "m.json.error.txt",
-                "reason".getBytes(StandardCharsets.UTF_8));
+        final Path written =
+                FileOps.writeAtomically(
+                        dir, "m.json.error.txt", "reason".getBytes(StandardCharsets.UTF_8));
 
         assertThat(victim).hasContent("precious");
         assertThat(written).hasContent("reason");
         assertThat(Files.isSymbolicLink(written)).isFalse();
     }
 
-    /** Codex's review: an unprocessable file was moved by its path, so a change after the read went along. */
+    /**
+     * Codex's review: an unprocessable file was moved by its path, so a change after the read went
+     * along.
+     */
     @Test
     void whatIsKeptIsWhatWasReadAndAChangedOriginalStays() throws Exception {
         final Path incoming = Files.createDirectory(tmp.resolve("incoming"));
@@ -53,11 +55,12 @@ class FileOpsTest {
         final Path file = Files.writeString(incoming.resolve("m.json"), "not json");
         Files.writeString(incoming.resolve("m.json.sig"), "sig");
 
-        final Path kept = FileOps.keepAsRead(file, FileOps.stamp(file), Files.readAllBytes(file), error, "m.json");
+        final Path kept =
+                FileOps.keepAsRead(
+                        file, FileOps.stamp(file), Files.readAllBytes(file), error, "m.json");
 
         assertThat(kept).hasContent("not json");
         assertThat(error.resolve("m.json.sig")).hasContent("sig");
         assertThat(incoming).isEmptyDirectory();
     }
-
 }

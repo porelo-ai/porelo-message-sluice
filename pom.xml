@@ -9,7 +9,7 @@
     <parent>
         <groupId>org.fuin.porelo</groupId>
         <artifactId>porelo-parent</artifactId>
-        <version>0.2.0</version>
+        <version>0.2.1-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -125,6 +125,18 @@
 
             </plugins>
         </pluginManagement>
+
+        <plugins>
+
+            <!-- The shared code style, configured in porelo-parent: validate refuses Java and shell scripts
+                 that do not match it, and spotless:apply formats them. -->
+
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+            </plugin>
+
+        </plugins>
 
     </build>
 

@@ -3,19 +3,17 @@ package org.fuin.porelo.msgsluice.filter.detect;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import org.fuin.porelo.msgsluice.filter.decision.Severity;
 import org.fuin.porelo.msgsluice.filter.decision.Stage;
 
 /**
- * A run no English word could be: characters without whitespace or a separator, longer than
- * {@code maxTokenLength}. Every block of base64, hex or base32 worth sending is one. Issue 005's proof of
+ * A run no English word could be: characters without whitespace or a separator, longer than {@code
+ * maxTokenLength}. Every block of base64, hex or base32 worth sending is one. Issue 005's proof of
  * concept, kept as one rule among several of doc/detectors.md.
  *
- * <p>
- * Measured between separators and on the {@link Masked} text: paths, file names and Markdown links are long
- * without being encoded, and in this repository's own documentation they refused one paragraph in twenty when
- * the whole token was measured.
+ * <p>Measured between separators and on the {@link Masked} text: paths, file names and Markdown
+ * links are long without being encoded, and in this repository's own documentation they refused one
+ * paragraph in twenty when the whole token was measured.
  */
 public final class LongTokenDetector implements ContentDetector {
 
@@ -27,8 +25,9 @@ public final class LongTokenDetector implements ContentDetector {
     public static final int DEFAULT_MAX_TOKEN_LENGTH = 35;
 
     /**
-     * What joins words in a path, a file name, an identifier or a query: a run is measured between them. Base64
-     * and base64url can still be cut short by one of these; the encoding signatures name those.
+     * What joins words in a path, a file name, an identifier or a query: a run is measured between
+     * them. Base64 and base64url can still be cut short by one of these; the encoding signatures
+     * name those.
      */
     private static final String SEPARATORS = "/._-()[]:?&=#,;|$@+~*<>{}'\"`!";
 
@@ -36,7 +35,8 @@ public final class LongTokenDetector implements ContentDetector {
 
     public LongTokenDetector(final int maxTokenLength) {
         if (maxTokenLength < 1) {
-            throw new IllegalArgumentException("maxTokenLength must be positive: " + maxTokenLength);
+            throw new IllegalArgumentException(
+                    "maxTokenLength must be positive: " + maxTokenLength);
         }
         this.maxTokenLength = maxTokenLength;
     }
@@ -67,10 +67,20 @@ public final class LongTokenDetector implements ContentDetector {
                 if (i == token[1] || SEPARATORS.indexOf(text.charAt(i)) >= 0) {
                     if (i - start > maxTokenLength) {
                         final int[] span = masked.toSource(start, i);
-                        findings.add(new DetectorFinding(RULE_ID, Stage.TEXT, Severity.BLOCKING, CATEGORY, span[0],
-                                span[1], "A run of " + (i - start) + " characters without whitespace or a "
-                                        + "separator. No English word is longer than " + maxTokenLength
-                                        + " characters, and encoded data looks exactly like this."));
+                        findings.add(
+                                new DetectorFinding(
+                                        RULE_ID,
+                                        Stage.TEXT,
+                                        Severity.BLOCKING,
+                                        CATEGORY,
+                                        span[0],
+                                        span[1],
+                                        "A run of "
+                                                + (i - start)
+                                                + " characters without whitespace or a "
+                                                + "separator. No English word is longer than "
+                                                + maxTokenLength
+                                                + " characters, and encoded data looks exactly like this."));
                     }
                     start = i + 1;
                 }
@@ -78,5 +88,4 @@ public final class LongTokenDetector implements ContentDetector {
         }
         return findings;
     }
-
 }

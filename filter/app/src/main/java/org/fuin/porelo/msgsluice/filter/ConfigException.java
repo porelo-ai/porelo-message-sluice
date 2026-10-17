@@ -8,5 +8,4 @@ public final class ConfigException extends Exception {
     public ConfigException(final String message) {
         super(message);
     }
-
 }

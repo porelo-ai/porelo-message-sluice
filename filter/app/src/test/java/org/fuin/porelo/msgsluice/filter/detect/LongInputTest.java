@@ -5,13 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.fuin.porelo.msgsluice.filter.decision.Finding;
 import org.junit.jupiter.api.Test;
 
 /**
- * A text as long as a part may be, in every shape a repeated regular-expression group could take one step per
- * repetition over: a check that cannot run refuses even while only reporting, so it must never run out of stack.
+ * A text as long as a part may be, in every shape a repeated regular-expression group could take
+ * one step per repetition over: a check that cannot run refuses even while only reporting, so it
+ * must never run out of stack.
  */
 class LongInputTest {
 
@@ -46,11 +46,13 @@ class LongInputTest {
             if (shape.getKey().equals("data uri parameters")) {
                 text = "data:text/plain" + text;
             }
-            final List<Finding> findings = EncodedPayloadRatesTest.RUNNER
-                    .run(List.of(new TextUnderCheck("parts[0].text", 0, text)));
-            assertThat(findings).as(shape.getKey()).extracting(Finding::ruleId)
+            final List<Finding> findings =
+                    EncodedPayloadRatesTest.RUNNER.run(
+                            List.of(new TextUnderCheck("parts[0].text", 0, text)));
+            assertThat(findings)
+                    .as(shape.getKey())
+                    .extracting(Finding::ruleId)
                     .doesNotContain(DetectorRunner.DETECTOR_FAILED, DetectorRunner.UNREDACTABLE);
         }
     }
-
 }

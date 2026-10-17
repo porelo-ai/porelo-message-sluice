@@ -11,8 +11,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 /**
- * One instance at a time. The lock is the operating system's, so it dies with the process and a crashed
- * run never leaves a stale lock behind; the file only says who holds it.
+ * One instance at a time. The lock is the operating system's, so it dies with the process and a
+ * crashed run never leaves a stale lock behind; the file only says who holds it.
  */
 public final class DirectoryLock implements AutoCloseable {
 
@@ -32,9 +32,15 @@ public final class DirectoryLock implements AutoCloseable {
      * @throws LockedException when another instance holds it
      */
     public static DirectoryLock acquire(final Path file) throws IOException, LockedException {
-        // A link planted at the lock's name would otherwise have its target overwritten with our pid.
-        final FileChannel channel = FileChannel.open(file, StandardOpenOption.CREATE, StandardOpenOption.READ,
-                StandardOpenOption.WRITE, LinkOption.NOFOLLOW_LINKS);
+        // A link planted at the lock's name would otherwise have its target overwritten with our
+        // pid.
+        final FileChannel channel =
+                FileChannel.open(
+                        file,
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.READ,
+                        StandardOpenOption.WRITE,
+                        LinkOption.NOFOLLOW_LINKS);
         try {
             FileLock lock;
             try {
@@ -45,13 +51,18 @@ public final class DirectoryLock implements AutoCloseable {
             }
             if (lock == null) {
                 final String holder = holder(channel);
-                throw new LockedException("Another instance holds " + file
-                        + (holder.isEmpty() ? "" : " (" + holder + ")"));
+                throw new LockedException(
+                        "Another instance holds "
+                                + file
+                                + (holder.isEmpty() ? "" : " (" + holder + ")"));
             }
             try {
                 channel.truncate(0);
-                channel.write(ByteBuffer.wrap(("pid " + ProcessHandle.current().pid())
-                        .getBytes(StandardCharsets.UTF_8)), 0);
+                channel.write(
+                        ByteBuffer.wrap(
+                                ("pid " + ProcessHandle.current().pid())
+                                        .getBytes(StandardCharsets.UTF_8)),
+                        0);
                 channel.force(true);
             } catch (final IOException | RuntimeException ex) {
                 lock.release();
@@ -65,8 +76,9 @@ public final class DirectoryLock implements AutoCloseable {
     }
 
     /**
-     * Who holds it, for the message: read through the channel already open rather than by name again, and reduced
-     * to printable ASCII, because anybody who can write the directory can write this file.
+     * Who holds it, for the message: read through the channel already open rather than by name
+     * again, and reduced to printable ASCII, because anybody who can write the directory can write
+     * this file.
      */
     private static String holder(final FileChannel channel) throws IOException {
         final ByteBuffer buffer = ByteBuffer.allocate(MAX_HOLDER_BYTES);
@@ -96,7 +108,5 @@ public final class DirectoryLock implements AutoCloseable {
         public LockedException(final String message) {
             super(message);
         }
-
     }
-
 }

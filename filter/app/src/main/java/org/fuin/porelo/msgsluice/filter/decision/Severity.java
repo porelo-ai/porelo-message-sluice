@@ -2,8 +2,9 @@ package org.fuin.porelo.msgsluice.filter.decision;
 
 /** How much a finding weighs. The order matters: a later constant is more severe. */
 public enum Severity {
-
-    INFO(0.25), SUSPICIOUS(1.0), BLOCKING(4.0);
+    INFO(0.25),
+    SUSPICIOUS(1.0),
+    BLOCKING(4.0);
 
     private final double factor;
 
@@ -15,5 +16,4 @@ public enum Severity {
     public double factor() {
         return factor;
     }
-
 }

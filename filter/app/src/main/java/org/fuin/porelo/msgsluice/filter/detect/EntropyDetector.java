@@ -4,22 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
 import org.fuin.porelo.msgsluice.filter.decision.Severity;
 import org.fuin.porelo.msgsluice.filter.decision.Stage;
 
 /**
- * Shannon entropy over sliding windows of the {@link Masked} text, <strong>folded</strong>: letters to lower
- * case, every whitespace to one space, every other non-alphanumeric character to one symbol; digits stay
- * themselves. Overlapping windows mean a payload cannot fall between two of them, and adjacent windows above the
- * threshold are reported as one finding naming the highest value.
+ * Shannon entropy over sliding windows of the {@link Masked} text, <strong>folded</strong>: letters
+ * to lower case, every whitespace to one space, every other non-alphanumeric character to one
+ * symbol; digits stay themselves. Overlapping windows mean a payload cannot fall between two of
+ * them, and adjacent windows above the threshold are reported as one finding naming the highest
+ * value.
  *
- * <p>
- * Folded, because raw entropy does not separate the prose agents write from encoded data: raw 128-character
- * windows of this repository's own documentation reach 5.14 bits, as high as base64. Capitals and punctuation
- * make technical prose look random, and folding takes that away. Digits are not folded, or base36 would look
- * like English. Measured over 2916 paragraphs of agent prose, 64-character windows: English at
- * p99.9 4.42 and at most 4.56; 80 characters of base64 or base36 in a sentence at a median of 4.75 and 4.80.
+ * <p>Folded, because raw entropy does not separate the prose agents write from encoded data: raw
+ * 128-character windows of this repository's own documentation reach 5.14 bits, as high as base64.
+ * Capitals and punctuation make technical prose look random, and folding takes that away. Digits
+ * are not folded, or base36 would look like English. Measured over 2916 paragraphs of agent prose,
+ * 64-character windows: English at p99.9 4.42 and at most 4.56; 80 characters of base64 or base36
+ * in a sentence at a median of 4.75 and 4.80.
  */
 public final class EntropyDetector implements ContentDetector {
 
@@ -36,12 +36,14 @@ public final class EntropyDetector implements ContentDetector {
     private final int minLength;
 
     /**
-     * @param minLength a text shorter than this is not measured at all; one shorter than a window but at least
-     *                  this long is measured as a single window
+     * @param minLength a text shorter than this is not measured at all; one shorter than a window
+     *     but at least this long is measured as a single window
      */
-    public EntropyDetector(final double threshold, final int windowSize, final int step, final int minLength) {
+    public EntropyDetector(
+            final double threshold, final int windowSize, final int step, final int minLength) {
         if (windowSize < 16 || step < 1 || step > windowSize || minLength < 16) {
-            throw new IllegalArgumentException("Window " + windowSize + ", step " + step + ", minimum " + minLength);
+            throw new IllegalArgumentException(
+                    "Window " + windowSize + ", step " + step + ", minimum " + minLength);
         }
         this.threshold = threshold;
         this.windowSize = windowSize;
@@ -95,9 +97,10 @@ public final class EntropyDetector implements ContentDetector {
     }
 
     /**
-     * Where each window over a text of {@code length} starts: every {@code step}, and a last one ending at the
-     * text's end, so the tail is never skipped. A text shorter than a window is one window. Calibration walks the
-     * same windows, so that it measures exactly what the detector does.
+     * Where each window over a text of {@code length} starts: every {@code step}, and a last one
+     * ending at the text's end, so the tail is never skipped. A text shorter than a window is one
+     * window. Calibration walks the same windows, so that it measures exactly what the detector
+     * does.
      */
     public static int[] windowStarts(final int length, final int window, final int step) {
         final int size = Math.min(window, length);
@@ -112,19 +115,38 @@ public final class EntropyDetector implements ContentDetector {
         return starts.stream().mapToInt(Integer::intValue).toArray();
     }
 
-    private void flush(final Masked masked, final int start, final int end, final double max,
+    private void flush(
+            final Masked masked,
+            final int start,
+            final int end,
+            final double max,
             final List<DetectorFinding> findings) {
         if (start < 0) {
             return;
         }
         final int[] span = masked.toSource(start, end);
-        findings.add(new DetectorFinding(RULE_ID, Stage.TEXT, Severity.BLOCKING, CATEGORY, span[0], span[1],
-                String.format(Locale.ROOT, "%d characters with an entropy of up to %.2f bits per character, case "
-                        + "and punctuation aside; English stays below %.2f, and encoded or encrypted data lies above "
-                        + "it.", end - start, max, threshold)));
+        findings.add(
+                new DetectorFinding(
+                        RULE_ID,
+                        Stage.TEXT,
+                        Severity.BLOCKING,
+                        CATEGORY,
+                        span[0],
+                        span[1],
+                        String.format(
+                                Locale.ROOT,
+                                "%d characters with an entropy of up to %.2f bits per character, case "
+                                        + "and punctuation aside; English stays below %.2f, and encoded or encrypted data lies above "
+                                        + "it.",
+                                end - start,
+                                max,
+                                threshold)));
     }
 
-    /** Letters in lower case, one symbol for whitespace, one for everything else that is not a digit. */
+    /**
+     * Letters in lower case, one symbol for whitespace, one for everything else that is not a
+     * digit.
+     */
     public static String fold(final String text) {
         final char[] out = new char[text.length()];
         for (int i = 0; i < out.length; i++) {
@@ -156,5 +178,4 @@ public final class EntropyDetector implements ContentDetector {
         }
         return h;
     }
-
 }

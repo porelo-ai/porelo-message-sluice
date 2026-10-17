@@ -9,7 +9,6 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
-
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -18,13 +17,12 @@ class MessageArchiveTest {
 
     private static final long MAX = 1024;
 
-    @TempDir
-    Path tmp;
+    @TempDir Path tmp;
 
     /**
-     * Codex's review: the scan followed links, opened special files and read without a limit. Only a plain file
-     * with one name, of at most a message's size, counts now - each of the others would carry an id that is not
-     * the filter's.
+     * Codex's review: the scan followed links, opened special files and read without a limit. Only
+     * a plain file with one name, of at most a message's size, counts now - each of the others
+     * would carry an id that is not the filter's.
      */
     @Test
     void onlyAPlainFileOfAMessagesSizeCounts() throws Exception {
@@ -34,10 +32,12 @@ class MessageArchiveTest {
         Files.createSymbolicLink(mailbox.resolve("link.json"), outside.resolve("x.json"));
         Files.writeString(outside.resolve("y.json"), "{\"messageId\":\"via-hard-link\"}");
         Files.createLink(mailbox.resolve("hard.json"), outside.resolve("y.json"));
-        Files.writeString(mailbox.resolve("big.json"), "{\"messageId\":\"too-large\",\"x\":\"" + "a".repeat(2000)
-                + "\"}");
+        Files.writeString(
+                mailbox.resolve("big.json"),
+                "{\"messageId\":\"too-large\",\"x\":\"" + "a".repeat(2000) + "\"}");
         Files.writeString(mailbox.resolve("ok.json"), "{\"messageId\":\"plain\"}");
-        final Process fifo = new ProcessBuilder("mkfifo", mailbox.resolve("fifo.json").toString()).start();
+        final Process fifo =
+                new ProcessBuilder("mkfifo", mailbox.resolve("fifo.json").toString()).start();
         assertThat(fifo.waitFor()).isZero();
 
         final MessageArchive archive = MessageArchive.scan(List.of(mailbox), MAX);
@@ -49,7 +49,8 @@ class MessageArchiveTest {
     }
 
     @Test
-    void theIdsOfEveryMessageAreCollectedAndAFileThatIsNoMessageCountsForNothing() throws Exception {
+    void theIdsOfEveryMessageAreCollectedAndAFileThatIsNoMessageCountsForNothing()
+            throws Exception {
         Files.writeString(tmp.resolve("a.json"), "{\"role\":\"ROLE_AGENT\",\"messageId\":\"m-1\"}");
         Files.writeString(tmp.resolve("b.json"), "not json");
 
@@ -64,7 +65,8 @@ class MessageArchiveTest {
         final Path file = Files.writeString(tmp.resolve("a.json"), "{\"messageId\":\"m-1\"}");
         Files.setPosixFilePermissions(file, PosixFilePermissions.fromString("---------"));
 
-        assertThatThrownBy(() -> MessageArchive.scan(List.of(tmp), MAX)).isInstanceOf(IOException.class)
+        assertThatThrownBy(() -> MessageArchive.scan(List.of(tmp), MAX))
+                .isInstanceOf(IOException.class)
                 .hasMessageNotContaining("a.json");
     }
 
@@ -78,5 +80,4 @@ class MessageArchiveTest {
     public static boolean isRoot(final Path dir) throws IOException {
         return Integer.valueOf(0).equals(Files.getAttribute(dir, "unix:uid"));
     }
-
 }

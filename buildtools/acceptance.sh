@@ -31,11 +31,11 @@ if installed porelo-message-sluice-filter; then
     mkdir -p "$M"/{incoming,sent} "$M"/filter/{accepted,feedback}
     mkdir -m 700 "$M"/filter/{rejected,error}
     printf '%s\n' '{"messageId":"a-1","role":"ROLE_AGENT","parts":[{"text":"The build is green again."}]}' \
-        > "$M/incoming/clean.json"
+        >"$M/incoming/clean.json"
     printf '%s\n' '{"messageId":"a-2","role":"ROLE_AGENT","parts":[{"text":"Here: UEsDBBQAAAAIAGx0Mlt3b3JkL2RvY3VtZW50LnhtbKxVS27bMBC9C8E7RVJ2m9qw ok."}]}' \
-        > "$M/incoming/payload.json"
+        >"$M/incoming/payload.json"
     printf '%s\n' '{"messageId":"a-3","role":"ROLE_AGENT","parts":[{"raw":"UEsDBBQAAAAI"}]}' \
-        > "$M/incoming/raw.json"
+        >"$M/incoming/raw.json"
     set +e
     env -i PATH=/usr/bin:/bin "$FILTER" --mail "$M" --blocking --stabilityDelayMillis 0
     code=$?

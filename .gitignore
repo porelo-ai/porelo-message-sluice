@@ -1,6 +1,8 @@
 .*
 !.gitignore
 !.gitkeep
+!.editorconfig
+!.git-blame-ignore-revs
 !.mvn
 !.github
 target

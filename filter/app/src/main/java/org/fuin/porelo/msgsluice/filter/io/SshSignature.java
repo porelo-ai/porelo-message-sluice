@@ -4,23 +4,22 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
-
 import org.jspecify.annotations.Nullable;
 
 /**
  * The one signature Porelo writes beside a message: OpenSSH's SSHSIG, detached, Ed25519, namespace
  * {@code porelo-message}, hash sha512, armored exactly as {@code ssh-keygen -Y sign} writes it.
  *
- * <p>
- * The filter files a signature beside a message it accepts, so a signature it did not read would carry
- * whatever was put into it past every detector. Every field of this shape has a fixed length, so nothing fits
- * beside the key and the signature. Whether the signature is valid is the host's check, not this one.
+ * <p>The filter files a signature beside a message it accepts, so a signature it did not read would
+ * carry whatever was put into it past every detector. Every field of this shape has a fixed length,
+ * so nothing fits beside the key and the signature. Whether the signature is valid is the host's
+ * check, not this one.
  */
 public final class SshSignature {
 
     /**
-     * What a signature may occupy on disk. Porelo's is 310 bytes, always; the room above that is for nothing, and a
-     * new key type would move the limit with it.
+     * What a signature may occupy on disk. Porelo's is 310 bytes, always; the room above that is
+     * for nothing, and a new key type would move the limit with it.
      */
     public static final int MAX_BYTES = 1024;
 
@@ -43,8 +42,7 @@ public final class SshSignature {
 
     private static final int ED25519_SIGNATURE = 64;
 
-    private SshSignature() {
-    }
+    private SshSignature() {}
 
     /** Whether these bytes are a signature of the shape Porelo writes, and nothing beside it. */
     public static boolean isPorelos(final byte[] bytes) {
@@ -53,7 +51,9 @@ public final class SshSignature {
         }
         final String text = new String(bytes, StandardCharsets.US_ASCII);
         // US-ASCII turns every byte above 0x7F into U+FFFD, which the base64 check below refuses.
-        if (!text.startsWith(BEGIN) || !text.endsWith(END) || text.length() < BEGIN.length() + END.length()) {
+        if (!text.startsWith(BEGIN)
+                || !text.endsWith(END)
+                || text.length() < BEGIN.length() + END.length()) {
             return false;
         }
         final String body = text.substring(BEGIN.length(), text.length() - END.length());
@@ -66,7 +66,9 @@ public final class SshSignature {
         for (int i = 0; i < lines.length - 1; i++) {
             final String line = lines[i];
             final boolean last = i == lines.length - 2;
-            if (line.isEmpty() || line.length() > LINE || (!last && line.length() != LINE)
+            if (line.isEmpty()
+                    || line.length() > LINE
+                    || (!last && line.length() != LINE)
                     || !line.chars().allMatch(SshSignature::isBase64)) {
                 return false;
             }
@@ -78,7 +80,8 @@ public final class SshSignature {
         } catch (final IllegalArgumentException ex) {
             return false;
         }
-        // The same bytes encode back to the same text: no padding games, no second encoding of one blob.
+        // The same bytes encode back to the same text: no padding games, no second encoding of one
+        // blob.
         if (!Base64.getEncoder().encodeToString(blob).contentEquals(base64)) {
             return false;
         }
@@ -86,7 +89,11 @@ public final class SshSignature {
     }
 
     private static boolean isBase64(final int c) {
-        return c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '+' || c == '/'
+        return c >= 'A' && c <= 'Z'
+                || c >= 'a' && c <= 'z'
+                || c >= '0' && c <= '9'
+                || c == '+'
+                || c == '/'
                 || c == '=';
     }
 
@@ -100,7 +107,9 @@ public final class SshSignature {
             return false;
         }
         final ByteBuffer publicKey = string(in);
-        if (publicKey == null || !text(publicKey, KEY_TYPE) || !bytes(publicKey, ED25519_KEY)
+        if (publicKey == null
+                || !text(publicKey, KEY_TYPE)
+                || !bytes(publicKey, ED25519_KEY)
                 || publicKey.hasRemaining()) {
             return false;
         }
@@ -108,8 +117,11 @@ public final class SshSignature {
             return false;
         }
         final ByteBuffer signature = string(in);
-        return signature != null && text(signature, KEY_TYPE) && bytes(signature, ED25519_SIGNATURE)
-                && !signature.hasRemaining() && !in.hasRemaining();
+        return signature != null
+                && text(signature, KEY_TYPE)
+                && bytes(signature, ED25519_SIGNATURE)
+                && !signature.hasRemaining()
+                && !in.hasRemaining();
     }
 
     private static boolean uint32(final ByteBuffer in, final int expected) {
@@ -139,5 +151,4 @@ public final class SshSignature {
         final ByteBuffer s = string(in);
         return s != null && s.remaining() == length;
     }
-
 }

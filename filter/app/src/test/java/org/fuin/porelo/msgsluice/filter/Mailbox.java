@@ -14,14 +14,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
 import org.fuin.porelo.msgsluice.filter.detect.ContentDetector;
 
 /**
  * A task's mail directory in a temporary directory, with the filter wired to it: {@code incoming/},
  * {@code sent/}, {@code filter/accepted/} and {@code filter/feedback/} readable as usual, and
- * {@code filter/rejected/} and {@code filter/error/} owner-only, because a refused original still holds
- * in clear text whatever it was refused for.
+ * {@code filter/rejected/} and {@code filter/error/} owner-only, because a refused original still
+ * holds in clear text whatever it was refused for.
  */
 final class Mailbox {
 
@@ -32,12 +31,15 @@ final class Mailbox {
     Mailbox(final Path root) {
         this.root = root;
         try {
-            for (final String dir : List.of("incoming", "sent", "filter/accepted", "filter/feedback")) {
+            for (final String dir :
+                    List.of("incoming", "sent", "filter/accepted", "filter/feedback")) {
                 Files.createDirectories(root.resolve(dir));
             }
             for (final String dir : List.of("filter/rejected", "filter/error")) {
-                Files.createDirectories(root.resolve(dir), PosixFilePermissions.asFileAttribute(
-                        PosixFilePermissions.fromString("rwx------")));
+                Files.createDirectories(
+                        root.resolve(dir),
+                        PosixFilePermissions.asFileAttribute(
+                                PosixFilePermissions.fromString("rwx------")));
             }
         } catch (final IOException ex) {
             throw new UncheckedIOException(ex);
@@ -89,7 +91,8 @@ final class Mailbox {
         return new MessageSluice(settings.config(), settings.detectors(), clock(), log::add);
     }
 
-    MessageSluice sluice(final List<ContentDetector> detectors, final String... keyValues) throws ConfigException {
+    MessageSluice sluice(final List<ContentDetector> detectors, final String... keyValues)
+            throws ConfigException {
         return new MessageSluice(settings(keyValues).config(), detectors, clock(), log::add);
     }
 
@@ -105,14 +108,20 @@ final class Mailbox {
         }
     }
 
-    /** Everything the filter wrote or moved anywhere but the refused originals, plus its log, as one string. */
+    /**
+     * Everything the filter wrote or moved anywhere but the refused originals, plus its log, as one
+     * string.
+     */
     String everythingThatLeaves() {
         final StringBuilder sb = new StringBuilder(String.join("\n", log));
         try (Stream<Path> s = Files.walk(root)) {
             for (final Path p : s.toList()) {
                 sb.append('\n').append(p.getFileName());
-                if (Files.isRegularFile(p) && !p.startsWith(rejected()) && !p.startsWith(error())
-                        && !p.startsWith(incoming()) && !p.startsWith(accepted())) {
+                if (Files.isRegularFile(p)
+                        && !p.startsWith(rejected())
+                        && !p.startsWith(error())
+                        && !p.startsWith(incoming())
+                        && !p.startsWith(accepted())) {
                     sb.append('\n').append(Files.readString(p, StandardCharsets.UTF_8));
                 }
             }
@@ -125,11 +134,11 @@ final class Mailbox {
     static String message(final String text) {
         return """
                 {"messageId":"msg-7f6c8f6e-7f2e-4d5f-bf8c-1f3c50a29f12","role":"ROLE_AGENT","contextId":"ctx-1",
-                 "parts":[{"text":%s,"mediaType":"text/plain"}]}""".formatted(quote(text));
+                 "parts":[{"text":%s,"mediaType":"text/plain"}]}"""
+                .formatted(quote(text));
     }
 
     static String quote(final String text) {
         return "\"" + text.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n") + "\"";
     }
-
 }

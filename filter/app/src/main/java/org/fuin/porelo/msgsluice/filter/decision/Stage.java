@@ -16,11 +16,10 @@ public enum Stage {
     CONTEXT;
 
     /**
-     * Whether a blocking finding of this stage refuses in every mode and cannot be configured away. True for
-     * format decisions and for checks that could not run, never for a heuristic.
+     * Whether a blocking finding of this stage refuses in every mode and cannot be configured away.
+     * True for format decisions and for checks that could not run, never for a heuristic.
      */
     public boolean alwaysRefuses() {
         return this == ENVELOPE || this == FRAME;
     }
-
 }

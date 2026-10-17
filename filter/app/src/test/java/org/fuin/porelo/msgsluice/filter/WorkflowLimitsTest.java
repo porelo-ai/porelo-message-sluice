@@ -10,20 +10,21 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Test;
 
 /**
- * A job without {@code timeout-minutes} runs for GitHub's six hours on a slow runner. Read as lines, the way the
- * workflows are written: a job is a two-space key under {@code jobs:}, its limit a four-space key.
+ * A job without {@code timeout-minutes} runs for GitHub's six hours on a slow runner. Read as
+ * lines, the way the workflows are written: a job is a two-space key under {@code jobs:}, its limit
+ * a four-space key.
  */
 class WorkflowLimitsTest {
 
     private static final Path WORKFLOWS = Path.of("..", "..", ".github", "workflows");
 
-    private static final Pattern JOB = Pattern.compile("^  ([A-Za-z0-9_-]+):\\s*$");
+    private static final Pattern JOB = Pattern.compile("^    ([A-Za-z0-9_-]+):\\s*$");
 
-    private static final Pattern LIMIT = Pattern.compile("^    timeout-minutes: [1-9][0-9]*\\s*$");
+    private static final Pattern LIMIT =
+            Pattern.compile("^        timeout-minutes: [1-9][0-9]*\\s*$");
 
     @Test
     void everyJobHasATimeLimit() throws IOException {
@@ -68,5 +69,4 @@ class WorkflowLimitsTest {
             return files.filter(f -> f.getFileName().toString().endsWith(".yml")).sorted().toList();
         }
     }
-
 }

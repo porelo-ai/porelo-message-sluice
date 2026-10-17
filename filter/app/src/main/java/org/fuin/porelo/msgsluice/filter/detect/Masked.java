@@ -5,29 +5,34 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jspecify.annotations.Nullable;
 
 /**
- * A text with its known-legitimate shapes taken out, for the checks that ask whether text looks like English:
- * URLs without their query, up to four isolated UUIDs, an IPv4 address, numbers, dates, times and compact ISO
- * timestamps, currency amounts, acronyms of up to
- * six capitals, and a few short commit hashes. Each masked span becomes one space, so it separates tokens without adding statistics of its own.
+ * A text with its known-legitimate shapes taken out, for the checks that ask whether text looks
+ * like English: URLs without their query, up to four isolated UUIDs, an IPv4 address, numbers,
+ * dates, times and compact ISO timestamps, currency amounts, acronyms of up to six capitals, and a
+ * few short commit hashes. Each masked span becomes one space, so it separates tokens without
+ * adding statistics of its own.
  *
- * <p>
- * Deliberately not masked: a URL's query and fragment, where a payload would sit; a URL path with a segment
- * longer than {@value #MAX_PATH_SEGMENT} characters, or one that makes the URL longer than
- * {@value #MAX_MASKED_URL}; any part of a URL whose host no DNS name could be, and a host label of
- * {@value #LONG_LABEL} characters or more; a UUID next to another UUID, since a chain of them is hex;
- * every UUID of a text that carries more than {@value #MAX_UUIDS}, however they are separated;
- * and hashes, keys and e-mail addresses. A credential check must never see a masked text.
+ * <p>Deliberately not masked: a URL's query and fragment, where a payload would sit; a URL path
+ * with a segment longer than {@value #MAX_PATH_SEGMENT} characters, or one that makes the URL
+ * longer than {@value #MAX_MASKED_URL}; any part of a URL whose host no DNS name could be, and a
+ * host label of {@value #LONG_LABEL} characters or more; a UUID next to another UUID, since a chain
+ * of them is hex; every UUID of a text that carries more than {@value #MAX_UUIDS}, however they are
+ * separated; and hashes, keys and e-mail addresses. A credential check must never see a masked
+ * text.
  */
 public final class Masked {
 
-    /** No path segment of an ordinary URL is longer; a longer one is checked like any other token. */
+    /**
+     * No path segment of an ordinary URL is longer; a longer one is checked like any other token.
+     */
     static final int MAX_PATH_SEGMENT = 48;
 
-    /** Scheme, host and path together; a longer URL keeps its path, which is then checked like any text. */
+    /**
+     * Scheme, host and path together; a longer URL keeps its path, which is then checked like any
+     * text.
+     */
     static final int MAX_MASKED_URL = 256;
 
     /** The longest name DNS can hold, and the longest label in it. */
@@ -36,41 +41,51 @@ public final class Masked {
     static final int MAX_LABEL = 63;
 
     /**
-     * From this length on, a host label stays for the checks to judge: four labels of 63 hex characters are a
-     * valid name and 126 bytes of payload.
+     * From this length on, a host label stays for the checks to judge: four labels of 63 hex
+     * characters are a valid name and 126 bytes of payload.
      */
     static final int LONG_LABEL = 16;
 
     private static final Pattern URL = Pattern.compile("(?i)\\bhttps?://[^\\s<>\"'`]+");
 
-    private static final Pattern UUID = Pattern
-            .compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
+    private static final Pattern UUID =
+            Pattern.compile(
+                    "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
 
-    private static final Pattern DATE = Pattern.compile("(?<![\\w.])\\d{4}-\\d{2}-\\d{2}"
-            + "(?:[T ]\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,9})?)?(?:Z|[+-]\\d{2}:?\\d{2})?)?(?![\\w])");
+    private static final Pattern DATE =
+            Pattern.compile(
+                    "(?<![\\w.])\\d{4}-\\d{2}-\\d{2}"
+                            + "(?:[T ]\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,9})?)?(?:Z|[+-]\\d{2}:?\\d{2})?)?(?![\\w])");
 
-    private static final Pattern TIME = Pattern
-            .compile("(?<![\\w.:])\\d{1,2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,9})?)?Z?(?![\\w:])");
+    private static final Pattern TIME =
+            Pattern.compile("(?<![\\w.:])\\d{1,2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,9})?)?Z?(?![\\w:])");
 
     /**
-     * Grouped thousands of any length, or at most thirteen plain digits - a Unix time in milliseconds; a
-     * 300-digit number is not masked.
+     * Grouped thousands of any length, or at most thirteen plain digits - a Unix time in
+     * milliseconds; a 300-digit number is not masked.
      */
-    private static final Pattern NUMBER = Pattern.compile("(?<![\\w.])[$€£¥]?(?:\\d{1,3}(?:[,']\\d{3})+|\\d{1,13})"
-            + "(?:\\.\\d{1,4})?(?:%|[kKmMbB]|ms|s|h)?(?![\\w])");
+    private static final Pattern NUMBER =
+            Pattern.compile(
+                    "(?<![\\w.])[$€£¥]?(?:\\d{1,3}(?:[,']\\d{3})+|\\d{1,13})"
+                            + "(?:\\.\\d{1,4})?(?:%|[kKmMbB]|ms|s|h)?(?![\\w])");
 
     /** 20260916T082314Z, the compact ISO form - how this filter itself names its answers. */
-    private static final Pattern BASIC_TIMESTAMP = Pattern
-            .compile("(?<![0-9])\\d{8}T\\d{4}(?:\\d{2}(?:\\d{1,9})?)?Z?(?![0-9])");
+    private static final Pattern BASIC_TIMESTAMP =
+            Pattern.compile("(?<![0-9])\\d{8}T\\d{4}(?:\\d{2}(?:\\d{1,9})?)?Z?(?![0-9])");
 
-    private static final Pattern IPV4 = Pattern
-            .compile("(?<![\\w.])(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)){3}(?![\\w.])");
+    private static final Pattern IPV4 =
+            Pattern.compile(
+                    "(?<![\\w.])(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)){3}(?![\\w.])");
 
     private static final Pattern ACRONYM = Pattern.compile("(?<![\\w])[A-Z]{2,6}s?(?![\\w])");
 
-    /** A short commit hash, as agents name commits. Not masked when there are many: then they are a payload. */
-    private static final Pattern SHORT_HASH = Pattern
-            .compile("(?<![0-9A-Za-z])(?=[0-9a-f]*[0-9])(?=[0-9a-f]*[a-f])[0-9a-f]{7,12}(?![0-9A-Za-z])");
+    /**
+     * A short commit hash, as agents name commits. Not masked when there are many: then they are a
+     * payload.
+     */
+    private static final Pattern SHORT_HASH =
+            Pattern.compile(
+                    "(?<![0-9A-Za-z])(?=[0-9a-f]*[0-9])(?=[0-9a-f]*[a-f])[0-9a-f]{7,12}(?![0-9A-Za-z])");
 
     static final int MAX_SHORT_HASHES = 8;
 
@@ -97,10 +112,9 @@ public final class Masked {
     }
 
     /**
-     * @param everything {@code false} masks only URLs, isolated UUIDs, IPv4 addresses and compact ISO
-     *                   timestamps: numbers, dates and acronyms stay, for
-     *                   the checks that recognize an encoding by its alphabet, where a run of 0 and 1 is a number
-     *                   to everything else
+     * @param everything {@code false} masks only URLs, isolated UUIDs, IPv4 addresses and compact
+     *     ISO timestamps: numbers, dates and acronyms stay, for the checks that recognize an
+     *     encoding by its alphabet, where a run of 0 and 1 is a number to everything else
      */
     public static Masked of(final String source, final boolean everything) {
         final List<int[]> spans = new ArrayList<>();
@@ -108,14 +122,16 @@ public final class Masked {
         while (url.find()) {
             urlSpan(source, url.start(), url.end(), spans);
         }
-        // An address or a timestamp is not an encoding. A credential check sees them, since it never masks.
+        // An address or a timestamp is not an encoding. A credential check sees them, since it
+        // never masks.
         for (final Pattern always : List.of(IPV4, BASIC_TIMESTAMP)) {
             final Matcher m = always.matcher(source);
             while (m.find()) {
                 spans.add(new int[] {m.start(), m.end()});
             }
         }
-        // A few ids are ids. Many are 16 bytes of data each, however they are separated, so past the limit
+        // A few ids are ids. Many are 16 bytes of data each, however they are separated, so past
+        // the limit
         // none is masked and the hex checks see all of them.
         final List<int[]> uuids = new ArrayList<>();
         final Matcher uuid = UUID.matcher(source);
@@ -129,7 +145,8 @@ public final class Masked {
                 }
             }
         }
-        for (final Pattern pattern : everything ? List.of(DATE, TIME, NUMBER, ACRONYM) : List.<Pattern>of()) {
+        for (final Pattern pattern :
+                everything ? List.of(DATE, TIME, NUMBER, ACRONYM) : List.<Pattern>of()) {
             final Matcher m = pattern.matcher(source);
             while (m.find()) {
                 spans.add(new int[] {m.start(), m.end()});
@@ -173,17 +190,21 @@ public final class Masked {
             to.add(i + 1);
             i++;
         }
-        return new Masked(source, out.toString(), from.stream().mapToInt(Integer::intValue).toArray(),
+        return new Masked(
+                source,
+                out.toString(),
+                from.stream().mapToInt(Integer::intValue).toArray(),
                 to.stream().mapToInt(Integer::intValue).toArray());
     }
 
     /**
-     * Scheme, host and path are masked; the query and fragment stay. A path with an overlong segment, or one that
-     * makes the URL longer than {@value #MAX_MASKED_URL} characters, stays. A host that no DNS name could be is
-     * not masked at all, and a host label of {@value #LONG_LABEL} characters or more stays, so that the checks
-     * judge it as the token it is.
+     * Scheme, host and path are masked; the query and fragment stay. A path with an overlong
+     * segment, or one that makes the URL longer than {@value #MAX_MASKED_URL} characters, stays. A
+     * host that no DNS name could be is not masked at all, and a host label of {@value #LONG_LABEL}
+     * characters or more stays, so that the checks judge it as the token it is.
      */
-    private static void urlSpan(final String source, final int start, final int rawEnd, final List<int[]> spans) {
+    private static void urlSpan(
+            final String source, final int start, final int rawEnd, final List<int[]> spans) {
         int end = rawEnd;
         // Sentence punctuation after a URL is not part of it.
         while (end > start && ".,;:!?)]}".indexOf(source.charAt(end - 1)) >= 0) {
@@ -224,16 +245,19 @@ public final class Masked {
     }
 
     /**
-     * The labels of {@code url[from, to)} that are {@value #LONG_LABEL} characters or longer, or {@code null} when
-     * it is not a name DNS could hold with an optional port: at most {@value #MAX_HOST} characters, labels of 1 to
-     * {@value #MAX_LABEL} letters, digits and dashes. An IPv4 address is such a name too.
+     * The labels of {@code url[from, to)} that are {@value #LONG_LABEL} characters or longer, or
+     * {@code null} when it is not a name DNS could hold with an optional port: at most {@value
+     * #MAX_HOST} characters, labels of 1 to {@value #MAX_LABEL} letters, digits and dashes. An IPv4
+     * address is such a name too.
      */
     static @Nullable List<int[]> hostLabels(final String url, final int from, final int to) {
         int hostEnd = to;
         final int colon = url.lastIndexOf(':', to - 1);
         if (colon >= from) {
             final String port = url.substring(colon + 1, to);
-            if (port.isEmpty() || port.length() > 5 || !port.chars().allMatch(c -> c >= '0' && c <= '9')) {
+            if (port.isEmpty()
+                    || port.length() > 5
+                    || !port.chars().allMatch(c -> c >= '0' && c <= '9')) {
                 return null;
             }
             hostEnd = colon;
@@ -256,7 +280,10 @@ public final class Masked {
                 continue;
             }
             final char c = url.charAt(i);
-            if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '-')) {
+            if (!(c >= 'a' && c <= 'z'
+                    || c >= 'A' && c <= 'Z'
+                    || c >= '0' && c <= '9'
+                    || c == '-')) {
                 return null;
             }
         }
@@ -289,5 +316,4 @@ public final class Masked {
     public int[] toSource(final int start, final int end) {
         return new int[] {from[start], to[end - 1]};
     }
-
 }

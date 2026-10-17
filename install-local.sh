@@ -40,6 +40,8 @@ install_binary() { # built target
 
 partial=
 trap '[ -z "$partial" ] || rm -f "$partial"' EXIT
-trap 'exit 129' HUP; trap 'exit 130' INT; trap 'exit 143' TERM
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 install_binary "$REPO/filter/app/target/porelo-message-sluice-filter" "$FILTER"

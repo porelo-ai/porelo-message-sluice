@@ -8,8 +8,7 @@ final class Tokens {
 
     private static final String TRIM = ".,;:!?()[]{}\"'`*<>";
 
-    private Tokens() {
-    }
+    private Tokens() {}
 
     /** Each token as {@code [start, end)} into {@code text}. */
     static List<int[]> of(final String text) {
@@ -40,5 +39,4 @@ final class Tokens {
     static boolean isVowel(final char c) {
         return "aeiouyAEIOUY".indexOf(c) >= 0;
     }
-
 }

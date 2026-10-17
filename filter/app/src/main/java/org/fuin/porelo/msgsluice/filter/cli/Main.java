@@ -1,5 +1,6 @@
 package org.fuin.porelo.msgsluice.filter.cli;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -8,7 +9,6 @@ import java.time.Clock;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.fuin.porelo.msgsluice.filter.AgentCard;
 import org.fuin.porelo.msgsluice.filter.Calibration;
 import org.fuin.porelo.msgsluice.filter.ConfigException;
@@ -16,8 +16,6 @@ import org.fuin.porelo.msgsluice.filter.MessageSluice;
 import org.fuin.porelo.msgsluice.filter.Settings;
 import org.fuin.porelo.msgsluice.filter.io.DirectoryLock;
 import org.jspecify.annotations.Nullable;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * The command line.
@@ -29,13 +27,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * porelo-message-sluice --agent-card --mail &lt;dir&gt;                                  prints its A2A agent card
  * </pre>
  *
- * Exit codes: 0 everything accepted, 1 something refused, 2 a technical error or a configuration that cannot
- * be used.
+ * Exit codes: 0 everything accepted, 1 something refused, 2 a technical error or a configuration
+ * that cannot be used.
  */
 public final class Main {
 
-    private Main() {
-    }
+    private Main() {}
 
     public static void main(final String[] args) {
         System.exit(run(args, System.out, System.err));
@@ -46,14 +43,17 @@ public final class Main {
         try {
             return runChecked(args, out, err);
         } catch (final RuntimeException | Error ex) {
-            // Escaping, it would end the JVM with 1, which says "something refused" rather than "not checked".
+            // Escaping, it would end the JVM with 1, which says "something refused" rather than
+            // "not checked".
             // Only the type: a message may quote what was being read.
-            err.println("porelo-message-sluice-filter: technical error: " + ex.getClass().getName());
+            err.println(
+                    "porelo-message-sluice-filter: technical error: " + ex.getClass().getName());
             return 2;
         }
     }
 
-    private static int runChecked(final String[] args, final PrintStream out, final PrintStream err) {
+    private static int runChecked(
+            final String[] args, final PrintStream out, final PrintStream err) {
         final Map<String, String> cli = new LinkedHashMap<>();
         Path configFile = null;
         Path dryRunFile = null;
@@ -92,8 +92,14 @@ public final class Main {
             }
             if (agentCard) {
                 final Settings settings = Settings.load(configFile, cli);
-                out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(
-                        AgentCard.of(new ObjectMapper(), settings.config(), MessageSluice.version())));
+                out.println(
+                        new ObjectMapper()
+                                .writerWithDefaultPrettyPrinter()
+                                .writeValueAsString(
+                                        AgentCard.of(
+                                                new ObjectMapper(),
+                                                settings.config(),
+                                                MessageSluice.version())));
                 return 0;
             }
             if (calibrate) {
@@ -112,12 +118,20 @@ public final class Main {
                 throw new ConfigException("--file is only for --dry-run");
             }
             final Settings settings = Settings.load(configFile, cli);
-            final MessageSluice sluice = new MessageSluice(settings.config(), settings.detectors(),
-                    Clock.systemUTC(), err::println);
+            final MessageSluice sluice =
+                    new MessageSluice(
+                            settings.config(),
+                            settings.detectors(),
+                            Clock.systemUTC(),
+                            err::println);
             sluice.checkDirectories();
-            err.println("porelo-message-sluice-filter " + MessageSluice.version() + " - "
-                    + (settings.config().blocking() ? "BLOCKING: refused messages are refused"
-                            : "REPORTING: nothing is refused for its content until blocking is switched on"));
+            err.println(
+                    "porelo-message-sluice-filter "
+                            + MessageSluice.version()
+                            + " - "
+                            + (settings.config().blocking()
+                                    ? "BLOCKING: refused messages are refused"
+                                    : "REPORTING: nothing is refused for its content until blocking is switched on"));
             settings.describe().forEach(line -> err.println("  " + line));
             try (DirectoryLock lock = DirectoryLock.acquire(settings.config().lock())) {
                 if (watch) {
@@ -132,21 +146,30 @@ public final class Main {
             err.println("porelo-message-sluice-filter: " + ex.getMessage());
             return 2;
         } catch (final IOException ex) {
-            err.println("porelo-message-sluice-filter: " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
+            err.println(
+                    "porelo-message-sluice-filter: "
+                            + ex.getClass().getSimpleName()
+                            + ": "
+                            + ex.getMessage());
             return 2;
         }
     }
 
-    private static int dryRun(final Path file, final @Nullable Path configFile, final Map<String, String> cli,
-            final PrintStream out) throws ConfigException, IOException {
+    private static int dryRun(
+            final Path file,
+            final @Nullable Path configFile,
+            final Map<String, String> cli,
+            final PrintStream out)
+            throws ConfigException, IOException {
         // The directories are not used, so a dry run needs none of them.
         final Map<String, String> withDummies = new LinkedHashMap<>(cli);
         final Path absolute = file.toAbsolutePath();
         final Path parent = absolute.getParent();
         withDummies.putIfAbsent("mail", (parent == null ? absolute : parent).toString());
         final Settings settings = Settings.load(configFile, withDummies);
-        final MessageSluice sluice = new MessageSluice(settings.config(), settings.detectors(), Clock.systemUTC(),
-                line -> { });
+        final MessageSluice sluice =
+                new MessageSluice(
+                        settings.config(), settings.detectors(), Clock.systemUTC(), line -> {});
         final MessageSluice.FileResult result = sluice.dryRun(file);
         out.println(result.describe());
         return switch (result.outcome()) {
@@ -156,9 +179,16 @@ public final class Main {
         };
     }
 
-    /** Reads a directory, moves nothing, and prints a properties file. The directory defaults to the corpus. */
-    private static int calibrate(final @Nullable Path dir, final @Nullable Path configFile,
-            final Map<String, String> cli, final PrintStream out) throws ConfigException, IOException {
+    /**
+     * Reads a directory, moves nothing, and prints a properties file. The directory defaults to the
+     * corpus.
+     */
+    private static int calibrate(
+            final @Nullable Path dir,
+            final @Nullable Path configFile,
+            final Map<String, String> cli,
+            final PrintStream out)
+            throws ConfigException, IOException {
         final Map<String, String> withDummies = new LinkedHashMap<>(cli);
         if (dir != null) {
             withDummies.putIfAbsent("mail", dir.toAbsolutePath().toString());
@@ -172,7 +202,8 @@ public final class Main {
         return 0;
     }
 
-    private static String value(final String[] args, final int i, final String option) throws ConfigException {
+    private static String value(final String[] args, final int i, final String option)
+            throws ConfigException {
         if (i >= args.length) {
             throw new ConfigException(option + " needs a value");
         }
@@ -181,8 +212,16 @@ public final class Main {
 
     /** For a test: the options this command line knows beside the configuration keys. */
     static List<String> flags() {
-        return List.of("--watch", "--dry-run", "--calibrate", "--agent-card", "--dir", "--blocking", "--no-receipt", "--config",
-                "--file", "--category");
+        return List.of(
+                "--watch",
+                "--dry-run",
+                "--calibrate",
+                "--agent-card",
+                "--dir",
+                "--blocking",
+                "--no-receipt",
+                "--config",
+                "--file",
+                "--category");
     }
-
 }
