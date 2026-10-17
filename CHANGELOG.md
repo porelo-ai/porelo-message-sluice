@@ -9,11 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Sokar is now Porelo: the filter is `porelo-message-sluice-filter`, published as `org.fuin.porelo` 0.5.0.
+  Its packages install it at `/usr/libexec/porelo/`, depend on the package `porelo` and are published to
+  `porelo-dist-deb` and `porelo-dist-rpm`; `install-local.sh` puts it in `$XDG_DATA_HOME/porelo/filter/` and
+  removes nothing else. A signature beside a message passes only in the namespace `porelo-message`, the one
+  Porelo writes.
 - Every workflow run is titled by its workflow, branch and commit, and the shared-rules workflow is named
   `Shared rules check`.
 - The `Shared rules check` runs once a day, on a pull request and by hand, no longer on every push; the
   documents are checked on the host before every hand-over.
-- The build takes `sokar-parent` 0.1.4-SNAPSHOT, and with it `sokar-buildtools` 0.4.5-SNAPSHOT; a release of this
+- The build takes `porelo-parent` 0.2.0-SNAPSHOT, and with it `porelo-buildtools` 0.5.0-SNAPSHOT; a release of this
   repository waits until both are released and pinned.
 
 ## [0.4.1] - 2026-10-08

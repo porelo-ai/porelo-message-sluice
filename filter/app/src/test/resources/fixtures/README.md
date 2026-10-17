@@ -1,7 +1,7 @@
 # Fixtures
 
 One message per file, for running the filter against something known - in this repository's tests
-and on Sokar's host side. `FixturesTest` runs every one of them in both modes, so a file here stays
+and on Porelo's host side. `FixturesTest` runs every one of them in both modes, so a file here stays
 true as the code changes.
 
 The name says what happens to it:

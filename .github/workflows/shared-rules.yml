@@ -37,7 +37,7 @@ jobs:
           key: maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: maven-
 
-      # As in the Build workflow: the GraalVM that compiles the tests is the one sokar-machines pins,
+      # As in the Build workflow: the GraalVM that compiles the tests is the one porelo-machines pins,
       # its archive checked against the pinned digest; the runner's own Java 25 only runs that step
       # and the checks.
       - name: The pinned GraalVM
@@ -46,14 +46,14 @@ jobs:
           ./mvnw -B -q -U -N -Pci-tools -s settings.xml dependency:build-classpath \
               -Dmdep.outputFile="$RUNNER_TEMP/tools.classpath"
           "$JAVA_HOME/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \
-              org.fuin.sokar.machines.Main jdk --github
+              org.fuin.porelo.machines.Main jdk --github
 
       # The shared rules are copied byte for byte into every repository; an edited copy no longer
       # matches the hash its markers carry.
       - name: The shared rules are unchanged copies
         run: |
           "$JAVA_HOME_25_X64/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \
-              org.fuin.sokar.release.Main check-shared AGENTS.md
+              org.fuin.porelo.release.Main check-shared AGENTS.md
 
       # An issue's file is deleted when it is finished, so nothing links to it and nothing outside
       # issues/ cites its number; every page is in the site's navigation once, and no link leaves doc/;
@@ -61,11 +61,11 @@ jobs:
       - name: The documents cite no issue, the site holds every page, every module says what it is
         run: |
           "$JAVA_HOME_25_X64/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \
-              org.fuin.sokar.release.Main check-citations .
+              org.fuin.porelo.release.Main check-citations .
           "$JAVA_HOME_25_X64/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \
-              org.fuin.sokar.release.Main check-doc-site doc mkdocs.yml
+              org.fuin.porelo.release.Main check-doc-site doc mkdocs.yml
           "$JAVA_HOME_25_X64/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \
-              org.fuin.sokar.release.Main check-readmes .
+              org.fuin.porelo.release.Main check-readmes .
 
       # Every test that reads a document carries the tag documents, and the guard among them fails
       # when one does not.

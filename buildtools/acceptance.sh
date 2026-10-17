@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Run by Sokar's machine tool on a rented machine, as an unprivileged user, after it installed Sokar
+# Run by Porelo's machine tool on a rented machine, as an unprivileged user, after it installed Porelo
 # and this repository's package from a candidate directory. Shell, because it runs on a
 # machine that has nothing of this repository but the package: it checks what an operator would.
 #
 # Exit 0 only when the installed package is registered with the package manager, its binary is where
-# Sokar looks for it, and it works without any Java on the PATH.
+# Porelo looks for it, and it works without any Java on the PATH.
 set -euo pipefail
 
 if [ "$(id -u)" -eq 0 ]; then
@@ -20,12 +20,12 @@ installed() {
     fi
 }
 
-FILTER=/usr/libexec/sokar/sokar-message-sluice-filter
+FILTER=/usr/libexec/porelo/porelo-message-sluice-filter
 checked=0
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
-if installed sokar-message-sluice-filter; then
+if installed porelo-message-sluice-filter; then
     test -x "$FILTER"
     M="$work/mail"
     mkdir -p "$M"/{incoming,sent} "$M"/filter/{accepted,feedback}

@@ -1,11 +1,11 @@
-# Sokar Message Sluice
+# Porelo Message Sluice
 
-The filter that every message an AI agent sends under Sokar passes through. It lets plain English
+The filter that every message an AI agent sends under Porelo passes through. It lets plain English
 prose through and refuses a message that carries data instead: an encoded payload, a file in a
 message part, a link or data part where text belongs.
 
 It is an **egress filter**: it stops an agent from sending data out, whether by accident or because
-a prompt injection told it to. Sokar also runs it over messages that arrive from a peer it does not
+a prompt injection told it to. Porelo also runs it over messages that arrive from a peer it does not
 vouch for.
 
 **There is no language model inside it.** Fixed rules, the same verdict every time for the same
@@ -22,7 +22,7 @@ round by the same text it is checking.
 - **Hidden characters**: zero-width and bidi characters, and words that mix Latin with look-alike
   letters, are reported; enough of them refuse the message.
 
-Sokar runs it **blocking**, in both directions: a refused message does not reach the peer unless a
+Porelo runs it **blocking**, in both directions: a refused message does not reach the peer unless a
 person reads it and delivers it. Its sender gets an answer naming each finding, with what was found
 masked. A project may set the outgoing check to report only, on purpose:
 `mail.outgoing_filter: reporting`.
@@ -42,15 +42,15 @@ task's outbox ──▶ incoming/ ──▶ [ filter ] ──▶ accepted/ ─�
                                     └─ refused ─▶ an answer back to the sender
 ```
 
-The filter comes with Sokar's package, which recommends it, and with every transport, which depends
-on it. Sokar drives it; nobody calls it by hand. Without it Sokar sends nothing. It works on files in
+The filter comes with Porelo's package, which recommends it, and with every transport, which depends
+on it. Porelo drives it; nobody calls it by hand. Without it Porelo sends nothing. It works on files in
 a task's mailbox, so it carries nothing itself and knows no transport. The transport that carries
-what passed is [`sokar-message-matrix`](https://github.com/sokar-ai/sokar-message-matrix).
+what passed is [`porelo-message-matrix`](https://github.com/porelo-ai/porelo-message-matrix).
 
 To see what it says about one message:
 
 ```
-/usr/libexec/sokar/sokar-message-sluice-filter --dry-run --file message.json --blocking
+/usr/libexec/porelo/porelo-message-sluice-filter --dry-run --file message.json --blocking
 ```
 
 ## The pages

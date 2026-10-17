@@ -1,9 +1,9 @@
 # SL24 — A code comment, the filter's side
 
-**Status:** Estimated; blocked by Sokar [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166), which defines the comment model and what the host checks, and by
+**Status:** Estimated; blocked by Porelo [B166](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b166), which defines the comment model and what the host checks, and by
 [SL23](README.md#sl23), whose narrowed schema it adds a kind to.
 **Size:** L - new envelope rules and a second set of detector thresholds measured on a code corpus,
-for the shape [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166) sets.
+for the shape [B166](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b166) sets.
 
 **What must be true.** A comment on code - a message of the kind `comment` - passes the filter only in
 its exact shape: an anchor that names a place, prose that is prose, and at most a suggestion that is
@@ -28,11 +28,11 @@ rule for today:
 - **The anchor is checked by its shape, field by field, and is not text:** repository a peer name,
   commit 40 or 64 lower-case hex digits, path a relative path (no `..`, no leading `/`, bounded
   length, printable characters only), side `old` or `new`, and first and last line, at most 100 lines
-  apart, as [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166) sets it. Whether that commit, path and lines exist is the host's to check; the
+  apart, as [B166](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b166) sets it. Whether that commit, path and lines exist is the host's to check; the
   filter only makes sure the anchor can hold nothing but a place.
 - **The text is prose**, judged by the detectors as every text part is, with today's length limit.
 - **The suggestion is a field of its own, optional:** at most as many lines as the anchor spans plus
-  10, at most 400 characters a line and 8 KiB in all, as [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166) sets it. It goes to the detectors that find encoded
+  10, at most 400 characters a line and 8 KiB in all, as [B166](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b166) sets it. It goes to the detectors that find encoded
   data (long tokens, signatures, window entropy), with thresholds measured against code rather than
   prose; the detectors that judge whether text reads like a language do not see it. A suggestion
   without an anchor, or longer than its bounds, is refused by its own rule.
@@ -42,7 +42,7 @@ rule for today:
 - **The same rules both ways.** An inbound comment from a forge is held to the same shape and the same
   detectors before it is delivered into a task; which forge accounts are delivered at all is the
   host's list, not the filter's.
-- **`comment` is a sixth kind of [SL23](README.md#sl23)'s narrowed schema**, as [B166](https://github.com/sokar-ai/sokar/blob/main/issues/base/README.md#b166) decides, so it
+- **`comment` is a sixth kind of [SL23](README.md#sl23)'s narrowed schema**, as [B166](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b166) decides, so it
   is built on [SL23](README.md#sl23)'s envelope rules.
 - **One rule per refusal**, named in the answer, as for every envelope rule.
 

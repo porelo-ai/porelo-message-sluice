@@ -1,6 +1,6 @@
 # The filter
 
-`sokar-message-sluice-filter` reads the messages in a task's mailbox, refuses the ones that carry
+`porelo-message-sluice-filter` reads the messages in a task's mailbox, refuses the ones that carry
 data instead of prose, and answers every message with what it found. It has no queue, no network and
 no knowledge of any transport: it reads a file, decides, answers and moves the file.
 
@@ -9,14 +9,14 @@ that: the directories, the envelope, the verdict, the answers and the command li
 
 ## The directories
 
-Sokar lays out the mailbox and gives the filter its paths. The filter creates no directory and does
+Porelo lays out the mailbox and gives the filter its paths. The filter creates no directory and does
 not start when one is missing:
 
 ```
 <task state>/mail/
 ├─ incoming/            messages to check, each with <name>.sig beside it
 ├─ filter/
-│   ├─ accepted/        what passed, with its signature; Sokar sends it on from here
+│   ├─ accepted/        what passed, with its signature; Porelo sends it on from here
 │   ├─ feedback/        one answer per message
 │   ├─ rejected/        the refused originals, in clear text - 0700
 │   └─ error/           files that are not a message, with <name>.error.txt - 0700
@@ -40,13 +40,13 @@ write there.
   a message's size counts for nothing.
 - **The file name** is 1 to 128 letters, digits, `.`, `_` and `-`, starts with a letter or digit and
   ends in `.json`. It travels with the message, so the detectors check it like a text.
-- **The signature** beside it must have exactly the shape Sokar writes (an OpenSSH Ed25519 signature,
-  at most 1 KiB), so nothing can ride along in it. The filter checks the shape; Sokar checks the
+- **The signature** beside it must have exactly the shape Porelo writes (an OpenSSH Ed25519 signature,
+  at most 1 KiB), so nothing can ride along in it. The filter checks the shape; Porelo checks the
   signature itself.
 - The JSON is parsed strictly, and **only strict UTF-8** is read.
 
 **The filter never changes a message.** What it files is exactly the bytes it checked, because those
-are the bytes Sokar signs and sends. **Every message gets an answer**, written before the message is
+are the bytes Porelo signs and sends. **Every message gets an answer**, written before the message is
 filed, so a crash leads at worst to a second answer, never to a message dropped in silence.
 
 ## The envelope
@@ -77,7 +77,7 @@ and value of `metadata`, extensions, unknown fields and the ids. A UUID passes a
 string does not, whatever field it is in.
 
 **Roles:** a message may be the agent's (`ROLE_AGENT`) or a person's (`ROLE_USER`); both are checked
-alike. That a person really wrote it is Sokar's to check, not the filter's.
+alike. That a person really wrote it is Porelo's to check, not the filter's.
 
 **A file that is not a message** - empty, not UTF-8, not JSON, not A2A 1.0 - goes to `error/` and still
 gets an answer, so a broken file is never a way to make a message vanish. What `error/` keeps is the
@@ -99,9 +99,9 @@ Findings are `INFO`, `SUSPICIOUS` or `BLOCKING`, and no detector decides on its 
 
 **Reporting or blocking.** With `--blocking` the verdict above refuses. Without it the filter only
 reports: only the envelope refuses, and each answer says what blocking would have refused
-(`wouldReject: true`). **Sokar runs it blocking**, for what a task sends and for what arrives from a
+(`wouldReject: true`). **Porelo runs it blocking**, for what a task sends and for what arrives from a
 peer it does not vouch for. A project may set its outgoing check to report only, on purpose
-(`mail.outgoing_filter: reporting`); Sokar then holds every message the filter would have refused,
+(`mail.outgoing_filter: reporting`); Porelo then holds every message the filter would have refused,
 and every message whose answer is missing, until a person releases it, and shows the verdict there.
 
 ## The answers
@@ -123,10 +123,10 @@ A key of `metadata` above a finding, and a field the envelope reports, is named 
 ## The command line
 
 ```
-sokar-message-sluice-filter --mail <dir> [--blocking] [--watch] [--config <file>] [--<key> <value> ...]
-sokar-message-sluice-filter --dry-run --file <message> [--blocking]   # checks one file, moves nothing
-sokar-message-sluice-filter --calibrate [--dir <messages>]            # prints a configuration
-sokar-message-sluice-filter --agent-card --mail <dir>                 # prints its A2A agent card
+porelo-message-sluice-filter --mail <dir> [--blocking] [--watch] [--config <file>] [--<key> <value> ...]
+porelo-message-sluice-filter --dry-run --file <message> [--blocking]   # checks one file, moves nothing
+porelo-message-sluice-filter --calibrate [--dir <messages>]            # prints a configuration
+porelo-message-sluice-filter --agent-card --mail <dir>                 # prints its A2A agent card
 ```
 
 **Exit codes:** 0 everything passed, 1 something was refused, 2 a technical error or a configuration
@@ -144,7 +144,7 @@ with where its value came from. The detectors' keys are in [`detectors.md`](dete
 
 1. **The agent has no other way out.** A filter the agent can send around checks only part of what
    leaves.
-2. **Nothing but the filter writes into `accepted/`**, and nothing but Sokar's sending takes from it.
+2. **Nothing but the filter writes into `accepted/`**, and nothing but Porelo's sending takes from it.
 
 ## Known limits
 
@@ -154,4 +154,4 @@ with where its value came from. The detectors' keys are in [`detectors.md`](dete
 | Information hidden in word choice | out of scope |
 | A2A 1.0 only | a lossless conversion in front |
 | Files only, no A2A protocol operation | a transport adapter; the checks would stay the same |
-| A repeated message id is found only among this mailbox's files | Sokar's own check, by id |
+| A repeated message id is found only among this mailbox's files | Porelo's own check, by id |

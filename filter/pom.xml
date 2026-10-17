@@ -6,14 +6,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fuin.sokar</groupId>
-        <artifactId>sokar-message-sluice</artifactId>
-        <version>0.4.2-SNAPSHOT</version>
+        <groupId>org.fuin.porelo</groupId>
+        <artifactId>porelo-message-sluice</artifactId>
+        <version>0.5.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sokar-message-sluice-filter-parent</artifactId>
+    <artifactId>porelo-message-sluice-filter-parent</artifactId>
     <packaging>pom</packaging>
-    <name>Sokar Message Sluice Filter (parent)</name>
+    <name>Porelo Message Sluice Filter (parent)</name>
     <description>The filter: its code and its packages</description>
 
     <!-- The code, and with -Pdist one package per format. -->

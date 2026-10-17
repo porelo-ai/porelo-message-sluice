@@ -6,23 +6,23 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fuin.sokar</groupId>
-        <artifactId>sokar-message-sluice-filter-parent</artifactId>
-        <version>0.4.2-SNAPSHOT</version>
+        <groupId>org.fuin.porelo</groupId>
+        <artifactId>porelo-message-sluice-filter-parent</artifactId>
+        <version>0.5.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sokar-message-sluice-filter-rpm</artifactId>
+    <artifactId>porelo-message-sluice-filter-rpm</artifactId>
     <packaging>pom</packaging>
-    <name>sokar-message-sluice-filter (.rpm)</name>
-    <description>The .rpm package of sokar-message-sluice-filter</description>
+    <name>porelo-message-sluice-filter (.rpm)</name>
+    <description>The .rpm package of porelo-message-sluice-filter</description>
 
     <!-- The native binary is not a Maven artifact, so it is found by path. The dependency only puts
          this module after the one that builds it. -->
 
     <dependencies>
         <dependency>
-            <groupId>org.fuin.sokar</groupId>
-            <artifactId>sokar-message-sluice-filter</artifactId>
+            <groupId>org.fuin.porelo</groupId>
+            <artifactId>porelo-message-sluice-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -54,8 +54,8 @@
                             <goal>rpm</goal>
                         </goals>
                         <configuration>
-                            <packageName>sokar-message-sluice-filter</packageName>
-                            <outputFileName>sokar-message-sluice-filter-${sluice.package.version}-1.x86_64.rpm</outputFileName>
+                            <packageName>porelo-message-sluice-filter</packageName>
+                            <outputFileName>porelo-message-sluice-filter-${sluice.package.version}-1.x86_64.rpm</outputFileName>
                             <version>${sluice.package.version}</version>
                             <snapshotVersion>${sluice.package.version}</snapshotVersion>
                             <release>1</release>
@@ -64,26 +64,26 @@
                             <group>Applications/System</group>
                             <license>GPL-3.0-or-later</license>
                             <summary>Refuses an outgoing agent message that carries data</summary>
-                            <description>The filter Sokar runs over every message a task sends: only plain English prose passes.</description>
+                            <description>The filter Porelo runs over every message a task sends: only plain English prose passes.</description>
                             <evalHostname>false</evalHostname>
                             <skipSigning>true</skipSigning>
                             <attach>false</attach>
                             <!-- The names rpmbuild itself would generate from the binary. -->
                             <requires>
-                                <require>sokar</require>
+                                <require>porelo</require>
                                 <require>libc.so.6(GLIBC_${sluice.glibc.floor})(64bit)</require>
                                 <require>libz.so.1(ZLIB_${sluice.zlib.floor})(64bit)</require>
                             </requires>
                             <entries>
                                 <entry>
-                                    <name>/usr/libexec/sokar/sokar-message-sluice-filter</name>
-                                    <file>${project.basedir}/../app/target/sokar-message-sluice-filter</file>
+                                    <name>/usr/libexec/porelo/porelo-message-sluice-filter</name>
+                                    <file>${project.basedir}/../app/target/porelo-message-sluice-filter</file>
                                     <user>root</user>
                                     <group>root</group>
                                     <mode>0755</mode>
                                 </entry>
                                 <entry>
-                                    <name>/usr/share/doc/sokar-message-sluice-filter/bom.json</name>
+                                    <name>/usr/share/doc/porelo-message-sluice-filter/bom.json</name>
                                     <file>${project.basedir}/../app/target/bom.json</file>
                                     <user>root</user>
                                     <group>root</group>
@@ -91,7 +91,7 @@
                                     <documentation>true</documentation>
                                 </entry>
                                 <entry>
-                                    <name>/usr/share/licenses/sokar-message-sluice-filter/LICENSE</name>
+                                    <name>/usr/share/licenses/porelo-message-sluice-filter/LICENSE</name>
                                     <file>${project.basedir}/../../LICENSE</file>
                                     <user>root</user>
                                     <group>root</group>
@@ -145,8 +145,8 @@
                             <systemPropertyVariables>
                                 <sluice.project.version>${project.version}</sluice.project.version>
                                 <sluice.snapshot.run>${sluice.snapshot.run}</sluice.snapshot.run>
-                                <sluice.deb>${project.basedir}/../dist-deb/target/sokar-message-sluice-filter_${sluice.package.version}_amd64.deb</sluice.deb>
-                                <sluice.rpm>${project.build.directory}/sokar-message-sluice-filter-${sluice.package.version}-1.x86_64.rpm</sluice.rpm>
+                                <sluice.deb>${project.basedir}/../dist-deb/target/porelo-message-sluice-filter_${sluice.package.version}_amd64.deb</sluice.deb>
+                                <sluice.rpm>${project.build.directory}/porelo-message-sluice-filter-${sluice.package.version}-1.x86_64.rpm</sluice.rpm>
                             </systemPropertyVariables>
                         </configuration>
                     </execution>

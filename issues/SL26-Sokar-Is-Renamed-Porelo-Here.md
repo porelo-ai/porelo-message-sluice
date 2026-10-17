@@ -1,6 +1,6 @@
 # SL26 — Sokar Is Renamed Porelo Here
 
-**Status:** Estimated; blocked by sokar-project [PJ41](https://github.com/sokar-ai/sokar-project/blob/main/issues/README.md#pj41), its steps 1 to 3.
+**Status:** Implementing.
 **Size:** S - one script run over 144 files, one signature fixture made again, and the build, the
 documents and the acceptance on the VM; every contract here only follows one Sokar renames first.
 
@@ -45,7 +45,9 @@ Contracts something outside this repository reads or writes, each renamed on pur
 
 - **The signature fixture** `sokar-ed25519.sig` holds the namespace inside its base64, under a
   signature: it is made again with a new throwaway key, `ssh-keygen -Y sign -n porelo-message`, as
-  its `README.md` says, and renamed `porelo-ed25519.sig`.
+  its `README.md` says, as `porelo-ed25519.sig`. The longer namespace makes it 310 bytes, not 306,
+  so the size in `SshSignature`, its test and the fixture's `README.md` moves with it. The old one
+  stays, as `old-namespace-ed25519.sig`, for the tests that refuse it.
 - **`install-local.sh` removes leftovers of Sokar's retired transports and old jars.** With no
   migration there is nothing of Porelo to remove there, so those lines are deleted, not renamed.
 - **Lengths:** `porelo` is one character longer. No test here asserts a cut or a padded line, but
@@ -65,8 +67,9 @@ Contracts something outside this repository reads or writes, each renamed on pur
    published as snapshots: `git mv` of `org/fuin/sokar` and the fixture, the three spellings
    replaced, the exceptions put back, the version moved to `0.5.0-SNAPSHOT`, the parent to
    `porelo-parent` `0.2.0-SNAPSHOT`. The script is reviewed; the commit holds nothing made by hand
-   but the fixture, the deleted lines of `install-local.sh`, the Debian pool's letter and the
-   changelog entry.
+   but the fixture and its size, the deleted lines of `install-local.sh`, the Debian pool's letter,
+   the Shared Area's markers taken from `porelo-buildtools`, the two tests that refuse the old
+   namespace, the changelog entry and this issue's state.
 3. **Checked as any change:** the whole build with the native profile, the documents and the shared
    checks on the commit checked out, and `build.yml`'s steps on the Ubuntu VM against Porelo's
    packages from `porelo-dist-deb`, with a signed message passing.
@@ -78,9 +81,8 @@ Contracts something outside this repository reads or writes, each renamed on pur
   `sokar-message` is filed as unprocessable.
 - The Build is green under the new coordinates and publishes `porelo-message-sluice-filter` to
   `porelo-dist-deb` and `porelo-dist-rpm`.
-
-## To be checked
-
-- Whether the unreleased changelog lines naming `sokar-parent` 0.1.4 and `sokar-release` 0.4.2 are
-  renamed with the rest or kept, since they name artifacts that stay at Maven Central as they are.
-- That the encoding rates measured on `english-corpus.txt` do not move after the replacement.
+- The unreleased changelog line says what the build takes now, `porelo-parent` 0.2.0-SNAPSHOT and
+  `porelo-buildtools` 0.5.0-SNAPSHOT; the lines naming `sokar-release` 0.4.2 are in the released
+  0.4.1 entry and stay as released.
+- The encoding rates do not move: `english-corpus.txt` is untouched, and `EncodedPayloadRatesTest`
+  passes on it with its thresholds unchanged.

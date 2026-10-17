@@ -10,7 +10,7 @@ change the answer.
 | The whole | [The filter and the transports are separate programs](#the-filter-and-the-transports-are-separate-programs) |
 | The whole | [The filter does not learn which transport carries a message](#the-filter-does-not-learn-which-transport-carries-a-message) |
 | The whole | [A person may read and deliver a refused message; the filter never does](#a-person-may-read-and-deliver-a-refused-message-the-filter-never-does) |
-| The whole | [Sokar runs the filter blocking, both ways](#sokar-runs-the-filter-blocking-both-ways) |
+| The whole | [Porelo runs the filter blocking, both ways](#porelo-runs-the-filter-blocking-both-ways) |
 | Filter | [Our own A2A model rather than the SDK, and A2A 1.0 only](#our-own-a2a-model-rather-than-the-sdk-and-a2a-10-only) |
 | Filter | [The filter reads no environment](#the-filter-reads-no-environment) |
 | Filter | [Only strict UTF-8 is read](#only-strict-utf-8-is-read) |
@@ -24,7 +24,7 @@ change the answer.
 | Detectors | [A full hash in hex is refused](#a-full-hash-in-hex-is-refused) |
 | Build | [Every action is pinned to a commit, and Dependabot moves it](#every-action-is-pinned-to-a-commit-and-dependabot-moves-it) |
 | Build | [The binaries are compiled for the x86-64 baseline](#the-binaries-are-compiled-for-the-x86-64-baseline) |
-| Build | [NullAway checks the main compile, configured in `sokar-parent`](#nullaway-checks-the-main-compile-configured-in-sokar-parent) |
+| Build | [NullAway checks the main compile, configured in `porelo-parent`](#nullaway-checks-the-main-compile-configured-in-porelo-parent) |
 
 ## No language model inside the filter
 
@@ -47,7 +47,7 @@ would run beside the rules and be allowed to hold a message, never to release on
 ## The filter and the transports are separate programs
 
 The filter is a program of its own, and no transport is built beside it: the transports live in
-repositories of their own, the Matrix transport in `sokar-message-matrix`. The filter decides what may
+repositories of their own, the Matrix transport in `porelo-message-matrix`. The filter decides what may
 pass and has no queue, no timer, no address and no knowledge that any particular transport exists; a
 transport carries what passed and decides nothing.
 
@@ -68,7 +68,7 @@ by an option, is the alternative not taken.
 
 Resolving a peer is policy, and policy is the host's - the same reason the container never sees an
 address. A filter that knew the destinations could be asked to invent one, and one invocation could
-not accept messages for three peers on three transports. Resolving them is Sokar's half.
+not accept messages for three peers on three transports. Resolving them is Porelo's half.
 
 **The exposure:** `accepted/` is one more directory whose content counts as checked. Whoever can write
 there bypasses the filter, exactly as with a transport queue. **What would change the answer:**
@@ -100,11 +100,11 @@ exfiltrate what it prevents - about what the agent and the logs see - still hold
 change the answer:** an interface that stores what it shows, which would make every read a copy of the
 refused payload.
 
-## Sokar runs the filter blocking, both ways
+## Porelo runs the filter blocking, both ways
 
-**What holds:** Sokar runs the filter with `--blocking` for what a task sends and for what arrives
+**What holds:** Porelo runs the filter with `--blocking` for what a task sends and for what arrives
 from a peer it does not vouch for. A project may set its outgoing check to report only, on purpose,
-with `mail.outgoing_filter: reporting`; Sokar then holds every message the filter would have refused
+with `mail.outgoing_filter: reporting`; Porelo then holds every message the filter would have refused
 (`wouldReject: true`), and every message whose answer is missing, until a person releases it, and
 shows the filter's verdict there. A person can still read a refused message and deliver it.
 
@@ -138,14 +138,14 @@ smuggled field lives. So the model is ours, small, and exactly the 1.0 structure
 ## The filter reads no environment
 
 Its settings come from the defaults, `--config` and the command line, never from an environment
-variable. Measured with the environment still read: `SOKAR_MSGSLUICE_DECISION_DISABLEDRULES`, naming
+variable. Measured with the environment still read: `PORELO_MSGSLUICE_DECISION_DISABLEDRULES`, naming
 the four rules that caught it, turned a base64 payload the filter refused into one it accepted, and
 `blocking`, `decision.*` and every `detector.*.enabled` could be set the same way. Whoever starts the
 filter passes on whatever their shell, profile or agent session had exported, and nobody reads the
 start-up log that would name the source before a message leaves. **A security control is not
 configured by something nobody sees.**
 
-Starting the filter from a chosen environment is Sokar's half; this half does not rely on it. A test starts the filter as its own process with variables that would switch every rule and
+Starting the filter from a chosen environment is Porelo's half; this half does not rely on it. A test starts the filter as its own process with variables that would switch every rule and
 detector off, and the payload is still refused.
 
 **What would change the answer:** nothing about convenience. A setting that has to differ per
@@ -200,7 +200,7 @@ writer of `incoming/` that is not the host.
 
 **The file name is part of the message.** It travels to the peer, so it must match a plain pattern
 and it goes through the detectors like a text. The pattern leaves 128 characters, room for a
-transport's `<account>--` in front of a timestamp and a UUID; a tighter one would need Sokar's naming,
+transport's `<account>--` in front of a timestamp and a UUID; a tighter one would need Porelo's naming,
 which is not written down here.
 
 ## A person's message is accepted, and who wrote a file is the host's check
@@ -211,13 +211,13 @@ side can tell a person from an agent; refusing `ROLE_USER` would stop every such
 
 What a rule against `ROLE_USER` would protect - a task must never write a message that claims to be
 from a person - is a property of where the file came from. The filter sees only files and cannot know
-that. Sokar's intake knows it, so **the host refuses a `ROLE_USER` that a container wrote into its
+that. Porelo's intake knows it, so **the host refuses a `ROLE_USER` that a container wrote into its
 outbox.** A marker file beside each message is the alternative not taken: it would be a second input
 the filter has to trust, written by the same host.
 
 **The exposure:** if the host's intake check is missing or broken, a task can pass as a person. The
 filter would still check every word of it; what it would not catch is the claim of authorship.
-**What would change the answer:** a transport that delivers into the filter without passing Sokar's
+**What would change the answer:** a transport that delivers into the filter without passing Porelo's
 intake. Then the role would have to be established some other way before the filter runs.
 
 ## Ids are text to the detectors, and a key is shown only while nothing says it is a payload
@@ -345,7 +345,7 @@ the packages would run it - one of them in the job that holds the Artifactory to
 names a commit, as `@<40 hex> # vX.Y.Z`. A pin does not move by itself: Dependabot proposes the new
 commits as one grouped pull request, once a release is three days old, which a person reviews; nothing
 is merged automatically. The Maven `mvnw` downloads is checked against its `distributionSha256Sum`.
-**`sokar-release check-actions` runs in the build and refuses what breaks any of it** - a tag or a
+**`porelo-release check-actions` runs in the build and refuses what breaks any of it** - a tag or a
 branch, a release line where one release belongs, a JDK setup action, a Dependabot missing, ungrouped
 or without its cooldown, and the wrapper's missing digest - naming the file and the line. It is the
 one check for it in every repository here, so this repository keeps no test of its own beside it;
@@ -354,14 +354,14 @@ what it downloads where its defaults are fixed - `setup-jfrog-cli` brings a fixe
 
 **The JDK is pinned the same way.** A pinned action still installs whichever JDK its version input
 names, and `setup-graalvm` with `'25'` would take the newest GraalVM 25 at run time with no digest
-checked. So the build runs `sokar-machines jdk --github` instead: it installs the GraalVM
-`sokar-machines`' pom pins, checks the archive against the pinned digest before unpacking it, and
+checked. So the build runs `porelo-machines jdk --github` instead: it installs the GraalVM
+`porelo-machines`' pom pins, checks the archive against the pinned digest before unpacking it, and
 sets `JAVA_HOME` for the job. The runner's own Java 25 only runs that step and builds nothing that is
 published. Measured on a machine with no
 JDK and no Maven cache of its own, standing in for a runner: GraalVM CE 25.0.2 installed and verified,
 the native build and `LinkageIT` green with it, and CI's fixture step green on the packages it wrote;
 CI then ran it green.
-The pin moves with `sokar-machines`: a new snapshot of it brings the new JDK.
+The pin moves with `porelo-machines`: a new snapshot of it brings the new JDK.
 
 ## The binaries are compiled for the x86-64 baseline
 
@@ -385,7 +385,7 @@ expressions, not by vector arithmetic.
 distribution that itself requires a higher one - then the level goes into the packages and the
 test together.
 
-## NullAway checks the main compile, configured in `sokar-parent`
+## NullAway checks the main compile, configured in `porelo-parent`
 
 Every package with main code is `@NullMarked`. Error Prone runs NullAway, and only NullAway, on the
 `default-compile` execution of the filter, limited to marked code by `OnlyNullMarked`: tests
@@ -394,8 +394,8 @@ pass `null` on purpose and are not checked. A planted `return null;` from a meth
 that does not report a file attribute fails as an `IOException`, which the callers treat as a check
 that could not be made.
 
-**Where it lives**: in the parent `sokar-parent`, which manages the main compile's arguments and
-processor paths for every Sokar repository; this root POM declares no compiler block of its own.
+**Where it lives**: in the parent `porelo-parent`, which manages the main compile's arguments and
+processor paths for every Porelo repository; this root POM declares no compiler block of its own.
 
 **What it needs**: `.mvn/jvm.config` opens javac's internals to Error Prone. Without it JDK 25 refuses
 Error Prone before checking a file. `./mvnw` reads that file, locally and in CI.

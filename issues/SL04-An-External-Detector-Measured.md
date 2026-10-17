@@ -11,7 +11,7 @@ do not, without weakening anything the frame promises.
 ## Why
 
 The envelope checks, the decision model, the answer format and the directory contract are this
-repository's own work and are what Sokar leans on. The catalog behind the content checks is not
+repository's own work and are what Porelo leans on. The catalog behind the content checks is not
 special: credential patterns age as providers invent new prefixes, and de-obfuscation is a
 specialist's game. The interface and the built-in detectors are described in
 [`doc/filter.md`](../doc/filter.md) and [`doc/detectors.md`](../doc/detectors.md), the reasoning in

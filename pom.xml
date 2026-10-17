@@ -7,32 +7,32 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fuin.sokar</groupId>
-        <artifactId>sokar-parent</artifactId>
-        <version>0.1.4-SNAPSHOT</version>
+        <groupId>org.fuin.porelo</groupId>
+        <artifactId>porelo-parent</artifactId>
+        <version>0.2.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
-    <groupId>org.fuin.sokar</groupId>
-    <artifactId>sokar-message-sluice</artifactId>
-    <version>0.4.2-SNAPSHOT</version>
+    <groupId>org.fuin.porelo</groupId>
+    <artifactId>porelo-message-sluice</artifactId>
+    <version>0.5.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Sokar Message Sluice</name>
+    <name>Porelo Message Sluice</name>
     <description>Filters the messages an agent sends out</description>
 
-    <url>https://github.com/sokar-ai/sokar-message-sluice/</url>
+    <url>https://github.com/porelo-ai/porelo-message-sluice/</url>
 
     <scm child.scm.url.inherit.append.path="false"
          child.scm.connection.inherit.append.path="false"
          child.scm.developerConnection.inherit.append.path="false">
-        <url>https://github.com/sokar-ai/sokar-message-sluice/</url>
-        <connection>scm:git:git://github.com/sokar-ai/sokar-message-sluice.git</connection>
-        <developerConnection>scm:git:git@github.com:sokar-ai/sokar-message-sluice.git</developerConnection>
+        <url>https://github.com/porelo-ai/porelo-message-sluice/</url>
+        <connection>scm:git:git://github.com/porelo-ai/porelo-message-sluice.git</connection>
+        <developerConnection>scm:git:git@github.com:porelo-ai/porelo-message-sluice.git</developerConnection>
     </scm>
 
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/sokar-ai/sokar-message-sluice/issues</url>
+        <url>https://github.com/porelo-ai/porelo-message-sluice/issues</url>
     </issueManagement>
 
     <!-- One program, the filter, with its code and its packages below it. It decides what may pass
@@ -57,7 +57,7 @@
 
         <dependencies>
 
-            <!-- Where jackson, jspecify and assertj get their versions, as in the sokar repository. JUnit's
+            <!-- Where jackson, jspecify and assertj get their versions, as in the porelo repository. JUnit's
                  BOM first: a repository's own imports come before the parent's, and the fuin BOM pins an
                  older JUnit than the parent's. Also pins Byte Buddy to a release that accepts JDK 25 class
                  files. -->
@@ -130,7 +130,7 @@
 
     <profiles>
 
-        <!-- The filter ships as a native executable, like every other Sokar tool. Built with
+        <!-- The filter ships as a native executable, like every other Porelo tool. Built with
              'mvn -Pnative package' on a GraalVM. Configured here, switched on by the module that is
              the program; this aggregator is not one. -->
 
@@ -156,7 +156,7 @@
                                     </goals>
                                 </execution>
                             </executions>
-                            <!-- As in Sokar's own build, except for the no-fallback build argument, which
+                            <!-- As in Porelo's own build, except for the no-fallback build argument, which
                                  GraalVM 25 answers with "no effect, no replacement available". -->
                             <configuration>
                                 <imageName>${native.image.name}</imageName>

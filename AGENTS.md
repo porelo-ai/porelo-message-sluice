@@ -1,10 +1,10 @@
 # Rules for working in this repository
 
-## Shared across the Sokar repositories
+## Shared across the Porelo repositories
 
-> **BEGIN Shared Area** · sha256 `32234366c7b349ec` · changed 2026-10-14T17:28Z
+> **BEGIN Shared Area** · sha256 `8f49d85552af3cd1` · changed 2026-10-16T16:20Z
 
-Identical in every repository `project.yml` names but `sokar-parent`, which holds only the parent pom
+Identical in every repository `project.yml` names but `porelo-parent`, which holds only the parent pom
 and no `AGENTS.md`. The markers carry the SHA-256 of the lines between them (the first 16 hex digits)
 and the UTC time that text last changed; change it in the channel first, never in one copy.
 
@@ -137,7 +137,7 @@ and the UTC time that text last changed; change it in the channel first, never i
 - **`doc/decisions.md` opens with an index** - subject, one line of what holds, link - and a row is
   written with its decision. An accepted risk states the exposure, why it stays, and what would
   change the answer.
-- **A requirement not yet placed waits in `sokar-project`** until it is clear which repository builds
+- **A requirement not yet placed waits in `porelo-project`** until it is clear which repository builds
   it, then moves there as an issue.
 - **Every row of an index opens with an anchor named after its number**, `<a id="<number>"></a>`,
   the number lower case; a *Finished* or *Rejected* row keeps it.
@@ -190,7 +190,7 @@ and the UTC time that text last changed; change it in the channel first, never i
   machine - never which ought to have. A change to documents or issues only needs the tests tagged
   `documents`, which run alone; every test that reads a document carries that tag, and a test fails
   when one does not.
-- **A repository with a workflow runs `sokar-release`'s `check-shared`, `check-citations` and, where
+- **A repository with a workflow runs `porelo-release`'s `check-shared`, `check-citations` and, where
   there is a documentation chapter, `check-doc-site`, with the tests tagged `documents`, on every
   push and pull request**, on a GitHub runner; the build skips a change to documents only.
 - **A test result names every skipped test**, never just a count.
@@ -281,16 +281,16 @@ and the UTC time that text last changed; change it in the channel first, never i
   Grouping changes only `parent` and `relativePath`, never a `groupId` or `artifactId`.
 - **Every directory with a `pom.xml` has a `README.md`**: two or three sentences on what the module is
   and is not, a link to each of its submodules, and only the few technical facts that matter most, such
-  as what it must never depend on; details are linked in `doc/`, never repeated. `sokar-release
+  as what it must never depend on; details are linked in `doc/`, never repeated. `porelo-release
   check-readmes` holds it.
 - **Only what another repository or an outsider builds against is published to Maven Central, each such
   module opting in; the root and every grouping module are never published.** Every published pom is
-  flattened, so it names no parent and a consumer needs nothing but the module itself; `sokar-release
+  flattened, so it names no parent and a consumer needs nothing but the module itself; `porelo-release
   check-releases` refuses a release whose published pom still names one. A BOM is imported, never a
   parent.
-- **Every Sokar Maven repository takes `org.fuin.sokar:sokar-parent` as its parent** and declares only what
+- **Every Porelo Maven repository takes `org.fuin.porelo:porelo-parent` as its parent** and declares only what
   is its own; one that publishes declares `flatten-maven-plugin` by name in its root, and the parent's
-  management flattens every module. `sokar-parent` names no parent and uses nothing of another Sokar
+  management flattens every module. `porelo-parent` names no parent and uses nothing of another Porelo
   repository.
 - **Every Java package with main code is `@NullMarked` and checked by NullAway as an error when it
   compiles**, with a test that fails on an unmarked package.
@@ -301,10 +301,10 @@ and the UTC time that text last changed; change it in the channel first, never i
   sentence (never `testXxx`) and an assertion states its reason (`.as(...)`).** Every build call in
   CI names its repositories in the repository itself (Maven: `-s settings.xml`).
 - **Everything a build runs is pinned and moved only by review**: actions by commit with the version
-  beside it, the JDK (from `sokar-machines jdk --github`), the build tool's wrapper (Maven, Gradle) and
+  beside it, the JDK (from `porelo-machines jdk --github`), the build tool's wrapper (Maven, Gradle) and
   images by version and digest, updated by Dependabot weekly, in one group, after three days.
-  `sokar-release check-actions` enforces it.
-- **While it is developed, a repository may build against another Sokar repository's snapshot from
+  `porelo-release check-actions` enforces it.
+- **While it is developed, a repository may build against another Porelo repository's snapshot from
   Sonatype**, and its build may fail for a while when that snapshot moves; a release depends only on
   releases, which the release build checks.
 - **Packages are built online**: offline, the CycloneDX bill of materials skips itself with only a
@@ -315,14 +315,14 @@ and the UTC time that text last changed; change it in the channel first, never i
 - **Every native executable is built with `-march=x86-64`**, so it starts on any x86-64 CPU, and the
   build checks each executable for exactly that instruction set.
 
-> **END Shared Area** · sha256 `32234366c7b349ec`
+> **END Shared Area** · sha256 `8f49d85552af3cd1`
 
 ## Work in this repository
 
 - **Issue prefix `SL`.** An issue whose design is long is two files, `SL<nn>-Title.md` and
   `SL<nn>-Title_design.md`; the design is marked as a proposal until something is measured.
 - **Not Java, each because it runs where there is no Java:** `install-local.sh` copies the native
-  filter where Sokar looks for it; `buildtools/acceptance.sh` checks the installed package on a
+  filter where Porelo looks for it; `buildtools/acceptance.sh` checks the installed package on a
   machine that has nothing of this repository but the package.
 - **The workflow's steps that run no Maven can be run here verbatim**, with `RUNNER_TEMP` and
   `GITHUB_WORKSPACE` set, against the packages the native build wrote.
@@ -357,9 +357,9 @@ They are why the tool exists, so breaking one is never a local decision:
 
 One standalone Java program, the filter, in one Maven module, `filter/`. It decides what a message may
 contain and knows no transport; the transports live in repositories of their own, the Matrix transport
-in `sokar-message-matrix`.
+in `porelo-message-matrix`.
 
-Nothing here depends on a Sokar artifact: Sokar drives the filter by placing files where it reads them,
-so a change to that directory contract is a change here and in Sokar. If
+Nothing here depends on a Porelo artifact: Porelo drives the filter by placing files where it reads them,
+so a change to that directory contract is a change here and in Porelo. If
 something has to be shared with a transport, it is the directory contract or the message format, both
 written down rather than compiled against.

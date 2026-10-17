@@ -39,7 +39,7 @@ correlation across messages. How it would be built is
   2. **M - pieces that only add up as a secret:** `SplitSecretRule`, `SequenceMarkerRule`,
      `ConsistentAlphabetRule`, on the index of the first.
   3. **M - a script rather than a dialogue:** `NearDuplicateRule` and `BurstRateRule`, `SUSPICIOUS` only.
-- **Nothing changes for Sokar:** it reads only the filter's exit code and dispatches `accepted/`, and
+- **Nothing changes for Porelo:** it reads only the filter's exit code and dispatches `accepted/`, and
   matches an answer only to its `rejectedMessageId`; earlier messages are recorded as sent and never
   re-read. A refusal that names earlier, already delivered messages reaches the agent and the person
   as words, in the answer's text, and the directory contract stays as it is.

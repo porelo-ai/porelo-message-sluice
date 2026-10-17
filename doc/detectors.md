@@ -77,7 +77,7 @@ Every threshold is a key, `detector.<name>.<parameter>`, and every detector can 
 ## Calibration
 
 ```
-sokar-message-sluice-filter --calibrate --dir <task state>/mail/sent > calibrated.properties
+porelo-message-sluice-filter --calibrate --dir <task state>/mail/sent > calibrated.properties
 ```
 
 It reads a directory of messages, moves nothing, and prints a properties file for `--config`: how many

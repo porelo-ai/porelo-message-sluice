@@ -42,9 +42,9 @@ jobs:
           key: maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: maven-
 
-      # The GraalVM that compiles the binaries is the one sokar-machines pins, its archive checked
+      # The GraalVM that compiles the binaries is the one porelo-machines pins, its archive checked
       # against the pinned digest before it is unpacked. The runner's own Java 25 only runs that
-      # step and builds nothing that is published. -U, because a cached snapshot of sokar-machines
+      # step and builds nothing that is published. -U, because a cached snapshot of porelo-machines
       # would otherwise keep an old pin for a day.
       - name: The pinned GraalVM
         run: |
@@ -52,14 +52,14 @@ jobs:
           ./mvnw -B -q -U -N -Pci-tools -s settings.xml dependency:build-classpath \
               -Dmdep.outputFile="$RUNNER_TEMP/tools.classpath"
           "$JAVA_HOME/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \
-              org.fuin.sokar.machines.Main jdk --github
+              org.fuin.porelo.machines.Main jdk --github
 
       # Every action by a commit with its exact release, no JDK fetched by a version name, Dependabot
       # watching and grouping them, and the Maven wrapper's download checked against its digest.
       - name: What the build runs is pinned
         run: |
           "$JAVA_HOME_25_X64/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \
-              org.fuin.sokar.release.Main check-actions
+              org.fuin.porelo.release.Main check-actions
 
       # A release depends only on releases: every snapshot Maven resolved - dependencies, plugins and
       # their dependencies, inactive profiles included - is refused before anything is built. On a tag
@@ -70,8 +70,8 @@ jobs:
         run: |
           ./mvnw -B -q -s settings.xml -Pnative,dist help:effective-pom -Doutput=target/effective-pom.xml
           "$JAVA_HOME_25_X64/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \
-              org.fuin.sokar.release.Main check-releases target/effective-pom.xml \
-              --requires org.fuin.sokar:sokar-release
+              org.fuin.porelo.release.Main check-releases target/effective-pom.xml \
+              --requires org.fuin.porelo:porelo-release
 
       # -s settings.xml declares the snapshot repository, and keeps a developer's own
       # ~/.m2/settings.xml out of what CI resolves. The filter ships as a native executable in
@@ -95,7 +95,7 @@ jobs:
             else
               for p in */dist-rpm/target/*.rpm; do (cd "$R" && rpm2cpio "$GITHUB_WORKSPACE/$p" | cpio -idm); done
             fi
-            FILTER="$R/usr/libexec/sokar/sokar-message-sluice-filter"
+            FILTER="$R/usr/libexec/porelo/porelo-message-sluice-filter"
             M="$RUNNER_TEMP/mail-$format"
             mkdir -p "$M"/{incoming,sent} "$M"/filter/{accepted,feedback}
             mkdir -m 700 "$M"/filter/{rejected,error}
@@ -165,21 +165,21 @@ jobs:
         run: |
           set -euo pipefail
           if [ "$CHANNEL" = releases ]; then
-            published="$(curl -sfL "${JF_URL%/}/artifactory/sokar-dist-deb/dists/releases/main/binary-amd64/Packages" || true)"
+            published="$(curl -sfL "${JF_URL%/}/artifactory/porelo-dist-deb/dists/releases/main/binary-amd64/Packages" || true)"
             for p in */dist-deb/target/*.deb; do
               name="$(dpkg-deb -f "$p" Package)"
-              if grep -qxF "Filename: pool/main/s/$name/$(basename "$p")" <<< "$published"; then
+              if grep -qxF "Filename: pool/main/p/$name/$(basename "$p")" <<< "$published"; then
                 echo "::error::$(basename "$p") is published already"; exit 1
               fi
             done
           fi
           for p in */dist-deb/target/*.deb; do
             name="$(dpkg-deb -f "$p" Package)"
-            jf rt upload "$p" "sokar-dist-deb/pool/main/s/$name/" --flat=true \
+            jf rt upload "$p" "porelo-dist-deb/pool/main/p/$name/" --flat=true \
                 --target-props="deb.distribution=${CHANNEL};deb.component=main;deb.architecture=amd64"
           done
           for p in */dist-rpm/target/*.rpm; do
-            jf rt upload "$p" "sokar-dist-rpm/${CHANNEL}/" --flat=true
+            jf rt upload "$p" "porelo-dist-rpm/${CHANNEL}/" --flat=true
           done
 
       # Indexing is asynchronous and fails silently, so the index is read back - anonymously, as an
@@ -195,15 +195,15 @@ jobs:
           base="${JF_URL%/}/artifactory"
           indexed() {
             local packages primary
-            packages="$(curl -sfL "$base/sokar-dist-deb/dists/${CHANNEL}/main/binary-amd64/Packages" || true)"
+            packages="$(curl -sfL "$base/porelo-dist-deb/dists/${CHANNEL}/main/binary-amd64/Packages" || true)"
             for p in */dist-deb/target/*.deb; do
               name="$(dpkg-deb -f "$p" Package)"
-              grep -qxF "Filename: pool/main/s/$name/$(basename "$p")" <<< "$packages" || return 1
+              grep -qxF "Filename: pool/main/p/$name/$(basename "$p")" <<< "$packages" || return 1
             done
-            primary="$(curl -sfL "$base/sokar-dist-rpm/${CHANNEL}/repodata/repomd.xml" \
+            primary="$(curl -sfL "$base/porelo-dist-rpm/${CHANNEL}/repodata/repomd.xml" \
                 | sed -n 's/.*<location href="\([^"]*primary.xml.gz\)".*/\1/p' | head -1)"
             [ -n "$primary" ] || return 1
-            primary="$(curl -sfL "$base/sokar-dist-rpm/${CHANNEL}/$primary" | gunzip || true)"
+            primary="$(curl -sfL "$base/porelo-dist-rpm/${CHANNEL}/$primary" | gunzip || true)"
             for p in */dist-rpm/target/*.rpm; do
               grep -qF "$(basename "$p")" <<< "$primary" || return 1
             done
