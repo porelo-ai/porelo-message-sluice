@@ -1,6 +1,6 @@
 # SL26 — Sokar Is Renamed Porelo Here
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** S - one script run over 144 files, one signature fixture made again, and the build, the
 documents and the acceptance on the VM; every contract here only follows one Sokar renames first.
 

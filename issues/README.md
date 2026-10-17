@@ -8,7 +8,7 @@ the order is the priority. Only the operator sets Accepted, Rejected, Estimated,
 Finished; this repository's agent sets Analyzed, Implementing and Review, and proposes the rest in the
 channel.
 
-## Implementing
+## Review
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
@@ -31,7 +31,7 @@ channel.
 | <a id="sl08"></a>[SL08](SL08-Refuse-A-Payload-Spread-Over-Several-Messages.md) | XL | — | A payload cut into pieces and sent over several messages, caught by correlating against what the task already sent. |
 | <a id="sl12"></a>[SL12](SL12-Refuse-A-Description-That-Stopped-Being-True.md) | S | — | A test that refuses a description contradicted by something the build can read - the modules named against the modules that exist. |
 
-Nothing is in Review, Rework, Backlog, Accepted, Idea, Finished or Rejected.
+Nothing is in Rework, Implementing, Backlog, Accepted, Idea, Finished or Rejected.
 
 **Open questions**, in *Analyzed* only, counts what waits on the operator; what this repository's
 agent finds out itself stands under each issue's *To be checked* and is not counted.
