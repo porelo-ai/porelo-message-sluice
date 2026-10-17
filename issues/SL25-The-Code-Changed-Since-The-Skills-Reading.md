@@ -1,6 +1,6 @@
 # SL25 — The Code Changed Since The Skills Reading
 
-**Status:** Implementing, after [SL27](README.md#sl27)'s reformatting.
+**Status:** Review. Pushed and published as `porelo-message-sluice-filter` `0.5.1~snapshot.51`, after [SL27](README.md#sl27)'s reformatting.
 **Size:** L - about 1,400 changed lines in one module, its packaging and three scripts, read into 16
 fixes; each needs its own test seen red, several a seam in `io/` first, one a fixture step in the
 Build, and a fix to what ships runs the acceptance on the VM again. M before the reading, set to L at

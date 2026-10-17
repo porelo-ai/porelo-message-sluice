@@ -1,6 +1,6 @@
 # SL27 — Reformatted to the shared style
 
-**Status:** Implementing.
+**Status:** Review. Pushed and published as `porelo-message-sluice-filter` `0.5.1~snapshot.51`.
 **Size:** S - one plugin switched on in this repository's poms, one `spotless:apply` over 73 Java
 files, two scripts and five YAML files, the shared `.editorconfig`, and the whole workflow on the VM;
 no contract another repository reads.
