@@ -106,11 +106,13 @@ class NoOldNameTest {
     }
 
     @Test
-    void theChangelogIsReadOnlyUpToItsFirstRelease() {
+    void theChangelogIsReadOnlyUpToItsFirstRelease() throws IOException {
         // The released entries are kept by stopping at their heading; a heading the pattern missed would read them.
+        // A release commit has no unreleased part, so what is read is only the header above the first release.
         assertThat(RELEASED.matcher("## [0.4.1] - 2026-10-08").matches()).as("a released heading").isTrue();
         assertThat(RELEASED.matcher("## [Unreleased]").matches()).as("the unreleased heading").isFalse();
-        assertThat(lines(CHANGELOG)).as("the changelog's unreleased part").contains("## [Unreleased]")
-                .noneMatch(l -> RELEASED.matcher(l).matches());
+        final List<String> all = Files.readAllLines(ROOT.resolve(CHANGELOG));
+        assertThat(lines(CHANGELOG)).as("the changelog's part above its first release").contains("# Changelog")
+                .noneMatch(l -> RELEASED.matcher(l).matches()).hasSizeLessThan(all.size());
     }
 }
