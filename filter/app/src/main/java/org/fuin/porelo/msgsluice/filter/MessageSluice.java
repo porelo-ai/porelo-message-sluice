@@ -18,6 +18,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -71,10 +72,6 @@ public final class MessageSluice {
     private static final Pattern MESSAGE_FILE_NAME =
             Pattern.compile("[A-Za-z0-9][A-Za-z0-9._-]{0," + (MAX_NAME_LENGTH - 6) + "}\\.json");
 
-    /**
-     * An SSH signature of any key type is well under this; more would be a second channel beside
-     * the message.
-     */
     static final String FILE_NAME_LOCATION = "fileName";
 
     /** The SHA-256 of no bytes: what an answer names as the hash of a file that was not read. */
@@ -252,8 +249,18 @@ public final class MessageSluice {
         return List.of(stamp.device(), stamp.inode());
     }
 
-    /** Stops a pass on a mailbox whose directories are not the ones checked at the start. */
+    /**
+     * Stops a pass on a mailbox whose directories are not the ones checked at the start, and checks
+     * them first if nobody did: a pass never files into directories nothing looked at.
+     */
     private void sameDirectories() throws IOException {
+        if (directories.isEmpty()) {
+            try {
+                checkDirectories();
+            } catch (final ConfigException ex) {
+                throw new IOException(ex.getMessage(), ex);
+            }
+        }
         for (final Map.Entry<Path, List<Object>> dir : directories.entrySet()) {
             if (!dir.getValue().equals(identity(dir.getKey()))) {
                 throw new IOException(
@@ -301,6 +308,21 @@ public final class MessageSluice {
      * silently checks less is indistinguishable from one that works.
      */
     public void watch(final Consumer<RunSummary> each) throws IOException {
+        watch(each, () -> {});
+    }
+
+    /** What must still hold before each pass of a watch, or the watch ends. */
+    @FunctionalInterface
+    public interface PassCheck {
+        void check() throws IOException;
+    }
+
+    /**
+     * Runs a pass as {@link #watch(Consumer)} does, each one only after {@code beforeEachPass}
+     * passed - the instance lock still held.
+     */
+    public void watch(final Consumer<RunSummary> each, final PassCheck beforeEachPass)
+            throws IOException {
         try (WatchService watcher = config.incoming().getFileSystem().newWatchService()) {
             config.incoming()
                     .register(
@@ -308,6 +330,7 @@ public final class MessageSluice {
                             StandardWatchEventKinds.ENTRY_CREATE,
                             StandardWatchEventKinds.ENTRY_MODIFY);
             while (!Thread.currentThread().isInterrupted()) {
+                beforeEachPass.check();
                 final RunSummary summary = runOnce();
                 if (!summary.results().isEmpty()) {
                     each.accept(summary);
@@ -514,6 +537,26 @@ public final class MessageSluice {
 
             List<Finding> findings = new ArrayList<>(result.findings());
             final String messageId = result.facts().messageId();
+            if (messageId != null
+                    && archive.contains(messageId)
+                    && !dry
+                    && filedBefore(name, bytes, signature)) {
+                // A pass ended between filing and removing it: what is in accepted/ is this very
+                // message, so it is finished, not refused as its own duplicate.
+                final boolean removed =
+                        FileOps.deleteWithSignatureIfUnchanged(file, stamp, signatureStamp);
+                final FileResult fileResult =
+                        new FileResult(
+                                display,
+                                Outcome.ACCEPTED,
+                                List.of(),
+                                null,
+                                removed
+                                        ? "filed already by a pass that ended before removing it"
+                                        : "filed already; changed since, so the original stays for the next pass");
+                log.accept(fileResult.describe());
+                return fileResult;
+            }
             if (messageId != null && archive.contains(messageId)) {
                 findings.add(
                         Finding.envelope(
@@ -538,7 +581,12 @@ public final class MessageSluice {
             findings = result.withKeysHidden(findings, detectorsRun);
             final Verdict verdict = decisionModel.decide(findings, config.blocking());
             final Answers.Answer answer =
-                    answers.verdict(result.echoable(findings), verdict, config.blocking(), now);
+                    answers.verdict(
+                            result.echoable(
+                                    detectorsRun ? findings : withIdsChecked(findings, result)),
+                            verdict,
+                            config.blocking(),
+                            now);
 
             String answerFile = null;
             String note =
@@ -564,10 +612,8 @@ public final class MessageSluice {
                 if (messageId != null) {
                     archive.add(messageId);
                 }
-                boolean removed = FileOps.deleteIfUnchanged(file, stamp);
-                if (signatureStamp != null) {
-                    removed &= FileOps.deleteIfUnchanged(signaturePath, signatureStamp);
-                }
+                final boolean removed =
+                        FileOps.deleteWithSignatureIfUnchanged(file, stamp, signatureStamp);
                 if (!removed) {
                     note =
                             (note.isEmpty() ? "" : note + "; ")
@@ -709,6 +755,52 @@ public final class MessageSluice {
         final String written = write(answer);
         answered.put(key, written);
         return written;
+    }
+
+    /**
+     * Whether {@code accepted/} holds exactly these bytes under this name, with exactly this
+     * signature or none: what a pass that ended between filing and removing the original leaves.
+     */
+    private boolean filedBefore(
+            final String name, final byte[] bytes, final byte @Nullable [] signature)
+            throws IOException {
+        final Path filed = config.accepted().resolve(name);
+        final Path filedSignature = config.accepted().resolve(name + FileOps.SIGNATURE_SUFFIX);
+        return sameBytes(filed, bytes)
+                && (signature == null
+                        ? !Files.exists(filedSignature, LinkOption.NOFOLLOW_LINKS)
+                        : sameBytes(filedSignature, signature));
+    }
+
+    private static boolean sameBytes(final Path file, final byte[] bytes) throws IOException {
+        return Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)
+                && Files.size(file) == bytes.length
+                && Arrays.equals(Files.readAllBytes(file), bytes);
+    }
+
+    /**
+     * The findings and what the detectors find in the ids, for an envelope refused before they ran:
+     * an id the answer echoes is checked as text either way, since it could be a payload too.
+     */
+    private List<Finding> withIdsChecked(
+            final List<Finding> findings, final EnvelopeResult result) {
+        final List<TextUnderCheck> ids = new ArrayList<>();
+        final MessageFacts facts = result.facts();
+        final String messageId = facts.messageId();
+        final String contextId = facts.contextId();
+        final String taskId = facts.taskId();
+        if (messageId != null) {
+            ids.add(new TextUnderCheck("messageId", -1, messageId));
+        }
+        if (contextId != null) {
+            ids.add(new TextUnderCheck("contextId", -1, contextId));
+        }
+        if (taskId != null) {
+            ids.add(new TextUnderCheck("taskId", -1, taskId));
+        }
+        final List<Finding> all = new ArrayList<>(findings);
+        all.addAll(detectors.run(ids));
+        return all;
     }
 
     /**

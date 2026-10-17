@@ -27,7 +27,7 @@ class DocumentTestsTaggedTest {
     private static final Path SOURCES = Path.of("src", "test", "java");
 
     private static final Pattern DOCUMENT_PATH =
-            Pattern.compile("\"([\\w.-]*\\.md|doc|issues|mkdocs\\.yml)\"");
+            Pattern.compile("\"([\\w.-]*\\.md|doc|issues|mkdocs\\.yml|(?:doc|issues)/[\\w./-]*)\"");
 
     @Test
     void everyTestThatReadsADocumentIsTaggedDocuments() throws IOException {
@@ -58,6 +58,7 @@ class DocumentTestsTaggedTest {
                         "f.endsWith(\".md\")",
                         "Path.of(\"..\", \"..\", \"README.md\")",
                         "Path.of(\"issues\")",
+                        "root.resolve(\"doc/filter.md\")",
                         "root.resolve(\"mkdocs.yml\")")) {
             assertThat(DOCUMENT_PATH.matcher(read).find()).as(read).isTrue();
         }

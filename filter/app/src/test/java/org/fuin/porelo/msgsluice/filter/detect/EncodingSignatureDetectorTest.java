@@ -55,6 +55,20 @@ class EncodingSignatureDetectorTest {
     }
 
     @Test
+    void joinedNamesWithDigitsArePassedAsProse() {
+        // The harm: a person's table of names is refused as a payload, and the message never
+        // leaves.
+        for (final String text :
+                List.of(
+                        "Columns A2A-In A2A-Out A2A-Err A2A-Ack A2A-Nak A2A-Ttl here.",
+                        "Tests E2E-Run1 E2E-Run2 E2E-Run3 E2E-Run4 E2E-Run5 E2E-Run6 passed.")) {
+            assertThat(new EncodingSignatureDetector(32).inspect(new TextUnderCheck("t", -1, text)))
+                    .as(text)
+                    .isEmpty();
+        }
+    }
+
+    @Test
     void aChainOfUuidsIsHex() {
         final List<DetectorFinding> findings =
                 new EncodingSignatureDetector(32)

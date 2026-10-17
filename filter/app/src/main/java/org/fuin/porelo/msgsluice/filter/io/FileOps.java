@@ -18,6 +18,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HexFormat;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 
@@ -192,7 +193,14 @@ public final class FileOps {
 
     private static Path writeNew(final Path dir, final String name, final byte[] bytes)
             throws IOException {
-        final Path tmp = temporary(dir, name);
+        return writeVia(temporary(dir, name), dir.resolve(name), bytes);
+    }
+
+    /**
+     * Writes {@code bytes} into {@code tmp}, which must not exist, then renames it to {@code
+     * target}.
+     */
+    static Path writeVia(final Path tmp, final Path target, final byte[] bytes) throws IOException {
         try {
             try (FileChannel channel =
                     FileChannel.open(
@@ -203,7 +211,6 @@ public final class FileOps {
                 }
                 channel.force(true);
             }
-            final Path target = dir.resolve(name);
             if (Files.exists(target, LinkOption.NOFOLLOW_LINKS)) {
                 throw new FileAlreadyExistsException(target.toString());
             }
@@ -226,6 +233,28 @@ public final class FileOps {
         }
         Files.delete(file);
         return true;
+    }
+
+    /**
+     * Deletes a message and its signature together, and only if both still have the stamps they had
+     * when they were read - or, read without one, it still has none. Either one changed, both stay
+     * for the next pass: a signature left alone would be filed beside the next message of its name,
+     * one it was never made for.
+     *
+     * @param signatureRead the signature's stamp when it was read, {@code null} if it had none
+     * @return whether they were deleted
+     */
+    public static boolean deleteWithSignatureIfUnchanged(
+            final Path message, final Stamp read, final @Nullable Stamp signatureRead)
+            throws IOException {
+        final Path signature = message.resolveSibling(message.getFileName() + SIGNATURE_SUFFIX);
+        if (!read.equals(stamp(message)) || !Objects.equals(signatureRead, stamp(signature))) {
+            return false;
+        }
+        if (!deleteIfUnchanged(message, read)) {
+            return false;
+        }
+        return signatureRead == null || deleteIfUnchanged(signature, signatureRead);
     }
 
     /**

@@ -8,6 +8,7 @@ import java.io.CharConversionException;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
@@ -37,12 +38,22 @@ public final class MessageArchive {
      */
     public static MessageArchive scan(final List<Path> dirs, final long maxBytes)
             throws IOException {
+        return scan(dirs, maxBytes, FileOps::read);
+    }
+
+    /** How a file is read; a test steps in between a file's stamp and its read. */
+    interface Reader {
+        FileOps.Content read(Path file, long maxBytes) throws IOException;
+    }
+
+    static MessageArchive scan(final List<Path> dirs, final long maxBytes, final Reader reader)
+            throws IOException {
         final MessageArchive archive = new MessageArchive();
         final JsonFactory factory = new JsonFactory();
         for (final Path dir : dirs) {
             try (DirectoryStream<Path> files = Files.newDirectoryStream(dir, "*.json")) {
                 for (final Path file : files) {
-                    final String id = topLevelMessageId(factory, dir, file, maxBytes);
+                    final String id = topLevelMessageId(factory, dir, file, maxBytes, reader);
                     if (id != null) {
                         archive.ids.add(id);
                     }
@@ -62,7 +73,11 @@ public final class MessageArchive {
 
     /** Reads only the top-level {@code messageId}, of a file no larger than a message may be. */
     private static @Nullable String topLevelMessageId(
-            final JsonFactory factory, final Path dir, final Path file, final long maxBytes)
+            final JsonFactory factory,
+            final Path dir,
+            final Path file,
+            final long maxBytes,
+            final Reader reader)
             throws IOException {
         final byte[] bytes;
         try {
@@ -70,7 +85,11 @@ public final class MessageArchive {
             if (stamp == null || !stamp.plain() || stamp.size() > maxBytes) {
                 return null;
             }
-            bytes = FileOps.read(file, maxBytes).bytes();
+            bytes = reader.read(file, maxBytes).bytes();
+        } catch (final NoSuchFileException ex) {
+            // Moved on since it was listed - from accepted/ to sent/, which is scanned after it -
+            // or removed by a person: where it went is counted, and a gone file holds no id.
+            return null;
         } catch (final IOException ex) {
             // Not the file's name: a refused original's name may be what it was refused for.
             throw new IOException(

@@ -2,8 +2,10 @@ package org.fuin.porelo.msgsluice.filter.io;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
@@ -120,8 +122,92 @@ class SshSignatureTest {
     }
 
     @Test
-    void theLimitIsOneKibibyteEverywhere() {
-        // doc/filter.md names the value, for whatever carries a signature beside a message.
-        assertThat(SshSignature.MAX_BYTES).isEqualTo(1024);
+    void nothingFitsInTheSignatureBesideTheKeyAndTheSignature() throws Exception {
+        // The harm: a signature is filed beside an accepted message unread by any detector, so a
+        // field it carries but does not need would carry a payload past the filter.
+        final ByteBuffer in = ByteBuffer.wrap(blob(real()));
+        final byte[] magic = new byte[6];
+        in.get(magic);
+        final int version = in.getInt();
+        final byte[] publicKey = string(in);
+        final byte[] namespace = string(in);
+        final byte[] reserved = string(in);
+        final byte[] hash = string(in);
+        final byte[] signature = string(in);
+        assertThat(
+                        SshSignature.isPorelos(
+                                armor(
+                                        sshsig(
+                                                magic, version, publicKey, namespace, reserved,
+                                                hash, signature))))
+                .as("the real one, taken apart and put together again")
+                .isTrue();
+        final byte[] payload = "a payload".getBytes(StandardCharsets.US_ASCII);
+
+        assertThat(
+                        SshSignature.isPorelos(
+                                armor(
+                                        sshsig(
+                                                magic, 2, publicKey, namespace, reserved, hash,
+                                                signature))))
+                .as("another version")
+                .isFalse();
+        assertThat(
+                        SshSignature.isPorelos(
+                                armor(
+                                        sshsig(
+                                                magic, version, publicKey, namespace, payload, hash,
+                                                signature))))
+                .as("something in the reserved string")
+                .isFalse();
+        assertThat(
+                        SshSignature.isPorelos(
+                                armor(
+                                        sshsig(
+                                                magic,
+                                                version,
+                                                concat(publicKey, payload),
+                                                namespace,
+                                                reserved,
+                                                hash,
+                                                signature))))
+                .as("something after the key, inside its string")
+                .isFalse();
+        assertThat(
+                        SshSignature.isPorelos(
+                                armor(
+                                        sshsig(
+                                                magic,
+                                                version,
+                                                publicKey,
+                                                namespace,
+                                                reserved,
+                                                hash,
+                                                concat(signature, payload)))))
+                .as("something after the signature, inside its string")
+                .isFalse();
+    }
+
+    private static byte[] string(final ByteBuffer in) {
+        final byte[] bytes = new byte[in.getInt()];
+        in.get(bytes);
+        return bytes;
+    }
+
+    private static byte[] sshsig(final byte[] magic, final int version, final byte[]... strings) {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.writeBytes(magic);
+        out.writeBytes(ByteBuffer.allocate(4).putInt(version).array());
+        for (final byte[] string : strings) {
+            out.writeBytes(ByteBuffer.allocate(4).putInt(string.length).array());
+            out.writeBytes(string);
+        }
+        return out.toByteArray();
+    }
+
+    private static byte[] concat(final byte[] a, final byte[] b) {
+        final byte[] both = Arrays.copyOf(a, a.length + b.length);
+        System.arraycopy(b, 0, both, a.length, b.length);
+        return both;
     }
 }

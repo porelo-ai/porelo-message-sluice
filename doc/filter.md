@@ -47,7 +47,10 @@ write there.
 
 **The filter never changes a message.** What it files is exactly the bytes it checked, because those
 are the bytes Porelo signs and sends. **Every message gets an answer**, written before the message is
-filed, so a crash leads at worst to a second answer, never to a message dropped in silence.
+filed, so a crash leads at worst to a second answer, never to a message dropped in silence. A message
+a crash left in `incoming/` after it was filed - the same bytes, under the same name, in `accepted/` -
+is taken as filed and removed on the next pass, not refused as its own duplicate. A message and its
+signature are removed only together.
 
 ## The envelope
 
@@ -131,7 +134,8 @@ porelo-message-sluice-filter --agent-card --mail <dir>                 # prints 
 
 **Exit codes:** 0 everything passed, 1 something was refused, 2 a technical error or a configuration
 that cannot be used. One instance runs per mailbox; a second exits with 2. `--watch` keeps running
-and checks whenever a file arrives. **Whatever the exit code, `accepted/` holds only what was checked
+and checks whenever a file arrives; it ends with 2 when the lock file `filter/.lock` was removed or
+replaced, since a second instance could then lock a new one. **Whatever the exit code, `accepted/` holds only what was checked
 and passed:** a file that met a technical error is not judged, nothing of it is filed, and it stays in
 `incoming/` for the next pass. Exit 2 puts nothing in `accepted/` in doubt.
 

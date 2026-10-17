@@ -6,18 +6,22 @@ import static org.fuin.porelo.msgsluice.filter.Mailbox.message;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.fuin.porelo.msgsluice.filter.MessageSluice.Outcome;
 import org.fuin.porelo.msgsluice.filter.a2a.A2aReader;
@@ -33,6 +37,7 @@ import org.fuin.porelo.msgsluice.filter.detect.DetectorFinding;
 import org.fuin.porelo.msgsluice.filter.detect.DetectorRunner;
 import org.fuin.porelo.msgsluice.filter.detect.LongTokenDetector;
 import org.fuin.porelo.msgsluice.filter.detect.TextUnderCheck;
+import org.fuin.porelo.msgsluice.filter.io.DirectoryLock;
 import org.fuin.porelo.msgsluice.filter.io.SshSignature;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
@@ -525,6 +530,65 @@ class MessageSluiceTest {
         final String everything = mail.everythingThatLeaves();
         assertThat(everything).contains("ENCODING/HEX").contains("UNPROCESSABLE/MALFORMED_JSON");
         assertNoWindowOf(HEX_ID, everything, "ENCODING/HEX");
+    }
+
+    @Test
+    void aMessageFiledBeforeACrashIsNotRefusedAsItsOwnDuplicate() throws Exception {
+        // The harm: a pass killed between filing and deleting leaves the original behind; the next
+        // pass would refuse it as a duplicate and answer that nothing was sent, while the copy in
+        // accepted/ goes out.
+        final Mailbox mail = new Mailbox(tmp);
+        final Path original = mail.deliver("m.json", Mailbox.message("The build is green again."));
+        Files.copy(original, mail.accepted().resolve("m.json"));
+
+        mail.sluice("blocking", "true").runOnce();
+
+        assertThat(mail.files(mail.rejected())).isEmpty();
+        assertThat(mail.files(mail.incoming())).isEmpty();
+        assertThat(mail.files(mail.accepted())).containsExactly(mail.accepted().resolve("m.json"));
+        assertThat(mail.everythingThatLeaves()).doesNotContain("DUPLICATE_MESSAGE_ID");
+    }
+
+    @Test
+    void aMessageWhoseIdWasSentIsRefusedUnderAnotherNameOrWithOtherBytes() throws Exception {
+        // The harm: a message sent twice. Only the very file a crashed pass filed is finished.
+        final Mailbox mail = new Mailbox(tmp);
+        Files.writeString(
+                mail.accepted().resolve("m.json"), Mailbox.message("The build is green again."));
+        mail.deliver("other-name.json", Mailbox.message("The build is green again."));
+        mail.deliver("m.json", Mailbox.message("The build is red again."));
+
+        mail.sluice("blocking", "true").runOnce();
+
+        assertThat(mail.files(mail.rejected()))
+                .containsExactlyInAnyOrder(
+                        mail.rejected().resolve("m.json"),
+                        mail.rejected().resolve("other-name.json"));
+        assertThat(mail.everythingThatLeaves()).contains("ENVELOPE/DUPLICATE_MESSAGE_ID");
+    }
+
+    @Test
+    void anIdIsCheckedEvenWhenTheEnvelopeRefusesBeforeTheDetectorsRun() throws Exception {
+        // The harm: a payload sent as an id would come back in the answer, the one way out a
+        // refused message still has.
+        final Mailbox mail = new Mailbox(tmp);
+        mail.deliver(
+                "raw.json",
+                """
+                {"messageId":"%s","contextId":"%s","taskId":"%s","role":"ROLE_AGENT",
+                 "parts":[{"raw":"AAAA"}]}"""
+                        .formatted(HEX_ID, HEX_ID, HEX_ID));
+        mail.deliver(
+                "role.json",
+                """
+                {"messageId":"%s","role":"ROLE_UNSPECIFIED","parts":[{"text":"Hello."}]}"""
+                        .formatted(HEX_ID));
+
+        mail.sluice("blocking", "true").runOnce();
+
+        assertThat(mail.files(mail.rejected())).hasSize(2);
+        assertNoWindowOf(HEX_ID, mail.everythingThatLeaves(), "ENVELOPE/RAW_PART_NOT_ALLOWED");
+        assertThat(mail.everythingThatLeaves()).contains("ENVELOPE/UNEXPECTED_ROLE");
     }
 
     @Test
@@ -1063,10 +1127,90 @@ class MessageSluiceTest {
             watcher.join(10_000);
 
             assertThat(watcher.isAlive()).isFalse();
-            assertThat(failure.get()).isInstanceOf(java.nio.file.NoSuchFileException.class);
+            // Gone before the first pass or during one, either way the watch ends on it.
+            assertThat(failure.get()).isInstanceOf(IOException.class).hasMessageContaining("sent");
         } finally {
             watcher.interrupt();
             watcher.join(10_000);
+        }
+    }
+
+    @Test
+    void aSignatureChangedDuringTheCheckIsNotLeftBehindWithoutItsMessage() throws Exception {
+        // The harm: a signature left alone in incoming/ is filed beside the next message of that
+        // name - one it was never made for.
+        final Mailbox mail = new Mailbox(tmp);
+        final Path message = mail.deliver("m.json", message(PROSE));
+        final Path signature = message.resolveSibling("m.json.sig");
+        Files.write(signature, poreloSignature());
+        final AtomicBoolean touched = new AtomicBoolean();
+        final Inspect touchTheSignature =
+                t -> {
+                    // The message's text, checked after the signature was read; not its name,
+                    // before.
+                    if (!t.location().equals("fileName") && !touched.getAndSet(true)) {
+                        try {
+                            Files.setLastModifiedTime(
+                                    signature,
+                                    FileTime.from(Instant.parse("2020-01-01T00:00:00Z")));
+                        } catch (final IOException ex) {
+                            throw new UncheckedIOException(ex);
+                        }
+                    }
+                    return List.of();
+                };
+
+        mail.sluice(List.of(stub(touchTheSignature))).runOnce();
+
+        assertThat(Files.exists(signature) && !Files.exists(message))
+                .as("a signature in incoming/ without its message")
+                .isFalse();
+    }
+
+    @Test
+    void aPassChecksTheDirectoriesEvenWhenNobodyAskedFirst() throws Exception {
+        // The harm: through the Java API, a pass ran with no check of links, owner or permissions,
+        // and filed refused originals - secrets in clear - where anybody could read them.
+        final Mailbox mail = new Mailbox(tmp);
+        Files.setPosixFilePermissions(
+                mail.rejected(), PosixFilePermissions.fromString("rwxrwxrwx"));
+        mail.deliver("m.json", message("Here: " + PAYLOAD));
+
+        assertThatThrownBy(() -> mail.sluice("blocking", "true").runOnce())
+                .isInstanceOf(IOException.class)
+                .hasMessageContaining("must be 0700");
+        assertThat(mail.files(mail.rejected())).isEmpty();
+    }
+
+    @Test
+    void aWatchWhoseLockWasRemovedEnds() throws Exception {
+        // The harm: a second instance would lock a new file and file the same messages again.
+        final Mailbox mail = new Mailbox(tmp);
+        final MessageSluice sluice = mail.sluice("watchIntervalMillis", "50");
+        final Path lockFile = mail.root.resolve("filter/.lock");
+        final AtomicReference<Throwable> failure = new AtomicReference<>();
+        try (DirectoryLock lock = DirectoryLock.acquire(lockFile)) {
+            final Thread watcher =
+                    new Thread(
+                            () -> {
+                                try {
+                                    sluice.watch(summary -> {}, lock::stillHeld);
+                                } catch (final Throwable ex) {
+                                    failure.set(ex);
+                                }
+                            });
+            watcher.start();
+            try {
+                Files.delete(lockFile);
+
+                watcher.join(10_000);
+
+                assertThat(watcher.isAlive()).isFalse();
+                assertThat(failure.get()).isInstanceOf(IOException.class);
+            } finally {
+                watcher.interrupt();
+                watcher.join(10_000);
+            }
         }
     }
 

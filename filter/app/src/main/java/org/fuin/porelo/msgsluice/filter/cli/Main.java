@@ -135,7 +135,7 @@ public final class Main {
             settings.describe().forEach(line -> err.println("  " + line));
             try (DirectoryLock lock = DirectoryLock.acquire(settings.config().lock())) {
                 if (watch) {
-                    sluice.watch(summary -> out.println(summary.describe()));
+                    sluice.watch(summary -> out.println(summary.describe()), lock::stillHeld);
                     return 0;
                 }
                 final MessageSluice.RunSummary summary = sluice.runOnce();

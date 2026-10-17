@@ -1,6 +1,6 @@
 # SL27 — Reformatted to the shared style
 
-**Status:** Backlog.
+**Status:** Implementing.
 **Size:** S - one plugin switched on in this repository's poms, one `spotless:apply` over 73 Java
 files, two scripts and five YAML files, the shared `.editorconfig`, and the whole workflow on the VM;
 no contract another repository reads.
@@ -62,11 +62,25 @@ Counted on `main` at `6b54aeb`:
 - No file in the repository is indented by a tab or by 2 spaces.
 - The whole workflow is green on the VM, with the same test counts as before.
 
+## Done so far
+
+- **The parent and the tools** come from the handover of [PJ29](https://github.com/porelo-ai/porelo-project/blob/main/issues/README.md#pj29)'s shared part: porelo-parent `0.2.1-SNAPSHOT` with Spotless
+  3.10.3, `google-java-format` 1.36.0 and `shfmt` 3.12.0, and the tools `0.5.1-SNAPSHOT`.
+- **Seen red:** `validate` named both scripts, then a misformatted `Settings.java`, and `check-actions`
+  refused `build.yml`'s checkout without `persist-credentials: false`.
+- **The reformatting commit** changes 66 files. Per Java file, with whitespace removed and the imports
+  compared as sets, what is left is the leaders of rewrapped Javadoc and line comments (`*`, `//`).
+  The five YAML files load to the same data. Beside the formatting, it holds the shared
+  `.editorconfig`, `.gitignore`'s two lines, the Shared Area at `01f9fdbdfaaa9c51`, `check-shared
+  AGENTS.md .editorconfig`, `persist-credentials: false` on both checkouts, and `WorkflowLimitsTest`
+  reading jobs at 4 spaces and their limits at 8. It went red on the YAML at 4.
+- **`.git-blame-ignore-revs`** names it, in the commit after it.
+
 ## To be checked
 
 - **Comments that must stay on their line.** `check-citations` reads a `// not-a-citation` marker
   on the line it exempts. Where the formatter wraps such a line, the marker must still be on the
-  line that holds the citation. This is checked after `spotless:apply`, in the one file that has it.
-- **Long string literals.** The formatter does not break string literals, so lines over 100 columns
-  inside them stay. This is to be confirmed with the parent's Spotless configuration, which decides
-  whether long strings are reflowed.
+  line that holds the citation. Checked: all three in `SplitPayloadTest` stay on their lines, and
+  `check-citations` passes.
+- **Long string literals.** Checked: the parent does not reflow them, so a literal past 100 columns
+  stays on its line, and `spotless:check` passes.

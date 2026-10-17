@@ -1,8 +1,10 @@
 package org.fuin.porelo.msgsluice.filter.io;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
@@ -13,18 +15,26 @@ class FileOpsTest {
     @TempDir Path tmp;
 
     @Test
-    void aLinkPlantedWhereTheTemporaryFileWouldGoIsNotWrittenThrough() throws Exception {
+    void aLinkPlantedAtTheTemporaryFileIsNotWrittenThrough() throws Exception {
+        // The harm: whoever can write the directory plants a link where the filter writes, and the
+        // filter overwrites what it points at with what it files. Two defences, each held here.
         final Path dir = Files.createDirectory(tmp.resolve("error"));
         final Path victim = Files.writeString(tmp.resolve("victim.txt"), "precious");
-        Files.createSymbolicLink(dir.resolve(".m.json.error.txt.tmp"), victim);
+        final Path planted = Files.createSymbolicLink(dir.resolve(".m.json.tmp"), victim);
 
-        final Path written =
-                FileOps.writeAtomically(
-                        dir, "m.json.error.txt", "reason".getBytes(StandardCharsets.UTF_8));
+        assertThatThrownBy(
+                        () ->
+                                FileOps.writeVia(
+                                        planted,
+                                        dir.resolve("m.json"),
+                                        "reason".getBytes(StandardCharsets.UTF_8)))
+                .isInstanceOf(FileAlreadyExistsException.class);
 
         assertThat(victim).hasContent("precious");
-        assertThat(written).hasContent("reason");
-        assertThat(Files.isSymbolicLink(written)).isFalse();
+        assertThat(dir.resolve("m.json")).doesNotExist();
+        assertThat(FileOps.temporary(dir, "m.json"))
+                .as("a name nobody can plant a link at in advance")
+                .isNotEqualTo(FileOps.temporary(dir, "m.json"));
     }
 
     /**

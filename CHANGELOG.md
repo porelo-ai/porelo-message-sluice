@@ -13,6 +13,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the shared code style - `google-java-format` in its AOSP style for Java, `shfmt` for the scripts - and the
   code is formatted to it. The workflows check out without keeping the job's token.
 
+### Fixed
+
+- An id is checked as text even when the envelope refuses a message before the detectors run, so a payload
+  sent as an id never comes back in the answer.
+- A message a crash left in `incoming/` after it was filed is finished on the next pass, not refused as its own
+  duplicate. A message and its signature are removed only together, so a signature is never left behind for
+  the next message of its name.
+- `--watch` no longer ends when Porelo moves a file on while the archive is read, and ends with 2 when its lock
+  file was removed or replaced, before a second instance could file the same messages.
+- Names in capitals and digits joined by dashes, such as `A2A-In` or `E2E-Run1`, pass as prose instead of
+  being refused as base64.
+- A pass started through the Java API checks the directories when nobody did first.
+- The Build runs a signed message, and one signed in the old namespace, through both packages.
+
 ## [0.5.0] - 2026-10-17
 
 ### Changed

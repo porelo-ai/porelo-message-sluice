@@ -11,6 +11,7 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
 
 class MessageArchiveTest {
@@ -19,12 +20,37 @@ class MessageArchiveTest {
 
     @TempDir Path tmp;
 
+    @Test
+    void aFileMovedOnDuringTheScanIsCountedWhereItWentAndStopsNothing() throws Exception {
+        // The harm: Porelo moves accepted messages on to sent/ while the filter watches; a file
+        // gone between its stamp and its read ended the pass, and with it the watch.
+        final Path accepted = Files.createDirectory(tmp.resolve("accepted"));
+        final Path sent = Files.createDirectory(tmp.resolve("sent"));
+        Files.writeString(accepted.resolve("a.json"), "{\"messageId\":\"moved-on\"}");
+        Files.writeString(accepted.resolve("b.json"), "{\"messageId\":\"stayed\"}");
+
+        final MessageArchive archive =
+                MessageArchive.scan(
+                        List.of(accepted, sent),
+                        MAX,
+                        (file, max) -> {
+                            if (file.getFileName().toString().equals("a.json")) {
+                                Files.move(file, sent.resolve("a.json"));
+                            }
+                            return FileOps.read(file, max);
+                        });
+
+        assertThat(archive.contains("moved-on")).isTrue();
+        assertThat(archive.contains("stayed")).isTrue();
+    }
+
     /**
      * Codex's review: the scan followed links, opened special files and read without a limit. Only
      * a plain file with one name, of at most a message's size, counts now - each of the others
      * would carry an id that is not the filter's.
      */
     @Test
+    @Timeout(10)
     void onlyAPlainFileOfAMessagesSizeCounts() throws Exception {
         final Path outside = Files.createDirectory(tmp.resolve("outside"));
         final Path mailbox = Files.createDirectory(tmp.resolve("accepted"));

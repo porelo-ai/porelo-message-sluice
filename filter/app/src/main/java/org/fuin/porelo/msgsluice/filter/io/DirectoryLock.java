@@ -6,26 +6,44 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * One instance at a time. The lock is the operating system's, so it dies with the process and a
- * crashed run never leaves a stale lock behind; the file only says who holds it.
+ * crashed run never leaves a stale lock behind; the file says who holds it. The lock is on the
+ * file, not its name: removed or replaced, it lets a second instance lock a new one, so a holder
+ * asks {@link #stillHeld()} before each pass.
  */
 public final class DirectoryLock implements AutoCloseable {
 
     /** More than a pid line needs; a holder file is never read further than this. */
     private static final int MAX_HOLDER_BYTES = 64;
 
+    private final Path file;
+
     private final FileChannel channel;
 
     private final FileLock lock;
 
-    private DirectoryLock(final FileChannel channel, final FileLock lock) {
+    /** The locked file's identity, read by its name once it was locked. */
+    private final @Nullable Object key;
+
+    private DirectoryLock(
+            final Path file,
+            final FileChannel channel,
+            final FileLock lock,
+            final @Nullable Object key) {
+        this.file = file;
         this.channel = channel;
         this.lock = lock;
+        this.key = key;
     }
 
     /**
@@ -68,7 +86,7 @@ public final class DirectoryLock implements AutoCloseable {
                 lock.release();
                 throw ex;
             }
-            return new DirectoryLock(channel, lock);
+            return new DirectoryLock(file, channel, lock, key(file));
         } catch (final IOException | RuntimeException | LockedException ex) {
             channel.close();
             throw ex;
@@ -89,6 +107,28 @@ public final class DirectoryLock implements AutoCloseable {
             sb.append(b >= 0x20 && b < 0x7f ? (char) b : '?');
         }
         return sb.toString().strip();
+    }
+
+    /**
+     * Whether the lock's file is still the one locked. The lock is on the file, not on its name:
+     * once the file is removed or replaced, a second instance locks a new one and both run.
+     *
+     * @throws IOException when the name no longer leads to the locked file
+     */
+    public void stillHeld() throws IOException {
+        if (!Objects.equals(key, key(file))) {
+            throw new IOException(
+                    file + " was removed or replaced while held; another instance may now run");
+        }
+    }
+
+    private static @Nullable Object key(final Path file) throws IOException {
+        try {
+            return Files.readAttributes(file, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS)
+                    .fileKey();
+        } catch (final NoSuchFileException ex) {
+            return null;
+        }
     }
 
     @Override

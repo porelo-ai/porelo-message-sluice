@@ -370,8 +370,13 @@ public final class EncodingSignatureDetector implements ContentDetector {
         return s.chars().anyMatch(c -> "AEIOUYaeiouy".indexOf(c) >= 0);
     }
 
+    /*
+     * A name in capitals and digits with a vowel in it: E2E, A2A, PORELO. The lookahead's star
+     * backtracks, since a possessive one takes the vowel too and never matches; the segment is at
+     * most 12 characters, so it cannot recurse far.
+     */
     private static final Pattern NAME_SEGMENT =
-            Pattern.compile("(?=[A-Z0-9]*+[AEIOUY])[A-Z0-9]{1,12}+");
+            Pattern.compile("(?=[A-Z0-9]*[AEIOUY])[A-Z0-9]{1,12}+");
 
     /**
      * Words, numbers and names joined by dashes, underscores or slashes: an identifier, a path, a

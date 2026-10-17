@@ -130,6 +130,25 @@ jobs:
                     test "$(ls "$M"/filter/error | grep -v '[.]error[.]txt$' | sort)" = "$(expect 'unprocessable-*.json')"
                     test "$(ls "$M"/filter/feedback | wc -l)" -eq "$(ls "$F" | grep -c '[.]json$')"
                     test -z "$(ls "$M"/incoming)"
+                    # Signed, as Porelo sends it: the signature goes out beside its message, byte for byte;
+                    # one in the namespace before the rename is refused. Each in its own mailbox run, so the
+                    # fixtures' counts above stay as they are.
+                    G=filter/app/src/test/resources/signatures
+                    S="$RUNNER_TEMP/signed-$format"
+                    mkdir -p "$S"/{incoming,sent} "$S"/filter/{accepted,feedback}
+                    mkdir -m 700 "$S"/filter/{rejected,error}
+                    cp "$F/accept-clean-prose.json" "$S/incoming/new.json"
+                    cp "$G/porelo-ed25519.sig" "$S/incoming/new.json.sig"
+                    cp "$F/accept-clean-prose.json" "$S/incoming/old.json"
+                    cp "$G/old-namespace-ed25519.sig" "$S/incoming/old.json.sig"
+                    set +e
+                    env -i PATH=/usr/bin:/bin "$FILTER" --mail "$S" --blocking --stabilityDelayMillis 0
+                    set -e
+                    test "$(ls "$S"/filter/accepted | sort | tr '\n' ' ')" = "new.json new.json.sig "
+                    cmp "$S/filter/accepted/new.json.sig" "$G/porelo-ed25519.sig"
+                    ls "$S"/filter/error | grep -qx 'old.json'
+                    grep -rlF 'UNPROCESSABLE/SIGNATURE_UNUSABLE' "$S"/filter/feedback | grep -q .
+                    test -z "$(ls "$S"/incoming)"
                   done
 
             # Only main and a release tag publish. A tag publishes a release, everything else a snapshot; a release

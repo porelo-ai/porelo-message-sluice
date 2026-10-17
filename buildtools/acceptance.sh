@@ -44,7 +44,7 @@ if installed porelo-message-sluice-filter; then
     test -f "$M/filter/accepted/clean.json"
     test -f "$M/filter/rejected/payload.json"
     test -f "$M/filter/rejected/raw.json"
-    test "$(ls "$M/filter/feedback" | wc -l)" -eq 3
+    test "$(find "$M/filter/feedback" -mindepth 1 -maxdepth 1 | wc -l)" -eq 3
     echo "filter: installed, and refused what it must"
     checked=$((checked + 1))
 fi

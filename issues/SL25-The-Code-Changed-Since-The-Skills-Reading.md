@@ -1,6 +1,6 @@
 # SL25 — The Code Changed Since The Skills Reading
 
-**Status:** Backlog. Blocked by [SL27](README.md#sl27), the reformatting.
+**Status:** Implementing, after [SL27](README.md#sl27)'s reformatting.
 **Size:** L - about 1,400 changed lines in one module, its packaging and three scripts, read into 16
 fixes; each needs its own test seen red, several a seam in `io/` first, one a fixture step in the
 Build, and a fix to what ships runs the acceptance on the VM again. M before the reading, set to L at
@@ -72,6 +72,20 @@ unless they say otherwise.
 **To fix.** Under the shared rule that a test guards harm, each test names the harm it prevents;
 a finding that names none is fixed without a test, and a test that cannot fail and guards none is
 deleted, not repaired.
+
+**Built** in the commit after the reformatting, all sixteen:
+
+- **Seen red on today's code, then fixed:** 1, 2, 3, 4, 5, 6 and 7. Finding 2 also gets a test that
+  a message whose id was sent is still refused under another name or with other bytes, since the fix
+  narrows the duplicate rule. That test was seen red against a fix that compared names only.
+- **Seen red against a mutation of the code it guards:** the new tests of 8 and 9 (`CREATE_NEW`
+  dropped; each of the four checks removed, one at a time). The tests they replace stayed green
+  against the same mutations.
+- **Fixed without a test:** 10, 15 and 16. Finding 11's test is deleted. Finding 12 gets its
+  `@Timeout`.
+- **13:** the Build's fixture step runs a signed message and one in the old namespace through both
+  packages. It was seen red on the VM with the two signatures swapped.
+- **14** is in the reformatting commit, since the new `check-actions` runs in the Build.
 
 1. **`security-audit`: an id is echoed unchecked when the envelope refuses before the detectors run**
    (`MessageSluice`, around line 400, with `a2a/EnvelopeResult`). A `raw` part, `ROLE_UNSPECIFIED` or
