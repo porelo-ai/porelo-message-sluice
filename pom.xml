@@ -15,7 +15,7 @@
 
     <groupId>org.fuin.porelo</groupId>
     <artifactId>porelo-message-sluice</artifactId>
-    <version>0.5.0</version>
+    <version>0.5.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Porelo Message Sluice</name>
     <description>Filters the messages an agent sends out</description>
