@@ -8,12 +8,6 @@ the order is the priority. Only the operator sets Accepted, Rejected, Estimated,
 Finished; this repository's agent sets Analyzed, Implementing and Review, and proposes the rest in the
 channel.
 
-## Review
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="sl26"></a>[SL26](SL26-Sokar-Is-Renamed-Porelo-Here.md) | S | — | The rename to Porelo here: the coordinates, the paths Porelo reads, the signature's namespace, a fixture signed again, and a test that refuses the old name. |
-
 ## Analyzed
 
 | # | Size | Blocked by | What it covers | Open questions |
@@ -31,7 +25,13 @@ channel.
 | <a id="sl08"></a>[SL08](SL08-Refuse-A-Payload-Spread-Over-Several-Messages.md) | XL | — | A payload cut into pieces and sent over several messages, caught by correlating against what the task already sent. |
 | <a id="sl12"></a>[SL12](SL12-Refuse-A-Description-That-Stopped-Being-True.md) | S | — | A test that refuses a description contradicted by something the build can read - the modules named against the modules that exist. |
 
-Nothing is in Rework, Implementing, Backlog, Accepted, Idea, Finished or Rejected.
+## Finished
+
+| # | Title | What was built |
+|---|---|---|
+| <a id="sl26"></a>[SL26](README.md#sl26) | The rename to Porelo here | The filter is published as `org.fuin.porelo` 0.5.0 and installed where Porelo looks for it, accepts only signatures in the namespace `porelo-message`, and a documents test refuses the old name in any tracked file. |
+
+Nothing is in Review, Rework, Implementing, Backlog, Accepted, Idea or Rejected.
 
 **Open questions**, in *Analyzed* only, counts what waits on the operator; what this repository's
 agent finds out itself stands under each issue's *To be checked* and is not counted.

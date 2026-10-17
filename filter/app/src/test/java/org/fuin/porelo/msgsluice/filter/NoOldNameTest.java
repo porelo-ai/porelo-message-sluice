@@ -32,16 +32,11 @@ class NoOldNameTest {
     /** The old name as a sentence writes it. */
     private static final String OLD_NAME = "So" + "kar";
 
-    /**
-     * Paths that keep the old name, name and text: the frozen corpus the encoding rates are measured on, and the
-     * issue of the rename.
-     */
-    private static final Pattern KEPT_PATHS = Pattern.compile("filter/app/src/test/resources/english-corpus\\.txt|"
-            + "issues/SL26-[^/]+\\.md"); // not-a-citation: the issue's own file
+    /** The path that keeps the old name, name and text: the frozen corpus the encoding rates are measured on. */
+    private static final Pattern KEPT_PATHS = Pattern.compile("filter/app/src/test/resources/english-corpus\\.txt");
 
-    /** Lines that keep it: the rename's own row in the issue index, and the changelog entry that says it. */
-    private static final Pattern KEPT_LINES = Pattern.compile(".*<a id=\"sl26\"></a>.*"
-            + "|- " + OLD_NAME + " is now Porelo: .*");
+    /** The line that keeps it: the changelog entry that says it. */
+    private static final Pattern KEPT_LINES = Pattern.compile("- " + OLD_NAME + " is now Porelo: .*");
 
     /** The changelog is read up to its first released version; what was released stays as it was released. */
     private static final String CHANGELOG = "CHANGELOG.md";
