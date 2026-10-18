@@ -8,13 +8,6 @@ the order is the priority. Only the operator sets Accepted, Rejected, Estimated,
 Finished; this repository's agent sets Analyzed, Implementing and Review, and proposes the rest in the
 channel.
 
-## Review
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="sl27"></a>[SL27](SL27-Reformatted-To-The-Shared-Style.md) | S | porelo-project [PJ29](https://github.com/porelo-ai/porelo-project/blob/main/issues/README.md#pj29) | This repository's share of the shared code style: Spotless on, once `porelo-parent` `0.2.1-SNAPSHOT` has it, one reformatting commit, and the shared `.editorconfig`. |
-| <a id="sl25"></a>[SL25](SL25-The-Code-Changed-Since-The-Skills-Reading.md) | L | [SL27](#sl27) | The code changed since the reading of 2026-09-27 (`ddea1c3`), read against the seven skills on the reformatted code, its findings fixed without changing an interface another repository reads. |
-
 ## Accepted
 
 | # | Size | Blocked by | What it covers |
@@ -36,9 +29,11 @@ channel.
 
 | # | Title | What was built |
 |---|---|---|
+| <a id="sl25"></a>[SL25](README.md#sl25) | The code changed since the skills reading | The code changed since 2026-09-27 read against the seven skills and `shellcheck`, its sixteen findings fixed (each that guards a harm with a test seen red), published as `0.5.1~snapshot.51`. |
+| <a id="sl27"></a>[SL27](README.md#sl27) | Reformatted to the shared style | Spotless with the shared Java, YAML and shell formats, one reformatting commit that `git blame` skips, the shared `.editorconfig`, and checkouts without a kept token. |
 | <a id="sl26"></a>[SL26](README.md#sl26) | The rename to Porelo here | The filter is published as `org.fuin.porelo` 0.5.0 and installed where Porelo looks for it, accepts only signatures in the namespace `porelo-message`, and a documents test refuses the old name in any tracked file. |
 
-Nothing is in Rework, Implementing, Backlog, Analyzed, Idea or Rejected.
+Nothing is in Review, Rework, Implementing, Backlog, Analyzed, Idea or Rejected.
 
 **Open questions**, in *Analyzed* only, counts what waits on the operator; what this repository's
 agent finds out itself stands under each issue's *To be checked* and is not counted.

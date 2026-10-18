@@ -8,7 +8,7 @@ other without a word.
 
 ## Why
 
-Found in [SL25](README.md#sl25)'s reading. `cli/Main` refuses `--file` without `--dry-run` and
+Found when the code was read against the skills in 2026-10. `cli/Main` refuses `--file` without `--dry-run` and
 `--dir` without `--calibrate`, but takes these and runs only the first mode it checks:
 
 - `--agent-card` with `--calibrate`, `--dry-run` or `--watch`;
@@ -20,5 +20,5 @@ A person who adds `--watch` to a dry run thinks it is watching, and it is not.
 ## To be checked
 
 - **Whether Porelo or a transport calls the filter with such a pair today.** Refusing one changes
-  which command lines are accepted, so this is not built in [SL25](README.md#sl25).
+  which command lines are accepted, so it was not built with that reading's fixes.
 - Whether `--agent-card` should stay a mode that ignores the rest, as `--help` does elsewhere.
