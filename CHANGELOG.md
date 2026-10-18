@@ -7,11 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- The `Shared rules check` fetches the pinned `shfmt`, which the style check needs for the two scripts in
-  every Maven run.
-
 ### Changed
 
 - The build takes `porelo-parent` 0.2.1-SNAPSHOT and `porelo-buildtools` 0.5.1-SNAPSHOT. `validate` checks
@@ -31,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   being refused as base64.
 - A pass started through the Java API checks the directories when nobody did first.
 - The Build runs a signed message, and one signed in the old namespace, through both packages.
+- The `Shared rules check` fetches the pinned `shfmt`, which the style check needs for the two scripts in
+  every Maven run.
 
 ## [0.5.0] - 2026-10-17
 
