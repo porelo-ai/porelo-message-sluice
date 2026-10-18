@@ -69,6 +69,20 @@ jobs:
                   "$JAVA_HOME_25_X64/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \
                       org.fuin.porelo.release.Main check-readmes .
 
+            # The shfmt porelo-parent pins, which Spotless does not download: validate checks the two
+            # scripts in every Maven run, the documents tests' included. Checked against the digest its
+            # release names.
+            - name: The pinned shfmt
+              run: |
+                  set -eu
+                  VERSION=3.12.0
+                  mkdir -p "$RUNNER_TEMP/bin"
+                  curl -fsSL -o "$RUNNER_TEMP/bin/shfmt" \
+                      "https://github.com/mvdan/sh/releases/download/v$VERSION/shfmt_v${VERSION}_linux_amd64"
+                  echo "d9fbb2a9c33d13f47e7618cf362a914d029d02a6df124064fff04fd688a745ea  $RUNNER_TEMP/bin/shfmt" | sha256sum -c -
+                  chmod +x "$RUNNER_TEMP/bin/shfmt"
+                  echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
             # Every test that reads a document carries the tag documents, and the guard among them fails
             # when one does not.
             - name: The tests that read documents
