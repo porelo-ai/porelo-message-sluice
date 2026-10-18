@@ -34,6 +34,8 @@ JAVA_HOME=<graalvm> ./mvnw -B -s settings.xml -Pnative,dist verify # native exec
 ```
 
 Java 25. More in [`build.md`](https://github.com/porelo-ai/porelo-message-sluice/blob/main/build.md).
+How to change it is in [`CONTRIBUTING.md`](CONTRIBUTING.md), and how to report a vulnerability in
+[`SECURITY.md`](SECURITY.md).
 
 ## License
 
