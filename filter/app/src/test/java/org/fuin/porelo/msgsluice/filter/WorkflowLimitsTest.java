@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * A job without {@code timeout-minutes} runs for GitHub's six hours on a slow runner. Read as
- * lines, the way the workflows are written: a job is a two-space key under {@code jobs:}, its limit
- * a four-space key.
+ * lines, the way the workflows are written: a job is a four-space key under {@code jobs:}, its
+ * limit an eight-space key.
  */
 class WorkflowLimitsTest {
 
