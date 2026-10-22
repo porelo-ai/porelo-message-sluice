@@ -14,12 +14,6 @@ channel.
 |---|---|---|---|
 | <a id="sl29"></a>[SL29](SL29-Built-In-A-Porelo-Task.md) | M | — | The tools of the whole local check named in `porelo.yml`, and that check green inside a Porelo task built from it. |
 
-## Analyzed
-
-| # | Size | Blocked by | Open questions | What it covers |
-|---|---|---|---|---|
-| <a id="sl28"></a>[SL28](SL28-Modes-That-Cannot-Go-Together-Are-Refused.md) | S | — | 0 | A command line asking for two modes that cannot run together is refused by name, not run as the first of them. |
-
 ## Idea
 
 | # | Size | Blocked by | What it covers |
@@ -37,6 +31,7 @@ channel.
 | <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | Porelo [B166](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b166), [SL23](#sl23) | A comment on code passes only in its exact shape: an anchor checked by shape, prose judged as prose, an optional suggestion bounded to its anchor and judged by detectors measured on code. |
 | <a id="sl08"></a>[SL08](SL08-Refuse-A-Payload-Spread-Over-Several-Messages.md) | XL | — | A payload cut into pieces and sent over several messages, caught by correlating against what the task already sent. |
 | <a id="sl12"></a>[SL12](SL12-Refuse-A-Description-That-Stopped-Being-True.md) | S | — | A test that refuses a description contradicted by something the build can read - the modules named against the modules that exist. |
+| <a id="sl28"></a>[SL28](SL28-Modes-That-Cannot-Go-Together-Are-Refused.md) | S | — | A command line asking for two modes that cannot run together is refused by name, not run as the first of them. |
 
 ## Finished
 
@@ -46,7 +41,7 @@ channel.
 | <a id="sl27"></a>[SL27](README.md#sl27) | Reformatted to the shared style | Spotless with the shared Java, YAML and shell formats, one reformatting commit that `git blame` skips, the shared `.editorconfig`, and checkouts without a kept token. |
 | <a id="sl26"></a>[SL26](README.md#sl26) | The rename to Porelo here | The filter is published as `org.fuin.porelo` 0.5.0 and installed where Porelo looks for it, accepts only signatures in the namespace `porelo-message`, and a documents test refuses the old name in any tracked file. |
 
-Nothing is in Rework, Implementing, Backlog, Accepted or Rejected.
+Nothing is in Rework, Implementing, Backlog, Analyzed, Accepted or Rejected.
 
 **Open questions**, in *Analyzed* only, counts what waits on the operator; what this repository's
 agent finds out itself stands under each issue's *To be checked* and is not counted.
