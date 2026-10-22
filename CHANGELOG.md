@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   password for `sshpass`, and a random key next to a word naming one. A certificate or a password hash is
   suspicious. Each category is one rule, `CREDENTIAL/<category>`, and the providers' documented example
   keys count as information only (`detector.credentials.dummyValues`).
+- Personal and financial data is found by pattern and checksum: a payment card number (Luhn), an IBAN
+  (MOD-97) and a Swiss or US national id are refused; an e-mail address, a phone number, a public IP
+  address and a date of birth are suspicious, and a project grades them blocking with
+  `decision.severity.<category>`. Each category is one rule, `PERSONAL/<category>`.
 
 ### Changed
 

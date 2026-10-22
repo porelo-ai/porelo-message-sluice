@@ -53,7 +53,7 @@ class SettingsTest {
         assertThat(settings.config().blocking()).isFalse();
         assertThat(settings.detectors())
                 .as("the detectors the defaults build, the length rule first")
-                .hasSize(6)
+                .hasSize(7)
                 .first()
                 .isInstanceOf(LongTokenDetector.class);
     }

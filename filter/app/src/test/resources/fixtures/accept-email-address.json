@@ -1,0 +1,1 @@
+{"messageId":"fx-accept-personal-1","role":"ROLE_AGENT","contextId":"ctx-fixtures","parts":[{"text":"Send the summary to anna.meier@firm.ch once the build is green."}],"metadata":{"to":"reviewer"}}

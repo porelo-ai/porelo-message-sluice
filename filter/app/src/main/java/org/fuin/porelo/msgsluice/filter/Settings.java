@@ -30,6 +30,7 @@ import org.fuin.porelo.msgsluice.filter.detect.EncodingSignatureDetector;
 import org.fuin.porelo.msgsluice.filter.detect.EntropyDetector;
 import org.fuin.porelo.msgsluice.filter.detect.LongTokenDetector;
 import org.fuin.porelo.msgsluice.filter.detect.Normalizer;
+import org.fuin.porelo.msgsluice.filter.detect.PersonalDataDetector;
 import org.fuin.porelo.msgsluice.filter.detect.TokenShapeDetector;
 import org.jspecify.annotations.Nullable;
 
@@ -114,6 +115,13 @@ public final class Settings {
         DEFAULTS.put(
                 "detector.credentials.dummyValues",
                 "AKIAIOSFODNN7EXAMPLE,wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY,hunter2");
+        DEFAULTS.put("detector.personalData.enabled", "true");
+        // The card and account numbers every payment documentation uses as its example, and the
+        // public resolvers' addresses, which are nobody's.
+        DEFAULTS.put(
+                "detector.personalData.dummyValues",
+                "4111111111111111,DE89370400440532013000,GB82WEST12345698765432,"
+                        + "1.1.1.1,1.0.0.1,8.8.8.8,8.8.4.4,9.9.9.9");
     }
 
     /** Directory keys a {@code mail} root supplies when they are not set themselves. */
@@ -293,6 +301,9 @@ public final class Settings {
             }
             if (bool("detector.credentials.enabled")) {
                 list.add(new CredentialDetector(list("detector.credentials.dummyValues")));
+            }
+            if (bool("detector.personalData.enabled")) {
+                list.add(new PersonalDataDetector(list("detector.personalData.dummyValues")));
             }
         } catch (final IllegalArgumentException ex) {
             throw new ConfigException(reason(ex));
