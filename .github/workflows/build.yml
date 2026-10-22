@@ -178,43 +178,48 @@ jobs:
                   fi
                   echo "  $VERSION -> $(tail -1 "$GITHUB_OUTPUT")"
 
-            # The deb's properties are what put it into the index; without them it is stored and never listed,
-            # and nothing says so.
-            - name: Set up the JFrog CLI
-              if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-              uses: jfrog/setup-jfrog-cli@1e584506871998c267b7c100c02628a5b9c81db6 # v5.3.0
-              with:
-                  disable-auto-build-publish: true
-              env:
-                  JF_URL: ${{ vars.JF_URL }}
-                  JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-
-            # Into the channel this run publishes to. A release that is already there is refused: a published
-            # release is never replaced.
+            # Into the channel this run publishes to, over Artifactory's REST interface with curl alone, so no
+            # downloaded tool runs beside the token. The token reaches curl on standard input, once per call, from the
+            # shell's own printf: never a file, never a command line. Both checksums travel with each file, and Artifactory refuses bytes that do not match.
+            # The deb's properties are what put it into the index; without them it is stored and never listed, and
+            # nothing says so. A release that is already there is refused: a published release is never replaced.
             - name: Publish the packages
               timeout-minutes: 5
               if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
               env:
                   JF_URL: ${{ vars.JF_URL }}
+                  JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
                   CHANNEL: ${{ steps.channel.outputs.channel }}
               run: |
                   set -euo pipefail
+                  base="${JF_URL%/}/artifactory"
                   if [ "$CHANNEL" = releases ]; then
-                    published="$(curl -sfL "${JF_URL%/}/artifactory/porelo-dist-deb/dists/releases/main/binary-amd64/Packages" || true)"
+                    # Fetched to a file, so an index that cannot be read stops the release rather than reading as
+                    # "not published".
+                    curl -sfL -o "$RUNNER_TEMP/published-index" "$base/porelo-dist-deb/dists/releases/main/binary-amd64/Packages" \
+                        || { echo "::error::the release index could not be read, so whether this release is published is unknown"; exit 1; }
                     for p in */dist-deb/target/*.deb; do
                       name="$(dpkg-deb -f "$p" Package)"
-                      if grep -qxF "Filename: pool/main/p/$name/$(basename "$p")" <<< "$published"; then
+                      if grep -qxF "Filename: pool/main/p/$name/$(basename "$p")" "$RUNNER_TEMP/published-index"; then
                         echo "::error::$(basename "$p") is published already"; exit 1
                       fi
                     done
                   fi
+                  [ -n "$JF_ACCESS_TOKEN" ] || { echo "::error::secret JF_ACCESS_TOKEN is not set"; exit 1; }
+                  put() {
+                    printf 'header = "Authorization: Bearer %s"\n' "$JF_ACCESS_TOKEN" \
+                      | curl -fsS -K - -o /dev/null -T "$1" \
+                        -H "X-Checksum-Sha1: $(sha1sum "$1" | cut -d' ' -f1)" \
+                        -H "X-Checksum-Sha256: $(sha256sum "$1" | cut -d' ' -f1)" \
+                        "$base/$2$(basename "$1")${3:+;$3}"
+                    echo "  put   $2$(basename "$1")"
+                  }
                   for p in */dist-deb/target/*.deb; do
                     name="$(dpkg-deb -f "$p" Package)"
-                    jf rt upload "$p" "porelo-dist-deb/pool/main/p/$name/" --flat=true \
-                        --target-props="deb.distribution=${CHANNEL};deb.component=main;deb.architecture=amd64"
+                    put "$p" "porelo-dist-deb/pool/main/p/$name/" "deb.distribution=${CHANNEL};deb.component=main;deb.architecture=amd64"
                   done
                   for p in */dist-rpm/target/*.rpm; do
-                    jf rt upload "$p" "porelo-dist-rpm/${CHANNEL}/" --flat=true
+                    put "$p" "porelo-dist-rpm/${CHANNEL}/"
                   done
 
             # Indexing is asynchronous and fails silently, so the index is read back - anonymously, as an
