@@ -51,7 +51,11 @@ class SettingsTest {
     void theDefaultsWorkAndReportRatherThanBlock() throws Exception {
         final Settings settings = Settings.load(null, Map.of("mail", "/m"));
         assertThat(settings.config().blocking()).isFalse();
-        assertThat(settings.detectors()).hasSize(5).first().isInstanceOf(LongTokenDetector.class);
+        assertThat(settings.detectors())
+                .as("the detectors the defaults build, the length rule first")
+                .hasSize(6)
+                .first()
+                .isInstanceOf(LongTokenDetector.class);
     }
 
     @Test

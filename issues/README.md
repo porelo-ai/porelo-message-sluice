@@ -22,12 +22,13 @@ channel.
 | <a id="sl30"></a>[SL30](SL30-Old-Runs-Deleted-On-A-Named-Runner.md) | XS | — | *Delete old runs* and the *Shared rules check* on `ubuntu-26.04`. |
 | <a id="sl31"></a>[SL31](SL31-Publish-Without-The-JFrog-Action.md) | S | — | Publish reaches Artifactory with `curl` instead of `jfrog/setup-jfrog-cli`. |
 | <a id="sl12"></a>[SL12](SL12-Refuse-A-Description-That-Stopped-Being-True.md) | S | — | A test that refuses a description contradicted by something the build can read - the modules named against the modules that exist. |
+| <a id="sl07"></a>[SL07](SL07-Refuse-Credentials.md) | M | — | Credentials - keys, tokens, private keys, connection strings, passwords - caught by a catalog of pattern, validation and context. |
 
 ## Backlog
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="sl07"></a>[SL07](SL07-Refuse-Credentials-And-Personal-Data.md) | L | — | Credentials and personal data, caught by a catalog of pattern, context and checksum. |
+| <a id="sl32"></a>[SL32](SL32-Refuse-Personal-And-Financial-Data.md) | M | — | Payment cards, IBANs, national ids refused; e-mail, phone, IP address and date of birth suspicious; by pattern and checksum. |
 
 ## Estimated
 

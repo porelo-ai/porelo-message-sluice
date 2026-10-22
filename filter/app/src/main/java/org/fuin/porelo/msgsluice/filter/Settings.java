@@ -24,6 +24,7 @@ import org.fuin.porelo.msgsluice.filter.decision.DecisionConfig;
 import org.fuin.porelo.msgsluice.filter.decision.Redactor;
 import org.fuin.porelo.msgsluice.filter.decision.Severity;
 import org.fuin.porelo.msgsluice.filter.detect.ContentDetector;
+import org.fuin.porelo.msgsluice.filter.detect.CredentialDetector;
 import org.fuin.porelo.msgsluice.filter.detect.DistributionDetector;
 import org.fuin.porelo.msgsluice.filter.detect.EncodingSignatureDetector;
 import org.fuin.porelo.msgsluice.filter.detect.EntropyDetector;
@@ -107,6 +108,12 @@ public final class Settings {
         DEFAULTS.put("detector.distribution.minWhitespaceShare", "0.08");
         DEFAULTS.put("detector.signature.enabled", "true");
         DEFAULTS.put("detector.signature.minLength", "32");
+        DEFAULTS.put("detector.credentials.enabled", "true");
+        // Values known to be no secret: the providers' documented examples, and the password every
+        // example quotes.
+        DEFAULTS.put(
+                "detector.credentials.dummyValues",
+                "AKIAIOSFODNN7EXAMPLE,wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY,hunter2");
     }
 
     /** Directory keys a {@code mail} root supplies when they are not set themselves. */
@@ -283,6 +290,9 @@ public final class Settings {
             if (bool("detector.signature.enabled")) {
                 list.add(
                         new EncodingSignatureDetector(positiveInt("detector.signature.minLength")));
+            }
+            if (bool("detector.credentials.enabled")) {
+                list.add(new CredentialDetector(list("detector.credentials.dummyValues")));
             }
         } catch (final IllegalArgumentException ex) {
             throw new ConfigException(reason(ex));
@@ -468,6 +478,13 @@ public final class Settings {
         } catch (final NumberFormatException ex) {
             throw new ConfigException("'" + key + "' is not a number: " + valueIn(values, key));
         }
+    }
+
+    private Set<String> list(final String key) {
+        return Arrays.stream(valueIn(values, key).split(","))
+                .map(String::strip)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
     }
 
     private Set<String> roles(final String key) throws ConfigException {

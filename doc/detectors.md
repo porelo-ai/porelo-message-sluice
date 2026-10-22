@@ -1,8 +1,8 @@
 # What the filter looks for in the text
 
 After the envelope ([`filter.md`](filter.md)), every text and every string in a message goes through
-the **detectors**. The ones built catch **encoded data**. Credentials and personal data, and a payload
-spread over several messages, are not built yet.
+the **detectors**. The ones built catch **encoded data** and **credentials**. Personal data, and a
+payload spread over several messages, are not built yet.
 
 A detector only reports findings; the verdict is decided on all of them together
 ([`filter.md`](filter.md#the-verdict)), and every excerpt is masked before it goes anywhere.
@@ -56,6 +56,31 @@ thirds words is prose and is never joined. Measured on 13342 paragraphs agents w
 no more than three short commit hashes ever stood in a row, and two paragraphs of the 13342 - a
 table and a command line - are refused by this alone.
 
+## Credentials
+
+A credential can look like ordinary text, so the encoded-data checks miss it. `builtin/credentials@1`
+looks for what it is instead: a pattern, a validation where one exists, and where the value alone says
+nothing a context word near it. It reads the normalized text, not the masked one, so a token in a URL's
+query string is seen too. Every category is one rule, `CREDENTIAL/<category>`: `decision.disabledRules`
+switches it off and `decision.severity.<category>` re-grades it.
+
+| Category | Severity | What it catches |
+|---|---|---|
+| `PRIVATE_KEY` | `BLOCKING` | a private key's header followed by its body; a header alone is talk about the format |
+| `CLOUD_KEY` | `BLOCKING` | an AWS access key id, an Azure connection string's key, a Google service account's key file |
+| `VCS_TOKEN` | `BLOCKING` | a GitHub, GitLab, npm or PyPI token by its prefix and length |
+| `JWT` | `BLOCKING` | three base64url segments whose first decodes to JSON with `alg` |
+| `CONNECTION_STRING` | `BLOCKING` | an address with a user name and a password that is no placeholder |
+| `PASSWORD` | `BLOCKING` | *password*, *passwd* or *passphrase*, then *is*, `:` or `=`, then a value with a letter and a digit or a symbol |
+| `SSH_AUTH` | `BLOCKING` | a password handed to `sshpass -p` |
+| `API_KEY_GENERIC` | `BLOCKING` | twenty characters or more with a stretch of sixteen mixing both cases and a digit, within 40 characters of *api key*, *secret*, *token*, *bearer* or *credential* |
+| `CERTIFICATE` | `SUSPICIOUS` | a certificate's header |
+| `HASH` | `SUSPICIOUS` | a bcrypt, argon2 or crypt password hash |
+
+**A placeholder is not a value:** `${DB_PASSWORD}`, `<password>`, `****`, `TOKEN`. **A known test
+value** (`detector.credentials.dummyValues`) is reported as `INFO` only: the providers' documented
+example keys and *hunter2*.
+
 ## Configuration
 
 Every threshold is a key, `detector.<name>.<parameter>`, and every detector can be switched off with
@@ -73,6 +98,7 @@ Every threshold is a key, `detector.<name>.<parameter>`, and every detector can 
 | `detector.distribution.maxChiSquarePerLetter` | 2.0 | measured, below |
 | `detector.distribution.minWhitespaceShare` | 0.08 | measured, below |
 | `detector.signature.minLength` | 32 | the shortest payload that must not pass |
+| `detector.credentials.dummyValues` | AWS's two documented example keys, `hunter2` | values known to be no secret, compared exactly |
 
 ## Calibration
 
@@ -97,11 +123,18 @@ With the defaults:
   each inside a sentence: under 1 % missed for every one (a test keeps it so). The same payloads cut into
   groups of 2 to 24 characters by spaces, line breaks, tabs or written-out escapes: under 1 % missed for
   base64, base32, base58 and hex (a test keeps it so).
+- **Credentials:** a sample of every category inside a sentence is found, and its value is in no
+  finding (a test keeps it so). In 27193 paragraphs agents wrote to each other, one is refused for a
+  credential: a command line quoted after *passphrase:*. Every paragraph of the documentation passes.
 - **The thresholds:** English windows reach at most 4.56 bits per character, base64 has a median of
   4.75; English letters reach at most 1.64 chi-squared per letter, base64 at least 2.69; English has at
   least 8.7 % whitespace, base64 none.
 
 ## What these detectors cannot see
+
+- **A credential with no shape and no word naming it**: a password written alone, a key of a provider
+  the catalog does not know, a token whose prefix appeared after this catalog.
+- **A secret described rather than written** (*"the dog's name plus 77"*).
 
 - **Fewer than 32 characters of an encoding** that nothing else gives away.
 - **A payload in a URL path** of short segments, up to 256 characters; the query is checked.

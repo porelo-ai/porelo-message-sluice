@@ -15,6 +15,8 @@ The name says what happens to it:
 
 Every message carries a unique `messageId`, so the whole set can go through one mailbox in one pass.
 The payload in the `detector-long-token` files is 64 characters of base64 and not a real secret.
+The password and the database address in the credential fixtures are made up, and a credential that
+is only talked about (`accept-password-mentioned`) passes.
 Three files exercise the Unicode normalization, so a native build runs it too: fullwidth letters
 (folded by NFKC, no finding), a Cyrillic look-alike inside a Latin word (`UNICODE/MIXED_SCRIPT`,
 suspicious, so accepted in both modes) and twelve zero-width spaces between words

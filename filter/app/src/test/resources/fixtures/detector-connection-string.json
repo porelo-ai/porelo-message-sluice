@@ -1,0 +1,1 @@
+{"messageId":"fx-detector-credential-2","role":"ROLE_AGENT","contextId":"ctx-fixtures","parts":[{"text":"Run the migration against postgres://app:S3cretPw9@db.internal:5432/orders and tell me when it is done."}],"metadata":{"to":"reviewer"}}

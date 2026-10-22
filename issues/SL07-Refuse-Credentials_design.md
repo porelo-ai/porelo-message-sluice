@@ -1,8 +1,8 @@
-# SL07 — Refuse credentials and personal data, design
+# SL07 — Refuse credentials, design
 
-How [SL07](README.md#sl07) would be built. **Nothing here exists yet**, and none of it has been measured.
-Moved here unchanged from the design of the original issue 001, where it was stage B, step 5, and
-the catalog.
+The catalog [SL07](README.md#sl07) builds for the credentials, as built in `doc/detectors.md`, and
+[SL32](README.md#sl32) for the personal and financial data, still a proposal until it is measured. It
+comes from the design of the original issue 001, where it was stage B, step 5, and the catalog.
 
 ## Pattern, context and checksum
 

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Credentials are refused by what they are: a private key, a cloud key, a code host's or a registry's
+  token, a signed JSON Web Token, an address with a password, a password named beside its value, a
+  password for `sshpass`, and a random key next to a word naming one. A certificate or a password hash is
+  suspicious. Each category is one rule, `CREDENTIAL/<category>`, and the providers' documented example
+  keys count as information only (`detector.credentials.dummyValues`).
+
 ### Changed
 
 - The build takes `porelo-parent` 0.2.1-SNAPSHOT and `porelo-buildtools` 0.5.1-SNAPSHOT. `validate` checks
