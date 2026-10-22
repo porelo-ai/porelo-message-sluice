@@ -23,7 +23,7 @@ jobs:
     check:
         name: Rules and documents
         # Pinned, not 'ubuntu-latest'.
-        runs-on: ubuntu-24.04
+        runs-on: ubuntu-26.04
         # A guess, not yet measured on a runner: a slow runner must end, not run for GitHub's six hours.
         timeout-minutes: 10
         steps:
