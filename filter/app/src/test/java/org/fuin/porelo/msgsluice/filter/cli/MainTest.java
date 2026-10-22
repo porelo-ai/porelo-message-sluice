@@ -8,12 +8,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.fuin.porelo.msgsluice.filter.io.DirectoryLock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class MainTest {
 
@@ -201,6 +206,56 @@ class MainTest {
                 throw (Error) failure;
             }
         };
+    }
+
+    /** Two modes, or an option without its mode: neither may run as the first mode alone. */
+    static Stream<Arguments> whatCannotRunTogether() {
+        return Stream.of(
+                Arguments.of(
+                        List.of("--agent-card", "--calibrate"),
+                        List.of("--agent-card", "--calibrate")),
+                Arguments.of(
+                        List.of("--agent-card", "--dry-run", "--file", "F"),
+                        List.of("--agent-card", "--dry-run")),
+                Arguments.of(
+                        List.of("--agent-card", "--watch"), List.of("--agent-card", "--watch")),
+                Arguments.of(
+                        List.of("--calibrate", "--dry-run", "--file", "F"),
+                        List.of("--calibrate", "--dry-run")),
+                Arguments.of(List.of("--calibrate", "--watch"), List.of("--calibrate", "--watch")),
+                Arguments.of(
+                        List.of("--dry-run", "--file", "F", "--watch"),
+                        List.of("--dry-run", "--watch")),
+                Arguments.of(List.of("--calibrate", "--file", "F"), List.of("--file", "--dry-run")),
+                Arguments.of(
+                        List.of("--agent-card", "--file", "F"), List.of("--file", "--dry-run")),
+                Arguments.of(
+                        List.of("--agent-card", "--dir", "D"), List.of("--dir", "--calibrate")));
+    }
+
+    @ParameterizedTest
+    @MethodSource("whatCannotRunTogether")
+    void aCommandLineAskingForWhatCannotRunTogetherRunsNothing(
+            final List<String> given, final List<String> named) throws Exception {
+        deliver("a.json", "Take this: " + "QUJD".repeat(20));
+        final String file = mail.resolve("incoming/a.json").toString();
+        final List<String> args = new ArrayList<>();
+        final String dir = mail.resolve("incoming").toString();
+        given.forEach(arg -> args.add(arg.equals("F") ? file : arg.equals("D") ? dir : arg));
+        args.addAll(List.of("--mail", mail.toString(), "--stabilityDelayMillis", "0"));
+
+        assertThat(run(args.toArray(String[]::new)))
+                .as(
+                        "a command line asking for what cannot run together is a configuration that cannot be used")
+                .isEqualTo(2);
+        assertThat(err.toString(StandardCharsets.UTF_8))
+                .as("the refusal names what was asked for")
+                .contains(named);
+        assertThat(out.toString(StandardCharsets.UTF_8))
+                .as("no mode ran, so none printed a verdict, a card or a configuration")
+                .isEmpty();
+        assertThat(mail.resolve("incoming/a.json")).as("nothing was moved").exists();
+        assertThat(mail.resolve("filter/feedback")).as("nothing was answered").isEmptyDirectory();
     }
 
     @Test

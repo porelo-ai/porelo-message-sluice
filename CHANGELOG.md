@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The build takes `porelo-parent` 0.2.1-SNAPSHOT and `porelo-buildtools` 0.5.1-SNAPSHOT. `validate` checks
   the shared code style - `google-java-format` in its AOSP style for Java, `shfmt` for the scripts - and the
   code is formatted to it. The workflows check out without keeping the job's token.
+- A command line asking for more than one of `--agent-card`, `--calibrate`, `--dry-run` and `--watch`, or for
+  `--file` or `--dir` without its mode, exits with 2 and names what was asked, instead of running the first
+  mode and dropping the rest.
 
 ### Fixed
 

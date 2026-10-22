@@ -7,8 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.fuin.porelo.msgsluice.filter.AgentCard;
 import org.fuin.porelo.msgsluice.filter.Calibration;
 import org.fuin.porelo.msgsluice.filter.ConfigException;
@@ -57,19 +59,13 @@ public final class Main {
         final Map<String, String> cli = new LinkedHashMap<>();
         Path configFile = null;
         Path dryRunFile = null;
-        boolean watch = false;
-        boolean dryRun = false;
-        boolean calibrate = false;
-        boolean agentCard = false;
+        final Set<String> modes = new LinkedHashSet<>();
         Path calibrateDir = null;
         try {
             for (int i = 0; i < args.length; i++) {
                 final String arg = args[i];
                 switch (arg) {
-                    case "--watch" -> watch = true;
-                    case "--dry-run" -> dryRun = true;
-                    case "--calibrate" -> calibrate = true;
-                    case "--agent-card" -> agentCard = true;
+                    case "--watch", "--dry-run", "--calibrate", "--agent-card" -> modes.add(arg);
                     case "--dir" -> calibrateDir = Path.of(value(args, ++i, arg));
                     case "--blocking" -> cli.put("blocking", "true");
                     case "--no-receipt" -> cli.put("receiptOnApproval", "false");
@@ -90,7 +86,20 @@ public final class Main {
                     }
                 }
             }
-            if (agentCard) {
+            // Before anything runs: taking the first mode would silently drop what else was asked.
+            if (modes.size() > 1) {
+                throw new ConfigException(String.join(" and ", modes) + " cannot run together");
+            }
+            final boolean watch = modes.contains("--watch");
+            final boolean dryRun = modes.contains("--dry-run");
+            final boolean calibrate = modes.contains("--calibrate");
+            if (calibrateDir != null && !calibrate) {
+                throw new ConfigException("--dir is only for --calibrate");
+            }
+            if (dryRunFile != null && !dryRun) {
+                throw new ConfigException("--file is only for --dry-run");
+            }
+            if (modes.contains("--agent-card")) {
                 final Settings settings = Settings.load(configFile, cli);
                 out.println(
                         new ObjectMapper()
@@ -105,17 +114,11 @@ public final class Main {
             if (calibrate) {
                 return calibrate(calibrateDir, configFile, cli, out);
             }
-            if (calibrateDir != null) {
-                throw new ConfigException("--dir is only for --calibrate");
-            }
             if (dryRun) {
                 if (dryRunFile == null) {
                     throw new ConfigException("--dry-run needs --file");
                 }
                 return dryRun(dryRunFile, configFile, cli, out);
-            }
-            if (dryRunFile != null) {
-                throw new ConfigException("--file is only for --dry-run");
             }
             final Settings settings = Settings.load(configFile, cli);
             final MessageSluice sluice =

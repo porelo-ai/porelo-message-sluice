@@ -132,6 +132,9 @@ porelo-message-sluice-filter --calibrate [--dir <messages>]            # prints 
 porelo-message-sluice-filter --agent-card --mail <dir>                 # prints its A2A agent card
 ```
 
+**`--agent-card`, `--calibrate`, `--dry-run` and `--watch` exclude each other:** a command line asking
+for two of them, or for `--file` or `--dir` without its mode, runs nothing and exits with 2.
+
 **Exit codes:** 0 everything passed, 1 something was refused, 2 a technical error or a configuration
 that cannot be used. One instance runs per mailbox; a second exits with 2. `--watch` keeps running
 and checks whenever a file arrives; it ends with 2 when the lock file `filter/.lock` was removed or

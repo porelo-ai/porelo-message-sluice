@@ -1,6 +1,6 @@
 # SL28 — Modes that cannot go together are refused
 
-**Status:** Backlog.
+**Status:** Implementing.
 **Size:** S - one class, `cli/Main`, its test, a line of `doc/filter.md` and a changelog entry; no contract, since
 no caller passes such a pair.
 
@@ -35,16 +35,23 @@ A person who adds `--watch` to a dry run thinks it is watching, and it is not.
   porelo-message-matrix never starts it.
 - **`--agent-card` stays a mode of its own, not one that ignores the rest:** it prints and exits, and a line that
   adds another mode asks for something it will not do. That is the same refusal.
-- **The test that goes red first, in `MainTest`:** for each of the six pairs of the four modes and for
-  `--calibrate --file`, exit 2, standard error naming both flags, nothing on standard output, and the mailbox's
+- **The test that goes red first, in `MainTest`:** for each of the six pairs of the four modes, and for
+  `--file` or `--dir` beside a mode they do not belong to (`--calibrate --file`, `--agent-card --file`,
+  `--agent-card --dir`), exit 2, standard error naming both flags, nothing on standard output, and the mailbox's
   `incoming/` unchanged. Against today's code, a dry run with `--watch` prints a verdict and exits 0 or 1, and
   `--calibrate --file` prints a configuration, so they fail.
   The harm it guards: a command that does something other than what was asked, silently.
 - **`doc/filter.md`**, *The command line*: one sentence that the four modes are exclusive and a line asking for
   two exits with 2. **`CHANGELOG.md`**, under `[Unreleased]`, *Changed*.
+- **Read against the skills** (graal 2026.910.3; java-code-review, test-quality, security-audit,
+  concurrency-review, clean-code and solid-principles 2026.906.3). test-quality found two gaps, both fixed in the
+  test and seen red on the code before: `--calibrate --file` is no pair of modes, so the test names what cannot
+  run together rather than two modes; and `--agent-card` with `--file` or `--dir` was not covered. clean-code's
+  suggestion to hold the four modes in an enum instead of their flag strings is declined: it reads better and
+  guards nothing, and the strings are the flags the person types.
 
 ## Acceptance
 
-- Each of those seven command lines exits 2 with both flag names on standard error and moves nothing; seen red
+- Each of those nine command lines exits 2 with both flag names on standard error and moves nothing; seen red
   on today's code first.
 - The four command lines of `doc/filter.md` still run as before: the existing `MainTest` cases stay green.

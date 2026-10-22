@@ -19,12 +19,12 @@ channel.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="sl30"></a>[SL30](SL30-Old-Runs-Deleted-On-A-Named-Runner.md) | XS | — | *Delete old runs* and the *Shared rules check* on `ubuntu-26.04`. |
+| <a id="sl28"></a>[SL28](SL28-Modes-That-Cannot-Go-Together-Are-Refused.md) | S | — | A command line asking for two modes that cannot run together is refused by name, not run as the first of them. |
 
 ## Backlog
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="sl28"></a>[SL28](SL28-Modes-That-Cannot-Go-Together-Are-Refused.md) | S | — | A command line asking for two modes that cannot run together is refused by name, not run as the first of them. |
 | <a id="sl31"></a>[SL31](SL31-Publish-Without-The-JFrog-Action.md) | — | — | Publish reaches Artifactory with `curl` instead of `jfrog/setup-jfrog-cli`. |
 
 ## Estimated
