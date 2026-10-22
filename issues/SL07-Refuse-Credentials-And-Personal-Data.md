@@ -1,6 +1,6 @@
 # SL07 — Refuse credentials and personal data
 
-**Status:** Estimated.
+**Status:** Backlog.
 **Size:** L - one module, but about twenty categories, each with its pattern, context and validation,
 and a false-positive measurement; it splits into credentials first and personal data after, if wanted.
 
