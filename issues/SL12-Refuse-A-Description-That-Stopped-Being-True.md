@@ -1,6 +1,6 @@
 # SL12 — Refuse a description that stopped being true
 
-**Status:** Backlog.
+**Status:** Implementing.
 **Size:** S - one test that reads `AGENTS.md`, the poms and the directories, in this repository's own
 build; no contract another repository reads.
 
@@ -26,17 +26,32 @@ reactor held, and no pointer check could see it, since everything it named exist
 
 ## Plan
 
-- **One test, tagged `documents`,** beside `DocumentTestsTaggedTest` in `filter/app`, reading three
-  things from the repository root: the modules `AGENTS.md`'s *What this repository is* names, the
-  `<module>` entries of the root `pom.xml` and of each grouping pom below it (profiles included, so
-  `dist-deb` and `dist-rpm` count), and the directories that carry a `pom.xml`.
-- **The `doc/` side:** each module named in the prose has its page in `doc/`, and each page a module.
+- **One test, `ModulesDescribedTest`, tagged `documents`,** beside `DocumentTestsTaggedTest` in `filter/app`,
+  reading three things from the repository root: the modules the first paragraph of `AGENTS.md`'s *What this
+  repository is* names as directories (`` `filter/` ``) and the number it says ("one Maven module"), the
+  `<module>` entries of the root `pom.xml`, profiles included, and the directories beside it that carry a
+  `pom.xml`.
+- **The `doc/` side:** each module named in the prose has its page `doc/<module>.md`. The other way round is
+  not held: `decisions.md`, `detectors.md` and `index.md` are pages of the whole, not of a module.
+- **Modules at the root only:** the sentence names `filter/`, and `filter`'s own submodules (`app`, `dist-deb`,
+  `dist-rpm`, which `doc/filter.md` covers as one program) are `check-readmes`' to hold, which already reads every
+  directory with a `pom.xml` and its links.
 - **Next to `check-readmes`,** which already holds every directory with a `pom.xml` to a `README.md`
   that links its submodules; this test adds the prose and `doc/`, which that check does not read. It
   stays this repository's own test: the shared check reads no prose, and takes a convention only
   once a second repository holds it.
 - **Red first:** today's prose names `filter/` and the reactor holds `filter` - green; with a module
   added to the reactor only, the test must name both sides.
+- **Seen red**, each alone and restored: a module added to the reactor (with its directory), the module taken
+  out of the sentence, the sentence saying "two", a directory with a `pom.xml` outside the reactor, and
+  `doc/filter.md` gone. Each failure names both sides, e.g. *"`AGENTS.md` names [filter]; `pom.xml` has
+  [filter, other]"*.
+- **Read against the skills** (graal 2026.910.3; java-code-review, test-quality, security-audit,
+  concurrency-review, clean-code and solid-principles 2026.906.3): no finding names a harm. Declined, each for
+  reading only: test-quality's one concept per test (each failure names both sides, and one red is what the
+  acceptance asks for), clean-code's method over twenty lines, a stream collected in two steps. The test reads the
+  working tree, so an untracked directory with a `pom.xml` beside the root turns it red: that fails loud, never
+  green.
 
 ## Acceptance
 
@@ -44,8 +59,3 @@ reactor held, and no pointer check could see it, since everything it named exist
   red naming both sides, e.g. *"`AGENTS.md` names filter; `pom.xml` has filter, other"*.
 - The walk asserts it found modules and prose items, so an empty list cannot pass or fail wholesale.
 - It runs in this repository's own build, against its own `pom.xml`.
-
-## To be checked
-
-- What "every module has a contract in `doc/`" means for `app`, `dist-deb` and `dist-rpm`, which
-  `doc/filter.md` covers as one program.
