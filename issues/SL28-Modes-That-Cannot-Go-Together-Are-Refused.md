@@ -1,6 +1,6 @@
 # SL28 — Modes that cannot go together are refused
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** S - one class, `cli/Main`, its test, a line of `doc/filter.md` and a changelog entry; no contract, since
 no caller passes such a pair.
 

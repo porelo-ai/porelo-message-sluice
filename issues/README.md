@@ -13,13 +13,13 @@ channel.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="sl29"></a>[SL29](SL29-Built-In-A-Porelo-Task.md) | M | — | The tools of the whole local check named in `porelo.yml`, and that check green inside a Porelo task built from it. |
+| <a id="sl28"></a>[SL28](SL28-Modes-That-Cannot-Go-Together-Are-Refused.md) | S | — | A command line asking for two modes that cannot run together is refused by name, not run as the first of them. |
 
 ## Implementing
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="sl30"></a>[SL30](SL30-Old-Runs-Deleted-On-A-Named-Runner.md) | XS | — | *Delete old runs* and the *Shared rules check* on `ubuntu-26.04`. |
-| <a id="sl28"></a>[SL28](SL28-Modes-That-Cannot-Go-Together-Are-Refused.md) | S | — | A command line asking for two modes that cannot run together is refused by name, not run as the first of them. |
 
 ## Backlog
 
