@@ -1,6 +1,6 @@
 # SL32 — Refuse personal and financial data
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** M - a second rule set beside [SL07](README.md#sl07)'s credentials, with checksums for cards and
 IBANs and a false-positive measurement on real text.
 

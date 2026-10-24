@@ -1,6 +1,6 @@
 # SL07 — Refuse credentials
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** M - one detector of ten categories, each with its pattern and, where one exists, its validation or
 context, and a false-positive measurement on real text. The personal and financial data are
 [SL32](README.md#sl32).

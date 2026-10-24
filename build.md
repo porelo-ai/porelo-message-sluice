@@ -13,6 +13,11 @@ JAVA_HOME=<graalvm> ./mvnw -B -s settings.xml -Pnative,dist verify # and the pac
 Java 25. `-s settings.xml` declares the snapshot repository and keeps a developer's own
 `~/.m2/settings.xml` out of what the build resolves.
 
+**In a Porelo task**, the same check runs without this machine's toolchain: `porelo.yml` names its tools
+(the Ubuntu image, the GraalVM, shfmt, the C toolchain and the packaging tools), and a task's image is
+built from it. What a task cannot run is GitHub's own: the checkout and cache actions, `jdk --github`,
+and publishing, which holds a token no task has.
+
 ## The modules
 
 One program, a module with its code and its packages below it:

@@ -1,6 +1,6 @@
 # SL31 — Publish without the JFrog action
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** S - two steps of `build.yml`, no code that ships, no changelog entry; its acceptance is the next Publish
 on main, read in its log and in the index.
 
