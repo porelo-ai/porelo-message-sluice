@@ -1,6 +1,6 @@
 # SL30 — Old runs deleted on a named runner
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** XS - one line in each of two workflows, `.github/` only, no Build and no changelog entry.
 
 **What must be true.** *Delete old runs* runs on `ubuntu-26.04`, the current standard, instead of `ubuntu-latest`,
