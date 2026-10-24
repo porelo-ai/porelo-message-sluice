@@ -2,8 +2,9 @@
 name: Build
 
 # A push that only touches documents builds nothing; they are checked locally before every hand-over, and by the
-# Shared rules check workflow once a day. A push that only touches .github/ builds nothing either: the next push
-# with content builds with it. A pull request still builds on a workflow change, which is its light check.
+# Shared rules check workflow once a day.
+# Workflows alone build nothing: an action's move is checked by its pull request, and the next push with
+# content builds with it. The Workflow check is that pull request's light check.
 # porelo.yml, the image a Porelo task builds this repository in, is no part of the Build either.
 on:
     push:
@@ -13,7 +14,7 @@ on:
         paths: ['**', '!**/*.md', '!doc/**', '!issues/**', '!mkdocs.yml', '!porelo.yml', '!.github/**']
     pull_request:
         branches: ['**']
-        paths: ['**', '!**/*.md', '!doc/**', '!issues/**', '!mkdocs.yml', '!porelo.yml']
+        paths: ['**', '!**/*.md', '!doc/**', '!issues/**', '!mkdocs.yml', '!porelo.yml', '!.github/**']
     workflow_dispatch:
 
 # The job's token only reads the repository; the packages are published with the JFrog token, not with it.
