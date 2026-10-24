@@ -350,7 +350,7 @@ branch, a release line where one release belongs, a JDK setup action, a Dependab
 or without its cooldown, and the wrapper's missing digest - naming the file and the line. It is the
 one check for it in every repository here, so this repository keeps no test of its own beside it;
 each of those refusals was watched to fail against this repository's own files. An action's commit also fixes
-what it downloads where its defaults are fixed - `setup-jfrog-cli` brings a fixed `jf` version.
+what it downloads where its defaults are fixed.
 
 **The JDK is pinned the same way.** A pinned action still installs whichever JDK its version input
 names, and `setup-graalvm` with `'25'` would take the newest GraalVM 25 at run time with no digest
