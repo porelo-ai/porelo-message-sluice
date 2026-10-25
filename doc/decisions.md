@@ -23,6 +23,7 @@ change the answer.
 | Detectors | [The encoded-data thresholds are measured on agents' prose, not taken from textbook English](#the-encoded-data-thresholds-are-measured-on-agents-prose-not-taken-from-textbook-english) |
 | Detectors | [A full hash in hex is refused](#a-full-hash-in-hex-is-refused) |
 | Build | [Every action is pinned to a commit, and Dependabot moves it](#every-action-is-pinned-to-a-commit-and-dependabot-moves-it) |
+| Build | [The workflows run unchanged on GitHub and on the local Forgejo](#the-workflows-run-unchanged-on-github-and-on-the-local-forgejo) |
 | Build | [The binaries are compiled for the x86-64 baseline](#the-binaries-are-compiled-for-the-x86-64-baseline) |
 | Build | [NullAway checks the main compile, configured in `porelo-parent`](#nullaway-checks-the-main-compile-configured-in-porelo-parent) |
 
@@ -357,11 +358,31 @@ names, and `setup-graalvm` with `'25'` would take the newest GraalVM 25 at run t
 checked. So the build runs `porelo-machines jdk --github` instead: it installs the GraalVM
 `porelo-machines`' pom pins, checks the archive against the pinned digest before unpacking it, and
 sets `JAVA_HOME` for the job. The runner's own Java 25 only runs that step and builds nothing that is
-published. Measured on a machine with no
+published; on the local Forgejo, whose runner image carries no Java, the runner mounts a pinned Temurin 25
+under the same `JAVA_HOME_25_X64`. Measured on a machine with no
 JDK and no Maven cache of its own, standing in for a runner: GraalVM CE 25.0.2 installed and verified,
 the native build and `LinkageIT` green with it, and CI's fixture step green on the packages it wrote;
 CI then ran it green.
 The pin moves with `porelo-machines`: a new snapshot of it brings the new JDK.
+
+## The workflows run unchanged on GitHub and on the local Forgejo
+
+The same four workflows run on GitHub and on the local Forgejo. What differs between the two forges is only
+the values of variables and secrets, each present on both, never a branch in a workflow:
+
+- `MAVEN_SNAPSHOTS_URL`, the repository `settings.xml` reads snapshots from under the id `porelo-forge`, with
+  `PORELO_PUBLISHER_TOKEN` as its password: Sonatype on GitHub with a placeholder, the forge's own registry
+  on the local Forgejo, whose organisation is private. Maven sends the password only when a server asks for
+  it, so Sonatype never sees the placeholder.
+- `PORELO_PUBLISH`, `true` where the packages are published and `false` where they are not: it switches
+  the Publish steps and *Delete old runs*, which calls GitHub's API. The Build refuses any other value,
+  so a missing variable cannot leave the packages unpublished without a word.
+
+What a runner's image lacks is installed in a step that does nothing where it is present: the packaging
+tools, from the distribution's signed archive. The Java 25 that starts the build is the runner's, on both.
+
+**What would change the answer**: a setting no variable can reach. That is raised before anything is built
+around it.
 
 ## The binaries are compiled for the x86-64 baseline
 

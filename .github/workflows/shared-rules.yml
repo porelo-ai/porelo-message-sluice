@@ -14,6 +14,10 @@ on:
 permissions:
     contents: read
 
+# As in the Build workflow: the snapshot repository Maven reads, a variable present on GitHub and the local Forgejo.
+env:
+    MAVEN_SNAPSHOTS_URL: ${{ vars.MAVEN_SNAPSHOTS_URL }}
+
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
@@ -42,6 +46,8 @@ jobs:
             # its archive checked against the pinned digest; the runner's own Java 25 only runs that step
             # and the checks.
             - name: The pinned GraalVM
+              env:
+                  PORELO_PUBLISHER_TOKEN: ${{ secrets.PORELO_PUBLISHER_TOKEN }}
               run: |
                   export JAVA_HOME="$JAVA_HOME_25_X64"
                   ./mvnw -B -q -U -N -Pci-tools -s settings.xml dependency:build-classpath \
@@ -85,6 +91,8 @@ jobs:
             # Every test that reads a document carries the tag documents, and the guard among them fails
             # when one does not.
             - name: The tests that read documents
+              env:
+                  PORELO_PUBLISHER_TOKEN: ${{ secrets.PORELO_PUBLISHER_TOKEN }}
               run: ./mvnw -B -s settings.xml -Pdocuments test
 
             # A pull request's own commits held to the shared rule on commit messages. One from outside - from another

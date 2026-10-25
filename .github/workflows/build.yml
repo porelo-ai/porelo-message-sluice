@@ -21,6 +21,11 @@ on:
 permissions:
     contents: read
 
+# The same file runs on GitHub and on the local Forgejo; what differs between them is only the values of variables and
+# secrets present on both. The snapshot repository Maven reads (settings.xml), and with it the token that reads it.
+env:
+    MAVEN_SNAPSHOTS_URL: ${{ vars.MAVEN_SNAPSHOTS_URL }}
+
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
@@ -46,11 +51,42 @@ jobs:
                   key: maven-${{ hashFiles('**/pom.xml') }}
                   restore-keys: maven-
 
+            # Publishing is switched by a variable present on both forges, true where the packages are published and
+            # false where they are not; one missing or misspelt would leave them unpublished without a word.
+            - name: Whether this forge publishes
+              env:
+                  PORELO_PUBLISH: ${{ vars.PORELO_PUBLISH }}
+              run: |
+                  case "$PORELO_PUBLISH" in
+                      true | false) echo "PORELO_PUBLISH=$PORELO_PUBLISH" ;;
+                      *) echo "::error::vars.PORELO_PUBLISH is '$PORELO_PUBLISH', neither true nor false"; exit 1 ;;
+                  esac
+
+            # What the native build and the package steps run, installed where the runner's image lacks it, from the
+            # distribution's signed archive: the local Forgejo's image carries no rpm2cpio or cpio. The .rpm itself is
+            # written by a Maven plugin, without rpmbuild.
+            - name: The tools the packages are built and read with
+              run: |
+                  set -euo pipefail
+                  missing=()
+                  for tool in gcc:gcc rpm2cpio:rpm2cpio cpio:cpio dpkg-deb:dpkg; do
+                      command -v "${tool%%:*}" > /dev/null || missing+=("${tool#*:}")
+                  done
+                  dpkg-query -W -f='${Status}' zlib1g-dev 2> /dev/null | grep -q 'ok installed' || missing+=(zlib1g-dev)
+                  if [ ${#missing[@]} -gt 0 ]; then
+                      sudo=
+                      [ "$(id -u)" -eq 0 ] || sudo=sudo
+                      $sudo apt-get update -qq
+                      $sudo apt-get install -y -qq --no-install-recommends "${missing[@]}"
+                  fi
+
             # The GraalVM that compiles the binaries is the one porelo-machines pins, its archive checked
             # against the pinned digest before it is unpacked. The runner's own Java 25 only runs that
             # step and builds nothing that is published. -U, because a cached snapshot of porelo-machines
             # would otherwise keep an old pin for a day.
             - name: The pinned GraalVM
+              env:
+                  PORELO_PUBLISHER_TOKEN: ${{ secrets.PORELO_PUBLISHER_TOKEN }}
               run: |
                   export JAVA_HOME="$JAVA_HOME_25_X64"
                   ./mvnw -B -q -U -N -Pci-tools -s settings.xml dependency:build-classpath \
@@ -71,6 +107,8 @@ jobs:
             # profiles, which add the package modules: without them their plugins are not read.
             - name: A release depends only on releases
               if: startsWith(github.ref, 'refs/tags/v')
+              env:
+                  PORELO_PUBLISHER_TOKEN: ${{ secrets.PORELO_PUBLISHER_TOKEN }}
               run: |
                   ./mvnw -B -q -s settings.xml -Pnative,dist help:effective-pom -Doutput=target/effective-pom.xml
                   "$JAVA_HOME_25_X64/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \
@@ -96,6 +134,8 @@ jobs:
             # newer than the last.
             - name: Build, unit tests, native images and packages
               timeout-minutes: 12
+              env:
+                  PORELO_PUBLISHER_TOKEN: ${{ secrets.PORELO_PUBLISHER_TOKEN }}
               run: ./mvnw -B -s settings.xml -Pnative,dist verify -Dsluice.snapshot.run=${{ github.run_number }}
 
             # What is packaged, not the classes: every fixture must end where its name says, run from the
@@ -153,7 +193,7 @@ jobs:
                     test -z "$(ls "$S"/incoming)"
                   done
 
-            # Only main and a release tag publish. A tag publishes a release, everything else a snapshot; a release
+            # Only main and a release tag publish, and only where PORELO_PUBLISH says so. A tag publishes a release, everything else a snapshot; a release
             # is refused unless the tag is exactly 'v' plus the version it carries, and a version is never a release
             # and a snapshot at once.
             - name: Which channel
@@ -186,7 +226,7 @@ jobs:
             # nothing says so. A release that is already there is refused: a published release is never replaced.
             - name: Publish the packages
               timeout-minutes: 5
-              if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+              if: vars.PORELO_PUBLISH == 'true' && github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
               env:
                   JF_URL: ${{ vars.JF_URL }}
                   JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
@@ -227,7 +267,7 @@ jobs:
             # installer sees it, following Artifactory's redirect - and must name the very file just
             # uploaded, not merely the package: yesterday's build in the index would pass that.
             - name: The packages are indexed, not merely stored
-              if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+              if: vars.PORELO_PUBLISH == 'true' && github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
               env:
                   JF_URL: ${{ vars.JF_URL }}
                   CHANNEL: ${{ steps.channel.outputs.channel }}

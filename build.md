@@ -11,7 +11,9 @@ JAVA_HOME=<graalvm> ./mvnw -B -s settings.xml -Pnative,dist verify # and the pac
 ```
 
 Java 25. `-s settings.xml` declares the snapshot repository and keeps a developer's own
-`~/.m2/settings.xml` out of what the build resolves.
+`~/.m2/settings.xml` out of what the build resolves. The snapshots come from Sonatype unless
+`MAVEN_SNAPSHOTS_URL` names another repository, as the workflows do on every forge; that repository is read
+with the token in `PORELO_PUBLISHER_TOKEN`.
 
 **In a Porelo task**, the same check runs without this machine's toolchain: `porelo.yml` names its tools
 (the Ubuntu image, the GraalVM, shfmt, the C toolchain and the packaging tools), and a task's image is
