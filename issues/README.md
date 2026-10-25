@@ -8,16 +8,6 @@ the order is the priority. Only the operator sets Accepted, Rejected, Estimated,
 Finished; this repository's agent sets Analyzed, Implementing and Review, and proposes the rest in the
 channel.
 
-## Review
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="sl30"></a>[SL30](SL30-Old-Runs-Deleted-On-A-Named-Runner.md) | XS | — | *Delete old runs* and the *Shared rules check* on `ubuntu-26.04`. |
-| <a id="sl31"></a>[SL31](SL31-Publish-Without-The-JFrog-Action.md) | S | — | Publish reaches Artifactory with `curl` instead of `jfrog/setup-jfrog-cli`. |
-| <a id="sl12"></a>[SL12](SL12-Refuse-A-Description-That-Stopped-Being-True.md) | S | — | A test that refuses a description contradicted by something the build can read - the modules named against the modules that exist. |
-| <a id="sl07"></a>[SL07](SL07-Refuse-Credentials.md) | M | — | Credentials - keys, tokens, private keys, connection strings, passwords - caught by a catalog of pattern, validation and context. |
-| <a id="sl32"></a>[SL32](SL32-Refuse-Personal-And-Financial-Data.md) | M | — | Payment cards, IBANs, national ids refused; e-mail, phone, IP address and date of birth suspicious; by pattern and checksum. |
-
 ## Estimated
 
 | # | Size | Blocked by | What it covers |
@@ -31,13 +21,18 @@ channel.
 
 | # | Title | What was built |
 |---|---|---|
+| <a id="sl32"></a>[SL32](README.md#sl32) | Refuse personal and financial data | Payment cards, IBANs and national ids are refused, e-mail addresses, phone numbers, IP addresses and dates of birth reported suspicious, cards and IBANs told by their checksums, matched values redacted in answers, and false positives under 1 % on clean English. |
+| <a id="sl07"></a>[SL07](README.md#sl07) | Refuse credentials | A catalog of pattern, validation and context catches ten credential categories in text and metadata, with matched values redacted in answers, rules switchable, and false positives under 1 % on clean English. |
+| <a id="sl12"></a>[SL12](README.md#sl12) | Refuse a description that stopped being true | A documents test refuses a mismatch between the modules named in `AGENTS.md`, the root pom's reactor, and the directories on disk, with each failure naming both sides and each module having its page in `doc/`. |
+| <a id="sl31"></a>[SL31](README.md#sl31) | Publish without the JFrog action | The Publish job reaches Artifactory with `curl` and the token on standard input, removing `jfrog/setup-jfrog-cli` so no third-party action handles the publishing token. |
+| <a id="sl30"></a>[SL30](README.md#sl30) | Old runs deleted on a named runner | *Delete old runs* and the *Shared rules check* run on `ubuntu-26.04` instead of `ubuntu-latest`, so runner version changes require an explicit commit here. |
 | <a id="sl29"></a>[SL29](README.md#sl29) | Built in a Porelo task | `porelo.yml` names the tools of the whole local check, and that check, native images and both packages included, ran green inside a Porelo task built from it. |
 | <a id="sl28"></a>[SL28](README.md#sl28) | Modes that cannot go together are refused | A command line asking for two of the four modes, or for `--file` or `--dir` without its mode, runs nothing and exits 2 naming both. |
 | <a id="sl25"></a>[SL25](README.md#sl25) | The code changed since the skills reading | The code changed since 2026-09-27 read against the seven skills and `shellcheck`, its sixteen findings fixed (each that guards a harm with a test seen red), published as `0.5.1~snapshot.51`. |
 | <a id="sl27"></a>[SL27](README.md#sl27) | Reformatted to the shared style | Spotless with the shared Java, YAML and shell formats, one reformatting commit that `git blame` skips, the shared `.editorconfig`, and checkouts without a kept token. |
 | <a id="sl26"></a>[SL26](README.md#sl26) | The rename to Porelo here | The filter is published as `org.fuin.porelo` 0.5.0 and installed where Porelo looks for it, accepts only signatures in the namespace `porelo-message`, and a documents test refuses the old name in any tracked file. |
 
-Nothing is in Rework, Implementing, Backlog, Analyzed, Accepted, Idea or Rejected.
+Nothing is in Review, Rework, Implementing, Backlog, Analyzed, Accepted, Idea or Rejected.
 
 **Open questions**, in *Analyzed* only, counts what waits on the operator; what this repository's
 agent finds out itself stands under each issue's *To be checked* and is not counted.

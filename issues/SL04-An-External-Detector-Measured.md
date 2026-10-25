@@ -53,7 +53,7 @@ Versions and digests are read from each project's releases when it is pinned.
 | **Yelp detect-secrets** | credentials: a few dozen plugins, keyword and entropy | Apache-2.0 | maintained, slower releases | a Python package, pinned by hash | fewer provider rules than Gitleaks; Python in the build |
 
 **My proposal:** Gitleaks first - one pinned binary, no runtime of its own, and the widest credential
-catalog, measured against [SL07](README.md#sl07)'s credential half. Presidio is the one to measure if
+catalog, measured against the filter's credential detectors. Presidio is the one to measure if
 the personal-data half is what we want to reuse instead. **Not proposed:** TruffleHog, whose AGPL
 licence and network calls to verify a found key do not fit a filter that must not reach out.
 

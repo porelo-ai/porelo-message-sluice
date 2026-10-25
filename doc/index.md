@@ -30,7 +30,7 @@ masked. A project may set the outgoing check to report only, on purpose:
 ## What it does not catch
 
 - a secret written out in words, and anything hidden in word choice;
-- credentials and personal data written as plain text - not yet built;
+- a credential or a personal datum in a form its catalogs do not know ([the detectors](detectors.md#credentials));
 - a payload cut into pieces under 32 characters and sent over several messages - not yet built;
 - anything that is not English prose, which it may refuse.
 

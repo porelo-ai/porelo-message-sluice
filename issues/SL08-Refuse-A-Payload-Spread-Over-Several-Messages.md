@@ -10,7 +10,7 @@ several messages is refused once the pieces add up, and the refusal names every 
 ## Why
 
 This is the third of the three things the filter exists to catch: no single message is refused by
-the encoded-data checks or by [SL07](README.md#sl07), yet together they are a file. A payload cut into
+the encoded-data checks or by the filter's credential detectors, yet together they are a file. A payload cut into
 pieces inside one message is already caught ([`doc/detectors.md`](../doc/detectors.md)); this is the
 correlation across messages. How it would be built is
 [SL08-Refuse-A-Payload-Spread-Over-Several-Messages_design.md](SL08-Refuse-A-Payload-Spread-Over-Several-Messages_design.md).
