@@ -35,5 +35,9 @@ the values of variables and secrets present on both forges, never a branch in a 
 
 ## To be checked
 
+- The run on the rented forge host, once it exists: its address, its CA, this repository's own
+  agent token there, and porelo-parent's and porelo-buildtools' snapshots deployed in its registry.
+  Then `main` is pushed to the forge and its run read: Publish skipped by `PORELO_PUBLISH=false`, and
+  the five permission tests skipped where the runner is root.
 - Whether GitHub hands `vars` to a Dependabot pull request's *Workflow check*: without them,
   `MAVEN_SNAPSHOTS_URL` is empty and Maven reads from an empty URL.
