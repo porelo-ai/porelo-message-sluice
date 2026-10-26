@@ -8,11 +8,11 @@ the order is the priority. Only the operator sets Accepted, Rejected, Estimated,
 Finished; this repository's agent sets Analyzed, Implementing and Review, and proposes the rest in the
 channel.
 
-## Implementing
+## Review
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="sl33"></a>[SL33](SL33-The-Workflows-Run-On-The-Local-Forge-As-On-GitHub.md) | S | porelo-host [HO08](https://github.com/porelo-ai/porelo-host/blob/main/issues/README.md#ho08) | The four workflows run unchanged on the local Forgejo and on GitHub: missing package tools installed, Publish switched by `PORELO_PUBLISH`, snapshots read from `MAVEN_SNAPSHOTS_URL`. |
+| <a id="sl33"></a>[SL33](SL33-The-Workflows-Run-On-The-Local-Forge-As-On-GitHub.md) | S | — | The four workflows run unchanged on the local Forgejo and on GitHub: missing package tools installed, Publish switched by `PORELO_PUBLISH`, snapshots read from `MAVEN_SNAPSHOTS_URL`. |
 
 ## Analyzed
 
