@@ -14,6 +14,12 @@ channel.
 |---|---|---|---|---|
 | <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | Porelo [B166](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b166), [B291](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b291), [B292](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b292) | 0 | A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways. |
 
+## Idea
+
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="sl34"></a>[SL34](SL34-A-Dependabot-Pull-Request-Gets-The-Variables.md) | — | — | A Dependabot pull request's *Workflow check* receives the repository variables, so Maven reads snapshots from a named URL. |
+
 ## Estimated
 
 | # | Size | Blocked by | What it covers |
