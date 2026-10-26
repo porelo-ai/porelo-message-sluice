@@ -381,6 +381,13 @@ the values of variables and secrets, each present on both, never a branch in a w
 What a runner's image lacks is installed in a step that does nothing where it is present: the packaging
 tools, from the distribution's signed archive. The Java 25 that starts the build is the runner's, on both.
 
+Two gaps remain. On the local Forgejo, the Shared rules check fails for a pull request in the step that
+checks its commit messages. That step fetches both sides without a credential, which the forge's private
+copy refuses. Forgejo also reports no `author_association`, so every author counts as from outside there.
+Both gaps are open in porelo-project. On GitHub, it is not yet measured whether a Dependabot pull request's
+*Workflow check* receives the variables. Without them `MAVEN_SNAPSHOTS_URL` is empty, and Maven reads
+from an empty URL.
+
 **What would change the answer**: a setting no variable can reach. That is raised before anything is built
 around it.
 

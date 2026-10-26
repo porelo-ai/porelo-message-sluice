@@ -8,12 +8,6 @@ the order is the priority. Only the operator sets Accepted, Rejected, Estimated,
 Finished; this repository's agent sets Analyzed, Implementing and Review, and proposes the rest in the
 channel.
 
-## Review
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="sl33"></a>[SL33](SL33-The-Workflows-Run-On-The-Local-Forge-As-On-GitHub.md) | S | — | The four workflows run unchanged on the local Forgejo and on GitHub: missing package tools installed, Publish switched by `PORELO_PUBLISH`, snapshots read from `MAVEN_SNAPSHOTS_URL`. |
-
 ## Analyzed
 
 | # | Size | Blocked by | Open questions | What it covers |
@@ -32,6 +26,7 @@ channel.
 
 | # | Title | What was built |
 |---|---|---|
+| <a id="sl33"></a>[SL33](README.md#sl33) | The Workflows Run On The Local Forge As On GitHub | The Build runs unchanged on the local Forgejo and on GitHub, switched only by variables: missing package tools installed, Publish switched by `PORELO_PUBLISH`, snapshots read from `MAVEN_SNAPSHOTS_URL`. |
 | <a id="sl32"></a>[SL32](README.md#sl32) | Refuse personal and financial data | Payment cards, IBANs and national ids are refused, e-mail addresses, phone numbers, IP addresses and dates of birth reported suspicious, cards and IBANs told by their checksums, matched values redacted in answers, and false positives under 1 % on clean English. |
 | <a id="sl07"></a>[SL07](README.md#sl07) | Refuse credentials | A catalog of pattern, validation and context catches ten credential categories in text and metadata, with matched values redacted in answers, rules switchable, and false positives under 1 % on clean English. |
 | <a id="sl12"></a>[SL12](README.md#sl12) | Refuse a description that stopped being true | A documents test refuses a mismatch between the modules named in `AGENTS.md`, the root pom's reactor, and the directories on disk, with each failure naming both sides and each module having its page in `doc/`. |
