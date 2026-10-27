@@ -237,6 +237,14 @@ class WorkflowCommitsTest {
         assertThat(step.run()).as("the script reads its environment alone").doesNotContain("${{");
     }
 
+    // Prevents the owner's own pull request from being refused for want of a sign-off.
+    @Test
+    void anOwnersPullRequestIsFromInside() throws IOException, InterruptedException {
+        final Run run = pullRequest("porelo-ai/porelo-message-sluice", "OWNER", "someone");
+        assertThat(run.exit).as("the owner's pull request: %s", run.log).isZero();
+        assertThat(run.java).as("its commits need no sign-off").endsWith("6666666..7777777");
+    }
+
     // Prevents the repository's own update workflow's pull request from being refused for want of a
     // sign-off, though GitHub names its author a contributor.
     @Test
