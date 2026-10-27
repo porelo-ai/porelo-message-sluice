@@ -35,6 +35,9 @@ class WorkflowCommitsTest {
     private static final String CLASSPATH = "/stub/a.jar:/stub/b.jar";
     private static final String CHECKOUT = "checkout";
     private static final String TOOLS_STEP = "The pinned GraalVM";
+    private static final String GITHUB = "https://github.com";
+    // Any forge but GitHub, as the host's forge names itself to its runner.
+    private static final String FORGE = "https://forge.example:3000";
 
     @TempDir Path directory;
 
@@ -234,6 +237,9 @@ class WorkflowCommitsTest {
         assertThat(step.env().get("PR_ASSOCIATION"))
                 .as("the association is the pull request's author's")
                 .isEqualTo("${{ github.event.pull_request.author_association }}");
+        assertThat(step.env().get("PR_SERVER"))
+                .as("the server is the one the workflow runs on")
+                .isEqualTo("${{ github.server_url }}");
         assertThat(step.run()).as("the script reads its environment alone").doesNotContain("${{");
     }
 
@@ -275,15 +281,43 @@ class WorkflowCommitsTest {
                 .endsWith("6666666..7777777", "--outside");
     }
 
+    // Prevents the host's forge, which names no author association, from refusing every pull
+    // request of its own repository for want of a sign-off.
+    @Test
+    void aForgePullRequestFromTheSameRepositoryIsFromInside()
+            throws IOException, InterruptedException {
+        final Run run = pullRequest("porelo-ai/porelo-message-sluice", "", "someone", FORGE, 0);
+        assertThat(run.exit).as("the forge's pull request: %s", run.log).isZero();
+        assertThat(run.java).as("its commits need no sign-off").endsWith("6666666..7777777");
+    }
+
+    // Prevents a pull request from another repository from passing on the forge without a sign-off.
+    @Test
+    void aForgePullRequestFromElsewhereStaysFromOutside() throws IOException, InterruptedException {
+        assertThat(pullRequest("someone/porelo-message-sluice", "", "someone", FORGE, 0).java)
+                .as("a pull request on the forge from another repository")
+                .endsWith("6666666..7777777", "--outside");
+    }
+
     private Run pullRequest(final String repository, final String association, final String author)
             throws IOException, InterruptedException {
-        return pullRequest(repository, association, author, 0);
+        return pullRequest(repository, association, author, GITHUB, 0);
     }
 
     private Run pullRequest(
             final String repository,
             final String association,
             final String author,
+            final int checkExit)
+            throws IOException, InterruptedException {
+        return pullRequest(repository, association, author, GITHUB, checkExit);
+    }
+
+    private Run pullRequest(
+            final String repository,
+            final String association,
+            final String author,
+            final String server,
             final int checkExit)
             throws IOException, InterruptedException {
         return execute(
@@ -300,7 +334,9 @@ class WorkflowCommitsTest {
                         "PR_ASSOCIATION",
                         association,
                         "PR_AUTHOR",
-                        author),
+                        author,
+                        "PR_SERVER",
+                        server),
                 checkExit);
     }
 
