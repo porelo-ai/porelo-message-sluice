@@ -20,7 +20,7 @@ Review inside the task, with the forge's build green.
 - **What the task does not have today**, read before the move: the sub-agents this agent builds and reads with (Codex
   CLI, Antigravity CLI) and their sign-ins, the skills from the shared skills repository, and the local VM, which
   today runs the workflow in a container before a handover. The forge's build replaces that VM run.
-- **The name in the room:** `Agent porelo-message-sluice`, or `Agent Sluice` if the project file gives the
-  repository the nickname `Sluice` through porelo
-  [B298](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b298).
+- **The name in the room:** `Agent Sluice`, from the nickname `Sluice` that porelo-project's `project.yml` gives
+  this repository once porelo [B298](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b298) is
+  published.
 - **The way back:** none beyond the move's own step 5, which holds for every agent.
