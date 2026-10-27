@@ -40,9 +40,11 @@ jobs:
         # not run for GitHub's six hours.
         timeout-minutes: 15
         steps:
+            # Every commit, so a pushed range is read without a second fetch.
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
                   persist-credentials: false
+                  fetch-depth: 0
 
             - name: Cache the Maven repository
               uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -137,6 +139,31 @@ jobs:
               env:
                   PORELO_PUBLISHER_TOKEN: ${{ secrets.PORELO_PUBLISHER_TOKEN }}
               run: ./mvnw -B -s settings.xml -Pnative,dist verify -Dsluice.snapshot.run=${{ github.run_number }}
+
+            # A direct push to main never meets the pull request's check, so the push's own range is read here. A tag
+            # checks the commit it names. A new branch or a branch pushed over has no start this checkout holds, so its
+            # range starts at main; main itself cannot be pushed over.
+            - name: The pushed commits' messages
+              if: github.event_name == 'push'
+              env:
+                  PUSH_BEFORE: ${{ github.event.before }}
+              run: |
+                  set -eu
+                  case "$PUSH_BEFORE" in
+                      '') echo "::error::the push names no commit it started from"; exit 1 ;;
+                  esac
+                  start=$PUSH_BEFORE
+                  if [ "$GITHUB_REF_TYPE" = tag ]; then
+                      start="$GITHUB_SHA~1"
+                  elif ! git cat-file -e "$PUSH_BEFORE^{commit}" 2>/dev/null; then
+                      if [ "$GITHUB_REF" = refs/heads/main ]; then
+                          echo "::error::main moved from $PUSH_BEFORE, a commit this checkout does not hold"
+                          exit 1
+                      fi
+                      start=origin/main
+                  fi
+                  "$JAVA_HOME_25_X64/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" org.fuin.porelo.release.Main \
+                      check-commits "$start..$GITHUB_SHA"
 
             # What is packaged, not the classes: every fixture must end where its name says, run from the
             # unpacked .deb and .rpm with an empty environment, so no Java can be involved. Counted on the
