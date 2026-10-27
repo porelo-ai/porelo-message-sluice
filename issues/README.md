@@ -18,6 +18,7 @@ channel.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
+| <a id="sl35"></a>[SL35](SL35-The-Sluice-Agent-Works-In-A-Porelo-Task.md) | — | — | The sluice's agent works in a Porelo task on the move's host, the first to move: its image from `porelo.yml`, Forgejo's build, the room under its repository's name. |
 | <a id="sl34"></a>[SL34](SL34-A-Dependabot-Pull-Request-Gets-The-Variables.md) | — | — | A Dependabot pull request's *Workflow check* receives the repository variables, so Maven reads snapshots from a named URL. |
 
 ## Estimated
@@ -44,7 +45,7 @@ channel.
 | <a id="sl27"></a>[SL27](README.md#sl27) | Reformatted to the shared style | Spotless with the shared Java, YAML and shell formats, one reformatting commit that `git blame` skips, the shared `.editorconfig`, and checkouts without a kept token. |
 | <a id="sl26"></a>[SL26](README.md#sl26) | The rename to Porelo here | The filter is published as `org.fuin.porelo` 0.5.0 and installed where Porelo looks for it, accepts only signatures in the namespace `porelo-message`, and a documents test refuses the old name in any tracked file. |
 
-Nothing is in Review, Rework, Backlog, Accepted, Idea or Rejected.
+Nothing is in Review, Rework, Implementing, Backlog, Accepted or Rejected.
 
 **Open questions**, in *Analyzed* only, counts what waits on the operator; what this repository's
 agent finds out itself stands under each issue's *To be checked* and is not counted.
