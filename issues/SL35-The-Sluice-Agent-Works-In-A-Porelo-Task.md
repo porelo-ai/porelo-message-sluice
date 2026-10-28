@@ -69,6 +69,18 @@ Read in today's `porelo.yml`, `settings.xml`, the four workflows, `doc/decisions
 
 ## To be checked
 
+- From the dry run on this laptop, each to be settled before the host move:
+  - The task's Claude wrote a `Co-Authored-By:` trailer, which check-commits refuses. The `Assisted-by: Claude Code,
+    <model>` attribution has to come from the task's image or its agent's settings, not from the agent's memory.
+  - An amended commit leaves the task only by `git push --force` to its own unmerged branch, which the gate passes
+    on. Whether a fix after a reading is an amend with that push or a new commit on top is decided for the move.
+  - A revoked sign-in is renewed only by `porelo vault login claude --force` and a restart of the task; the running
+    task keeps the token it read at its start. A `429` from the provider after that is the account's limit.
+  - The reader outside the task could not join the room from its harness, so its findings reached the room through
+    a person. The move needs a reader that posts there itself, or says that a person relays.
+  - The task called the GitHub run a run "on the forge": its context does not say which forge its upstream is.
+  - Its first text stated what no longer holds (a fetch the step stopped making); the outside reading caught it.
+    So a reading of every change stays part of the move.
 - That the host's inventory names this repository for its forge (`forge_repositories`): the forge role migrates a
   repository, protects its `main` and makes the gate's identity only for those named, and skips all of it otherwise.
 - That the forge's registry holds porelo-parent's and porelo-buildtools' snapshots no older than GitHub's on the day
