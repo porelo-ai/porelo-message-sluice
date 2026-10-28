@@ -69,6 +69,8 @@ Read in today's `porelo.yml`, `settings.xml`, the four workflows, `doc/decisions
 
 ## To be checked
 
+- That the host's inventory names this repository for its forge (`forge_repositories`): the forge role migrates a
+  repository, protects its `main` and makes the gate's identity only for those named, and skips all of it otherwise.
 - That the forge's registry holds porelo-parent's and porelo-buildtools' snapshots no older than GitHub's on the day
   of a host move, and who republishes them there while their repositories have not moved.
 - What the task's agent is given in its context in place of `.AGENTS.md`, which is not committed and so not in the
