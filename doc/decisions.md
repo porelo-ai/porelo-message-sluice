@@ -381,10 +381,9 @@ the values of variables and secrets, each present on both, never a branch in a w
 What a runner's image lacks is installed in a step that does nothing where it is present: the packaging
 tools, from the distribution's signed archive. The Java 25 that starts the build is the runner's, on both.
 
-One gap remains, measured on the local Forgejo. The Shared rules check fails for a pull request in the
-step that checks its commit messages. That step fetches both sides without a credential, which the
-forge's private copy refuses. Forgejo also reports no `author_association`, so every author counts as from
-outside there.
+One gap remains. On the local Forgejo the commit-message step of a pull request is not yet measured since
+it stopped fetching: it reads both sides from the checkout, and a pull request from the same repository
+counts as inside there, since Forgejo reports no author association.
 
 **What would change the answer**: a setting no variable can reach. That is raised before anything is built
 around it.
