@@ -1,6 +1,8 @@
 # SL35 — The Sluice's Agent Works In A Porelo Task
 
-**Status:** Idea.
+**Status:** Analyzed.
+**Size:** S - nothing to build in this repository's code; the work is the move's steps, one document corrected in the task
+and this issue worked to Review from inside it, about 3 hours with the forge's build.
 
 **What must be true.** porelo-message-sluice's own agent works in a Porelo task of the project `porelo` on the
 move's host, the first to move, as porelo-project
@@ -9,18 +11,81 @@ follows this repository through the gate and pushes to the host's Forgejo, whose
 reader. The agent is reached in the project's room under this repository's name. This issue is taken from start to
 Review inside the task, with the forge's build green.
 
-## What moves, and what to check
+## Plan
 
-- **The repository:** `porelo-message-sluice` alone, the only one this agent keeps.
-- **The task's image:** this repository's `porelo.yml`, Ubuntu 24.04 by digest with the pinned GraalVM, shfmt and the
-  package tools, the same pins the Build takes. It ran this repository's whole local check in a task once already.
-- **Forgejo's build:** `build.yml` runs unchanged on the forge and on GitHub, switched only by variables: snapshots
-  read from the forge's registry through `MAVEN_SNAPSHOTS_URL`, and Publish and *Delete old runs* switched off by
-  `PORELO_PUBLISH`. Publishing the packages stays with the central forge, since no task holds its credentials.
-- **What the task does not have today**, read before the move: the sub-agents this agent builds and reads with (Codex
-  CLI, Antigravity CLI) and their sign-ins, the skills from the shared skills repository, and the local VM, which
-  today runs the workflow in a container before a handover. The forge's build replaces that VM run.
-- **The name in the room:** `Agent Sluice`, from the nickname `Sluice` that porelo-project's `project.yml` gives
-  this repository once porelo [B298](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b298) is
-  published.
+Read in today's `porelo.yml`, `settings.xml`, the four workflows, `doc/decisions.md`, porelo-host's
+`roles/forge` and `doc/local-forge.md`, and [PJ59](https://github.com/porelo-ai/porelo-project/blob/main/issues/README.md#pj59)'s procedure.
+
+- **What moves:** `porelo-message-sluice` alone. The agent in the task is Claude Code (porelo-claude-code's adapter,
+  the operator's subscription, its isolation proven by
+  [CC24](https://github.com/porelo-ai/porelo-claude-code/blob/main/issues/README.md#cc24)); it declares its resting
+  and waiting screens, so a message in the room wakes it.
+- **The image needs nothing new:** `porelo.yml` names Ubuntu 24.04 by digest, the pinned GraalVM, shfmt and the
+  package tools, the pins the Build takes. [SL29](README.md#sl29) ran the whole local check, native images and both
+  packages, in a task built from it.
+- **Forgejo's build needs nothing new in the workflows:** the host's `up` sets `PORELO_PUBLISH=false`,
+  `MAVEN_SNAPSHOTS_URL` to the forge's registry and `PORELO_PUBLISHER_TOKEN`, and the runner offers both labels the
+  workflows name (`ubuntu-24.04`, `ubuntu-26.04`), as [SL33](README.md#sl33) measured on the sprint 4 forge.
+- **The steps, in [PJ59](https://github.com/porelo-ai/porelo-project/blob/main/issues/README.md#pj59)'s order:**
+  1. *Before:* the forge's registry holds porelo-parent `0.2.1-SNAPSHOT` and porelo-buildtools' `0.5.1-SNAPSHOT`
+     modules (`porelo-release`, `porelo-machines`), published there by their agents, since the build's `forge`
+     profile reads snapshots only from that registry. This issue's text is the first commit the task makes.
+  2. *The switch:* the coordinator's `project.yml` commit gives this repository the host's forge as upstream.
+  3. *The start:* `porelo task start --repository porelo-message-sluice` on the host, attended, the agent named
+     `Agent Sluice` from the nickname ([B298](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b298)).
+  4. *Inside the task:* the agent reads its context, fetches the seven skills (below), sets this issue to
+     Implementing, makes the correction below, runs the documents tests and the full suite in the task, and
+     pushes. The gate opens the pull request
+     ([B297](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b297)); the agent reads the Build and
+     the *Shared rules check* through the `forgejo` reader, both green, and sets Review.
+  5. *The check:* `move-check.sh porelo-message-sluice`, red before the start, green after; then this machine's
+     session and the `sluice` VM accounts are no longer used.
+- **The one correction made inside the task:** `doc/decisions.md`, *The workflows run unchanged…*, still says a
+  forge pull request fails the commit-message step; since `a40ea15` the step fetches nothing and counts a pull
+  request from the same repository as inside. Rewritten once the gate's pull request shows the step green on the
+  forge.
 - **The way back:** none beyond the move's own step 5, which holds for every agent.
+- **No test goes red first:** nothing that can do harm changes in the code. The move's red-first check is
+  `move-check.sh` against this repository before the start.
+
+## Acceptance
+
+- `move-check.sh porelo-message-sluice` fails on every line before the start and passes after: the task runs, its
+  last push reached the forge as `porelo/<task>`, the `forgejo` reader read its Build, the gate opened the pull
+  request, and the task is in the room's `agent-card.json`.
+- This issue's file says Review in the commit the operator merges, and that commit's Build and *Shared rules check* on
+  the forge are green.
+- A message naming `Agent Sluice` in the room wakes the task's agent, and its answer appears in the room.
+- Seen to fail: the check against the repository before its move.
+
+## Open questions
+
+- **Where the first move runs.** A task starts on this laptop today, which has no Forgejo, and the laptop's room
+  reaches such a task with nothing new, as read by porelo's and porelo-message-matrix's agents.
+  - (a) On the rented host, as [PJ59](https://github.com/porelo-ai/porelo-project/blob/main/issues/README.md#pj59) says: the forge, its registry and the `forgejo` reader are tested with the move;
+    it waits for the rental and for the two snapshots in its registry.
+  - (b) On this laptop first, *online* with GitHub as upstream: the build is GitHub's, read by the `github` reader,
+    snapshots from Sonatype; no rental. The host move follows as a second step that changes only the upstream.
+  - **Recommended: (b)**, then (a). It tests the task, the room, the wake and the gate now, at no cost, and the part
+    (a) alone adds is the forge, which [SL33](README.md#sl33) has run already. The acceptance's `forgejo` lines then hold only for (a).
+- **The read-only reading a handover needs.** Inside the task neither Codex CLI nor Antigravity CLI is installed or
+  signed in, and the rule wants a sub-agent's reading of every change.
+  - (a) Both CLIs in the task's image, signed in from the vault: a second agent's credentials in one task, which
+    Porelo's containment does not foresee.
+  - (b) A reviewer task ([B172](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b172), Analyzed)
+    reads the pushed commit.
+  - (c) Until [B172](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b172), another agent outside the task reads the pull request's diff and posts its findings in the room.
+  - **Recommended: (c)** for this move: its diff is two documents, and [B172](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b172) is not built.
+
+## To be checked
+
+- That the forge's registry holds porelo-parent's and porelo-buildtools' snapshots no older than GitHub's on the day
+  of a host move, and who republishes them there while their repositories have not moved.
+- What the task's agent is given in its context in place of `.AGENTS.md`, which is not committed and so not in the
+  task: its name, the room in place of the channel, the operator's language and time zone. That is [PJ59](https://github.com/porelo-ai/porelo-project/blob/main/issues/README.md#pj59)'s rules
+  table; what is missing is said to the coordinator before the start.
+- That the task's egress reaches what the build and the agent fetch: Maven Central, Sonatype's snapshots (for (b)),
+  GitHub's release downloads (GraalVM, shfmt), and `fuinorg.jfrog.io` for the skills, which [SL29](README.md#sl29) did not fetch.
+- Where Claude Code in the task reads the skills (`~/.claude/skills/<slug>/` in the task's home), and that they are
+  checked against their digests there.
+- Which of the five permission tests that skip as root still run in the task, named in the hand-over.
