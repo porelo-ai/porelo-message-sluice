@@ -26,6 +26,15 @@ Read in today's `porelo.yml`, `settings.xml`, the four workflows, `doc/decisions
 - **Forgejo's build needs nothing new in the workflows:** the host's `up` sets `PORELO_PUBLISH=false`,
   `MAVEN_SNAPSHOTS_URL` to the forge's registry and `PORELO_PUBLISHER_TOKEN`, and the runner offers both labels the
   workflows name (`ubuntu-24.04`, `ubuntu-26.04`), as [SL33](README.md#sl33) measured on the sprint 4 forge.
+- **Two stages.** First a dry run on this laptop, *online* with GitHub as upstream, driven from the interface: the
+  task, the room on this laptop's homeserver, the wake, the gate's push to GitHub and the `github` reader. The `github` reader opens no pull request, so
+  there the person opens it; the gate opening it waits for the host's forge. It
+  shows everything but the forge, at no rental. The project it follows must name this laptop's own homeserver
+  (`matrix: {}`), never a host's room. Then the move proper on the host, which changes only the upstream and adds the
+  forge; the steps below are that move. This issue reaches Review only there.
+- **The reading a hand-over needs:** neither Codex CLI nor Antigravity CLI is in the task. Until a reviewer task
+  ([B172](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b172)) exists, an agent outside the task reads the pull request's diff and posts its findings in the
+  room; the task's agent answers each there, as a local agent does with a sub-agent's reading today.
 - **The steps, in [PJ59](https://github.com/porelo-ai/porelo-project/blob/main/issues/README.md#pj59)'s order:**
   1. *Before:* the forge's registry holds porelo-parent `0.2.1-SNAPSHOT` and porelo-buildtools' `0.5.1-SNAPSHOT`
      modules (`porelo-release`, `porelo-machines`), published there by their agents, since the build's `forge`
@@ -58,25 +67,6 @@ Read in today's `porelo.yml`, `settings.xml`, the four workflows, `doc/decisions
 - A message naming `Agent Sluice` in the room wakes the task's agent, and its answer appears in the room.
 - Seen to fail: the check against the repository before its move.
 
-## Open questions
-
-- **Where the first move runs.** A task starts on this laptop today, which has no Forgejo, and the laptop's room
-  reaches such a task with nothing new, as read by porelo's and porelo-message-matrix's agents.
-  - (a) On the rented host, as [PJ59](https://github.com/porelo-ai/porelo-project/blob/main/issues/README.md#pj59) says: the forge, its registry and the `forgejo` reader are tested with the move;
-    it waits for the rental and for the two snapshots in its registry.
-  - (b) On this laptop first, *online* with GitHub as upstream: the build is GitHub's, read by the `github` reader,
-    snapshots from Sonatype; no rental. The host move follows as a second step that changes only the upstream.
-  - **Recommended: (b)**, then (a). It tests the task, the room, the wake and the gate now, at no cost, and the part
-    (a) alone adds is the forge, which [SL33](README.md#sl33) has run already. The acceptance's `forgejo` lines then hold only for (a).
-- **The read-only reading a handover needs.** Inside the task neither Codex CLI nor Antigravity CLI is installed or
-  signed in, and the rule wants a sub-agent's reading of every change.
-  - (a) Both CLIs in the task's image, signed in from the vault: a second agent's credentials in one task, which
-    Porelo's containment does not foresee.
-  - (b) A reviewer task ([B172](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b172), Analyzed)
-    reads the pushed commit.
-  - (c) Until [B172](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b172), another agent outside the task reads the pull request's diff and posts its findings in the room.
-  - **Recommended: (c)** for this move: its diff is two documents, and [B172](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b172) is not built.
-
 ## To be checked
 
 - That the forge's registry holds porelo-parent's and porelo-buildtools' snapshots no older than GitHub's on the day
@@ -84,7 +74,7 @@ Read in today's `porelo.yml`, `settings.xml`, the four workflows, `doc/decisions
 - What the task's agent is given in its context in place of `.AGENTS.md`, which is not committed and so not in the
   task: its name, the room in place of the channel, the operator's language and time zone. That is [PJ59](https://github.com/porelo-ai/porelo-project/blob/main/issues/README.md#pj59)'s rules
   table; what is missing is said to the coordinator before the start.
-- That the task's egress reaches what the build and the agent fetch: Maven Central, Sonatype's snapshots (for (b)),
+- That the task's egress reaches what the build and the agent fetch: Maven Central, Sonatype's snapshots (in the dry run),
   GitHub's release downloads (GraalVM, shfmt), and `fuinorg.jfrog.io` for the skills, which [SL29](README.md#sl29) did not fetch.
 - Where Claude Code in the task reads the skills (`~/.claude/skills/<slug>/` in the task's home), and that they are
   checked against their digests there.
