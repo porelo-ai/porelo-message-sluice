@@ -1,6 +1,6 @@
 # SL35 — The Sluice's Agent Works In A Porelo Task
 
-**Status:** Backlog.
+**Status:** Backlog; blocked by [SL36](README.md#sl36).
 **Size:** S - nothing to build in this repository's code; the work is the trial move's steps, one document corrected in
 the task and this issue worked to Review from inside it, about 3 hours: 1½ of the agent's work, the rest the forge's
 Build, the reading from outside and the way back.
@@ -26,7 +26,7 @@ local registry settings, and the project's procedure for an agent's move.
 - **Snapshots:** the task sets no `MAVEN_SNAPSHOTS_URL`, so `settings.xml`'s `standard` profile reads them from
   Sonatype there; the forge's Build sets it and reads them from the forge's registry under `porelo-forge`.
 - **Forgejo's build needs nothing new in the workflows:** the host's `up` sets `PORELO_PUBLISH=false`,
-  `MAVEN_SNAPSHOTS_URL` to the forge's registry and `PORELO_PUBLISHER_TOKEN`, and the runner offers both labels the
+  `MAVEN_SNAPSHOTS_URL` to the forge's registry and a token that only reads it, and the runner offers both labels the
   workflows name (`ubuntu-24.04`, `ubuntu-26.04`), as [SL33](README.md#sl33) measured on a host's
   local Forgejo, recorded in `96509d5`.
 - **What the task's context gives the agent in place of `.AGENTS.md`**, which is not committed: its name
