@@ -25,10 +25,20 @@ jobs:
               with:
                   persist-credentials: false
 
+            # A forge that names no snapshot repository would resolve Sonatype's snapshots in place of its own.
+            - name: The forge names its snapshot repository
+              env:
+                  SERVER_URL: ${{ github.server_url }}
+              run: |
+                  if [ -z "$MAVEN_SNAPSHOTS_URL" ] && [ "$SERVER_URL" != 'https://github.com' ]; then
+                      echo "::error::vars.MAVEN_SNAPSHOTS_URL is empty on $SERVER_URL; only github.com may leave it empty"
+                      exit 1
+                  fi
+
             # The Build's own check-actions, on the runner's Java 25: it reads files and fetches no JDK.
             - name: Every step pinned to a commit
               env:
-                  PORELO_PUBLISHER_TOKEN: ${{ secrets.PORELO_PUBLISHER_TOKEN }}
+                  PORELO_PACKAGES_READ_TOKEN: ${{ secrets.PORELO_PACKAGES_READ_TOKEN }}
               run: |
                   export JAVA_HOME="$JAVA_HOME_25_X64"
                   ./mvnw -B -q -U -N -Pci-tools -s settings.xml dependency:build-classpath \

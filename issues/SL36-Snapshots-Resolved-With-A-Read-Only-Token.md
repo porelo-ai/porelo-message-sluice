@@ -1,6 +1,6 @@
 # SL36 — Snapshots Resolved With A Read-Only Token
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** S - four workflows, `settings.xml`, one test that reads the workflows and one decision; no code of the
 filter, and the token's name is the only thing read from outside.
 
@@ -28,13 +28,23 @@ Read in today's `build.yml`, `shared-rules.yml`, `workflows.yml`, `settings.xml`
 - **The workflows:** every step that runs Maven (`build.yml`'s GraalVM classpath, effective pom and `verify`,
   `shared-rules.yml`'s classpath and documents tests, `workflows.yml`'s classpath) gets `PORELO_PACKAGES_READ_TOKEN`, and
   `PORELO_PUBLISHER_TOKEN` is named in none of them.
-- **A missing snapshot repository fails:** the first step of each job that runs Maven stops with an error naming
-  `vars.MAVEN_SNAPSHOTS_URL` when it is empty and `github.server_url` is not `https://github.com`; on GitHub an empty
-  value keeps today's fallback to Sonatype's snapshots.
+- **A missing snapshot repository fails:** the step after the checkout of each job that runs Maven stops with an
+  error naming `vars.MAVEN_SNAPSHOTS_URL` when it is empty and `github.server_url` is not `https://github.com`; on
+  GitHub the guard lets an empty value pass, as today.
 - **`doc/decisions.md`**, *The workflows run unchanged…*: the token that reads, and why the publisher's is never here.
-- **Red first:** a test tagged `documents` reads the four workflows as lines and fails when any of them names
-  `PORELO_PUBLISHER_TOKEN`, naming the workflow and line; it is red on today's workflows. A second assertion fails
-  when a job that runs `./mvnw` has no step checking `MAVEN_SNAPSHOTS_URL` before it. Each is seen red, then green.
+- **Red first:** `WorkflowTokensTest`, tagged `documents`, reads the four workflows and `settings.xml` as lines and
+  fails when any of them names `PORELO_PUBLISHER_TOKEN`, naming the file and line; it is red on today's workflows. A
+  second assertion fails when a job that runs Maven has no step checking `MAVEN_SNAPSHOTS_URL` before it, and the
+  guard's own script is run: it must stop on a forge without the variable and pass on GitHub and on a forge that
+  names it. The guard carries no condition, a workflow's `*.yaml` is read too, and Maven is found however its path
+  is spelt. The step reader moves out of `WorkflowCommitsTest` into `WorkflowSteps`, shared by both.
+- **Declined in the reading against the skills**, each with its reason: an allowlist of every secret a workflow
+  may name (the harm is the token that writes, and it is refused by name); checking the shape of
+  `MAVEN_SNAPSHOTS_URL` (the guard stops a missing repository, not a wrong one); duplicate `env:` blocks,
+  `@Nullable` and copied maps in the step reader (moved unchanged, outside this change); `printf` in place of `echo`
+  in the guard (the server URL comes from the runner and reaches the script through its environment); the
+  `central-sonatype` server in `settings.xml` (the credential for Maven Central, not the forge's, outside this
+  change).
 
 ## Acceptance
 
@@ -42,10 +52,9 @@ Read in today's `build.yml`, `shared-rules.yml`, `workflows.yml`, `settings.xml`
 - On GitHub the Build, the *Shared rules check* and the *Workflow check* run green with the placeholder secret and
   today's `MAVEN_SNAPSHOTS_URL`.
 - On the host's forge the Build resolves its snapshots from the forge's registry with the read-only token, and with
-  `MAVEN_SNAPSHOTS_URL` removed it fails in its first step, naming the variable.
+  `MAVEN_SNAPSHOTS_URL` removed it fails in the step after its checkout, naming the variable.
 
 ## To be checked
 
 - Whether the forge checks the user name Maven sends against the token's owner; if it does, `settings.xml` names
-  the owner.
-- That the organization's secrets on GitHub hold the placeholder under that name for this repository.
+  the owner. Measured with the move to the host's forge.

@@ -1,16 +1,18 @@
 package org.fuin.porelo.msgsluice.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.fuin.porelo.msgsluice.filter.WorkflowSteps.CHECKOUT;
+import static org.fuin.porelo.msgsluice.filter.WorkflowSteps.step;
+import static org.fuin.porelo.msgsluice.filter.WorkflowSteps.steps;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.fuin.porelo.msgsluice.filter.WorkflowSteps.Step;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -18,9 +20,8 @@ import org.junit.jupiter.api.io.TempDir;
 /**
  * The Build checks the commit messages of every push, and the daily run those of main's last day,
  * so a direct push to {@code main} cannot pass the rule around the pull request's check. Each
- * step's own script runs against stubs of git and java. Read as lines, the way the workflows are
- * written: a step is a twelve-space list item, its keys fourteen spaces in, its environment and
- * script eighteen. Tagged, since a change to the workflows alone starts no Build.
+ * step's own script, as {@link WorkflowSteps} reads it, runs against stubs of git and java. Tagged,
+ * since a change to the workflows alone starts no Build.
  */
 @Tag("documents")
 class WorkflowCommitsTest {
@@ -33,7 +34,6 @@ class WorkflowCommitsTest {
     private static final String PULL_REQUEST_STEP = "The pull request's commit messages";
     private static final String DAY_STEP = "Main's commits of the last day";
     private static final String CLASSPATH = "/stub/a.jar:/stub/b.jar";
-    private static final String CHECKOUT = "checkout";
     private static final String TOOLS_STEP = "The pinned GraalVM";
     private static final String GITHUB = "https://github.com";
     // Any forge but GitHub, as the host's forge names itself to its runner.
@@ -423,155 +423,5 @@ class WorkflowCommitsTest {
     private static void stub(final Path file, final String body) throws IOException {
         Files.writeString(file, "#!/bin/sh\n" + body);
         Files.setPosixFilePermissions(file, PosixFilePermissions.fromString("rwx------"));
-    }
-
-    /**
-     * One step as written: its name ({@value #CHECKOUT} for the checkout), its own keys, its {@code
-     * with:} and {@code env:} entries, and its script.
-     */
-    private record Step(
-            String name,
-            Map<String, String> keys,
-            Map<String, String> with,
-            Map<String, String> env,
-            String run) {}
-
-    private static Step step(final Path workflow, final String name) throws IOException {
-        for (final Step step : steps(workflow)) {
-            if (step.name().equals(name)) {
-                return step;
-            }
-        }
-        throw new AssertionError("no step '" + name + "' in " + workflow.getFileName());
-    }
-
-    /**
-     * The steps of the workflow's first job, in order. Every line under {@code steps:} is one this
-     * reading knows, or it fails: a line it skipped could hide a script or a binding from the
-     * assertions.
-     */
-    private static List<Step> steps(final Path workflow) throws IOException {
-        final List<Step> steps = new ArrayList<>();
-        StepLines step = null;
-        boolean inSteps = false;
-        int number = 0;
-        for (final String line : Files.readAllLines(workflow)) {
-            number++;
-            final String where = workflow.getFileName() + ":" + number;
-            if (!inSteps) {
-                inSteps = line.equals("        steps:");
-                continue;
-            }
-            final int indent = line.length() - line.stripLeading().length();
-            if (step != null && step.inScript() && (line.isBlank() || indent >= 18)) {
-                step.script(line.isBlank() ? "" : line.substring(18));
-                continue;
-            }
-            if (step != null) {
-                step.endScript();
-            }
-            if (line.isBlank() || line.stripLeading().startsWith("#")) {
-                continue;
-            }
-            if (indent < 12) {
-                break;
-            }
-            if (indent == 12 && line.startsWith("            - ")) {
-                if (step != null) {
-                    steps.add(step.finish());
-                }
-                step = new StepLines();
-                step.key(line.substring(14), where);
-            } else if (step != null && indent == 14) {
-                step.key(line.substring(14), where);
-            } else if (step != null && indent == 18 && step.inBlock()) {
-                step.entry(line.substring(18), where);
-            } else {
-                throw new AssertionError(where + ": a line this reading does not know: " + line);
-            }
-        }
-        if (step != null) {
-            steps.add(step.finish());
-        }
-        // A wrong root or a changed layout finds no step and would pass: the checkout must be read.
-        assertThat(steps.stream().map(Step::name))
-                .as("steps read from %s", workflow.getFileName())
-                .contains(CHECKOUT);
-        return steps;
-    }
-
-    /** One step while its lines are read. */
-    private static final class StepLines {
-
-        private final Map<String, String> keys = new LinkedHashMap<>();
-        private final Map<String, String> with = new LinkedHashMap<>();
-        private final Map<String, String> env = new LinkedHashMap<>();
-        private Map<String, String> block;
-        private StringBuilder script;
-        private String run = "";
-
-        void key(final String entry, final String where) {
-            block = null;
-            switch (entry) {
-                case "with:" -> block = with;
-                case "env:" -> block = env;
-                case "run: |" -> {
-                    put(keys, entry, where);
-                    script = new StringBuilder();
-                }
-                default -> {
-                    if (entry.startsWith("run: |") || entry.startsWith("run: >")) {
-                        throw new AssertionError(
-                                where + ": a script written another way: " + entry);
-                    }
-                    put(keys, entry, where);
-                    if (entry.startsWith("run: ")) {
-                        run = keys.get("run");
-                    }
-                }
-            }
-        }
-
-        void entry(final String entry, final String where) {
-            put(block, entry, where);
-        }
-
-        boolean inBlock() {
-            return block != null;
-        }
-
-        boolean inScript() {
-            return script != null;
-        }
-
-        void script(final String line) {
-            script.append(line).append('\n');
-        }
-
-        void endScript() {
-            if (script != null) {
-                run = script.toString();
-                script = null;
-            }
-        }
-
-        Step finish() {
-            endScript();
-            final String uses = keys.getOrDefault("uses", "");
-            final String name =
-                    uses.startsWith("actions/checkout@") ? CHECKOUT : keys.getOrDefault("name", "");
-            return new Step(name, keys, with, env, run);
-        }
-    }
-
-    private static void put(final Map<String, String> map, final String entry, final String where) {
-        final int colon = entry.indexOf(": ");
-        if (colon <= 0) {
-            throw new AssertionError(where + ": not a key and its value: " + entry);
-        }
-        final String key = entry.substring(0, colon);
-        if (map.put(key, entry.substring(colon + 2).trim()) != null) {
-            throw new AssertionError(where + ": '" + key + "' twice");
-        }
     }
 }

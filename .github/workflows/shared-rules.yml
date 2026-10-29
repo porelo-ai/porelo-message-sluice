@@ -37,6 +37,16 @@ jobs:
                   persist-credentials: false
                   fetch-depth: 0
 
+            # A forge that names no snapshot repository would resolve Sonatype's snapshots in place of its own.
+            - name: The forge names its snapshot repository
+              env:
+                  SERVER_URL: ${{ github.server_url }}
+              run: |
+                  if [ -z "$MAVEN_SNAPSHOTS_URL" ] && [ "$SERVER_URL" != 'https://github.com' ]; then
+                      echo "::error::vars.MAVEN_SNAPSHOTS_URL is empty on $SERVER_URL; only github.com may leave it empty"
+                      exit 1
+                  fi
+
             - name: Cache the Maven repository
               uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
               with:
@@ -49,7 +59,7 @@ jobs:
             # and the checks.
             - name: The pinned GraalVM
               env:
-                  PORELO_PUBLISHER_TOKEN: ${{ secrets.PORELO_PUBLISHER_TOKEN }}
+                  PORELO_PACKAGES_READ_TOKEN: ${{ secrets.PORELO_PACKAGES_READ_TOKEN }}
               run: |
                   export JAVA_HOME="$JAVA_HOME_25_X64"
                   ./mvnw -B -q -U -N -Pci-tools -s settings.xml dependency:build-classpath \
@@ -94,7 +104,7 @@ jobs:
             # when one does not.
             - name: The tests that read documents
               env:
-                  PORELO_PUBLISHER_TOKEN: ${{ secrets.PORELO_PUBLISHER_TOKEN }}
+                  PORELO_PACKAGES_READ_TOKEN: ${{ secrets.PORELO_PACKAGES_READ_TOKEN }}
               run: ./mvnw -B -s settings.xml -Pdocuments test
 
             # A pull request's own commits held to the shared rule on commit messages. One from outside - from another

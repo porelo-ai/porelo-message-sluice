@@ -368,15 +368,21 @@ The pin moves with `porelo-machines`: a new snapshot of it brings the new JDK.
 ## The workflows run unchanged on GitHub and on the local Forgejo
 
 The same four workflows run on GitHub and on the local Forgejo. What differs between the two forges is only
-the values of variables and secrets, each present on both, never a branch in a workflow:
+the values of variables and secrets, each present on both, never a branch in a workflow that builds otherwise:
 
 - `MAVEN_SNAPSHOTS_URL`, the repository `settings.xml` reads snapshots from under the id `porelo-forge`, with
-  `PORELO_PUBLISHER_TOKEN` as its password: Sonatype on GitHub with a placeholder, the forge's own registry
+  `PORELO_PACKAGES_READ_TOKEN` as its password: Sonatype on GitHub with a placeholder, the forge's own registry
   on the local Forgejo, whose organisation is private. Maven sends the password only when a server asks for
-  it, so Sonatype never sees the placeholder.
+  it, so Sonatype never sees the placeholder. A forge other than github.com that names no repository stops
+  each job before Maven runs, instead of reading Sonatype's snapshots in place of its own.
 - `PORELO_PUBLISH`, `true` where the packages are published and `false` where they are not: it switches
   the Publish steps and *Delete old runs*, which calls GitHub's API. The Build refuses any other value,
   so a missing variable cannot leave the packages unpublished without a word.
+
+The token Maven holds can only read the registry. Maven runs the tests on unreviewed branches too, where a
+test could read that token, and this repository deploys nothing with Maven: the packages go to Artifactory
+with a token of their own, from `main` or a tag only. A token that writes to the registry is therefore named
+in no workflow and not in `settings.xml`, and a test tagged `documents` refuses one.
 
 What a runner's image lacks is installed in a step that does nothing where it is present: the packaging
 tools, from the distribution's signed archive. The Java 25 that starts the build is the runner's, on both.
