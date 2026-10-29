@@ -12,8 +12,8 @@ channel.
 
 | # | Size | Blocked by | Open questions | What it covers |
 |---|---|---|---|---|
-| <a id="sl35"></a>[SL35](SL35-The-Sluice-Agent-Works-In-A-Porelo-Task.md) | S | porelo-project [PJ59](https://github.com/porelo-ai/porelo-project/blob/main/issues/README.md#pj59) | 0 | The sluice's agent works in a Porelo task, the first to move: a dry run on this laptop with GitHub as upstream, then the host with its forge; its image from `porelo.yml` unchanged, the room under `Agent Sluice`, the reading by an agent outside the task. |
-| <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | Porelo [B166](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b166), [B291](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b291), [B292](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b292) | 0 | A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways. |
+| <a id="sl35"></a>[SL35](SL35-The-Sluice-Agent-Works-In-A-Porelo-Task.md) | S | — | 0 | The sluice's agent works in a Porelo task, the first to move: a dry run on this laptop with GitHub as upstream, then the host with its forge; its image from `porelo.yml` unchanged, the room under `Agent Sluice`, the reading by an agent outside the task. |
+| <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | — | 0 | A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways. |
 
 ## Idea
 
@@ -26,7 +26,7 @@ channel.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="sl04"></a>[SL04](SL04-An-External-Detector-Measured.md) | L | — | Somebody else's detector catalog behind the interface, measured before anything is adopted. |
-| <a id="sl23"></a>[SL23](SL23-The-Narrowed-Message-Schema-The-Filters-Side.md) | M | Porelo [B108](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b108) | [B14](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b14)'s narrowed message schema enforced in the envelope: four `metadata` keys, five kinds with their fixed data parts, one text part, one extension URI. |
+| <a id="sl23"></a>[SL23](SL23-The-Narrowed-Message-Schema-The-Filters-Side.md) | M | — | Porelo's narrowed message schema enforced in the envelope: four `metadata` keys, five kinds with their fixed data parts, one text part, one extension URI. |
 | <a id="sl08"></a>[SL08](SL08-Refuse-A-Payload-Spread-Over-Several-Messages.md) | XL | — | A payload cut into pieces and sent over several messages, caught by correlating against what the task already sent. |
 
 ## Finished
@@ -64,6 +64,5 @@ message format, both written down rather than compiled against.
 
 ## Where Porelo comes in
 
-Nothing here is blocked by Porelo: this is a program that reads and writes directories. **Porelo
-requirement [B14](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b14)** is the other half - the mailbox mounted into a task, who feeds this filter, which
+This is a program that reads and writes directories. **Porelo** is the other half - the mailbox mounted into a task, who feeds this filter, which
 transport a peer uses, and what may be in a message in the first place.

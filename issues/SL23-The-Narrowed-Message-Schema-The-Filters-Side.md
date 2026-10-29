@@ -1,16 +1,16 @@
 # SL23 — The narrowed message schema, the filter's side
 
-**Status:** Estimated; blocked by Porelo [B108](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b108), which decides the schema and which side checks what.
+**Status:** Estimated; it waits for Porelo's schema document, which decides the schema and which side checks what.
 **Size:** M - several new envelope rules and a kind's data part let through by shape, against a
 schema document shared with Porelo: one contract change.
 
-**What must be true.** A message Porelo sends has exactly the shape [B14](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b14)'s narrowed schema allows, and
+**What must be true.** A message Porelo sends has exactly the shape Porelo's narrowed message schema allows, and
 the filter refuses anything else by a rule that names what is wrong.
 
 ## Why
 
 Today the filter takes any A2A 1.0 message and refuses only what carries data instead of prose
-([`doc/filter.md`](../doc/filter.md#the-envelope)). [B14](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b14)'s design narrows that for Porelo's messages:
+([`doc/filter.md`](../doc/filter.md#the-envelope)). Porelo's narrowed message schema narrows that:
 `metadata` holds `kind`, `to`, `from` and `thread` and nothing else; `kind` is one of `question`,
 `answer`, `review-request`, `handover` or `status`, each with its fixed data part; exactly one text
 part; `extensions` exactly a Porelo messaging extension URI. The filter is where the envelope is
@@ -33,7 +33,7 @@ host's.
   a message.
 - **A person as a sender:** `metadata.from` must be a plain name today, so a Matrix user id
   (`@person:localhost`) is refused (`ENVELOPE/PEER_NAME_MALFORMED`). A person's message is not
-  filtered, so nothing needs it now. If [B108](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b108)'s schema names a person by a Matrix id, the rule takes
+  filtered, so nothing needs it now. If Porelo's schema names a person by a Matrix id, the rule takes
   it only in a `ROLE_USER` message's `from`, never in `to` and never from an agent, in Matrix's own
   grammar (`@` a lower-case localpart of `a-z 0-9 . _ = - / +`, `:` a host name or IPv4 address, an
   optional port), and the detectors still judge it as text.
@@ -44,7 +44,7 @@ host's.
   a second text part and a foreign extension URI, added to its list of rule ids. Where it refuses a
   `data` part today (`ENVELOPE/DATA_PART_NOT_ALLOWED`), a kind's fixed data part is let through when it
   matches its shape, and its strings are added to the texts the detectors read, as `metadata`'s are.
-- **The schema read, not compiled in:** the shapes come from [B108](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b108)'s document, loaded by `a2a/CheckConfig`;
+- **The schema read, not compiled in:** the shapes come from Porelo's schema document, loaded by `a2a/CheckConfig`;
   a test reads the same document and fails when it and the rules disagree.
 - **Fixtures** named for where they land (`envelope-*.json` refused, `accept-*.json` passing),
   counted by `FixturesTest` and by the Build's packaged-binary step; `doc/filter.md`'s envelope table
@@ -64,4 +64,4 @@ host's.
 ## To be checked
 
 - How the filter's build reads the schema document that lives in `porelo` - a copy pinned here and
-  held to `porelo`'s by a test, or read from a published artifact - once [B108](https://github.com/porelo-ai/porelo/blob/main/issues/base/README.md#b108) publishes it.
+  held to `porelo`'s by a test, or read from a published artifact - once Porelo publishes it.
