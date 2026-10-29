@@ -1,6 +1,6 @@
 # SL36 — Snapshots Resolved With A Read-Only Token
 
-**Status:** Analyzed.
+**Status:** Implementing.
 **Size:** S - four workflows, `settings.xml`, one test that reads the workflows and one decision; no code of the
 filter, and the token's name is the only thing read from outside.
 
