@@ -19,13 +19,14 @@ on GitHub - so it needs no writing token for Maven at all.
 
 Read in today's `build.yml`, `shared-rules.yml`, `workflows.yml`, `settings.xml` and `doc/decisions.md`.
 
-- **The contract read from outside:** the host's runner hands every build a read-only package token under a name of
-  its own, and the forge's variable `MAVEN_SNAPSHOTS_URL` names its registry. On GitHub the same secret holds a
-  placeholder, since Sonatype needs none.
-- **`settings.xml`:** the server `porelo-forge` takes its password from the read-only token's variable in place of
+- **The contract read from outside:** the host's forge hands every build the secret `PORELO_PACKAGES_READ_TOKEN`, a
+  token whose one scope is reading the organization's packages, and the variable `MAVEN_SNAPSHOTS_URL` names its
+  registry. On GitHub the same secret holds a placeholder, since Sonatype needs none. Maven sends it with the user
+  name `settings.xml` names today.
+- **`settings.xml`:** the server `porelo-forge` takes its password from `PORELO_PACKAGES_READ_TOKEN` in place of
   `PORELO_PUBLISHER_TOKEN`; its comment says it only reads.
 - **The workflows:** every step that runs Maven (`build.yml`'s GraalVM classpath, effective pom and `verify`,
-  `shared-rules.yml`'s classpath and documents tests, `workflows.yml`'s classpath) gets the read-only token, and
+  `shared-rules.yml`'s classpath and documents tests, `workflows.yml`'s classpath) gets `PORELO_PACKAGES_READ_TOKEN`, and
   `PORELO_PUBLISHER_TOKEN` is named in none of them.
 - **A missing snapshot repository fails:** the first step of each job that runs Maven stops with an error naming
   `vars.MAVEN_SNAPSHOTS_URL` when it is empty and `github.server_url` is not `https://github.com`; on GitHub an empty
@@ -45,6 +46,6 @@ Read in today's `build.yml`, `shared-rules.yml`, `workflows.yml`, `settings.xml`
 
 ## To be checked
 
-- The read-only token's variable name and scope, as the host's forge gives it to builds; until then the plan says
-  "the read-only token".
+- Whether the forge checks the user name Maven sends against the token's owner; if it does, `settings.xml` names
+  the owner.
 - That the organization's secrets on GitHub hold the placeholder under that name for this repository.
