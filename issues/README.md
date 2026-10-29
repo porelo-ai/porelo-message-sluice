@@ -8,11 +8,16 @@ the order is the priority. Only the operator sets Accepted, Rejected, Estimated,
 Finished; this repository's agent sets Analyzed, Implementing and Review, and proposes the rest in the
 channel.
 
+## Backlog
+
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="sl35"></a>[SL35](SL35-The-Sluice-Agent-Works-In-A-Porelo-Task.md) | S | — | The sluice's agent works in a Porelo task, the first to move: the dry run on this laptop done, then a trial on the host with its forge and the way back; its image from `porelo.yml` unchanged, the room under `Agent Sluice`, the reading from outside, a fix amended. Every remaining step needs the host. |
+
 ## Analyzed
 
 | # | Size | Blocked by | Open questions | What it covers |
 |---|---|---|---|---|
-| <a id="sl35"></a>[SL35](SL35-The-Sluice-Agent-Works-In-A-Porelo-Task.md) | S | — | 0 | The sluice's agent works in a Porelo task, the first to move: the dry run on this laptop done, then a trial on the host with its forge and the way back; its image from `porelo.yml` unchanged, the room under `Agent Sluice`, the reading from outside, a fix amended. Proposed for Estimated. |
 | <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | — | 0 | A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways. |
 
 ## Idea
@@ -45,7 +50,7 @@ channel.
 | <a id="sl27"></a>[SL27](README.md#sl27) | Reformatted to the shared style | Spotless with the shared Java, YAML and shell formats, one reformatting commit that `git blame` skips, the shared `.editorconfig`, and checkouts without a kept token. |
 | <a id="sl26"></a>[SL26](README.md#sl26) | The rename to Porelo here | The filter is published as `org.fuin.porelo` 0.5.0 and installed where Porelo looks for it, accepts only signatures in the namespace `porelo-message`, and a documents test refuses the old name in any tracked file. |
 
-Nothing is in Review, Rework, Implementing, Backlog, Accepted or Rejected.
+Nothing is in Review, Rework, Implementing, Accepted or Rejected.
 
 **Open questions**, in *Analyzed* only, counts what waits on the operator; what this repository's
 agent finds out itself stands under each issue's *To be checked* and is not counted.
