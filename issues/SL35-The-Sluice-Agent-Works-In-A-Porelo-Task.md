@@ -1,6 +1,7 @@
 # SL35 — The Sluice's Agent Works In A Porelo Task
 
-**Status:** Implementing.
+**Status:** Implementing; waits until a task on its host fetches the snapshots it builds against from the host's
+forge, which none can yet.
 **Size:** S - nothing to build in this repository's code; the work is the trial move's steps, one document corrected in
 the task and this issue worked to Review from inside it, about 3 hours: 1½ of the agent's work, the rest the forge's
 Build, the reading from outside and the way back.
