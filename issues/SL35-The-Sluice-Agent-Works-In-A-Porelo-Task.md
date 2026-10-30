@@ -1,6 +1,6 @@
 # SL35 — The Sluice's Agent Works In A Porelo Task
 
-**Status:** Backlog; blocked by [SL36](README.md#sl36).
+**Status:** Implementing.
 **Size:** S - nothing to build in this repository's code; the work is the trial move's steps, one document corrected in
 the task and this issue worked to Review from inside it, about 3 hours: 1½ of the agent's work, the rest the forge's
 Build, the reading from outside and the way back.
@@ -52,7 +52,8 @@ local registry settings, and the project's procedure for an agent's move.
   3. *The start:* `porelo task start --repository porelo-message-sluice --agent claude` on the host, attended, its
      terminal opened by the operator.
   4. *Inside the task:* the agent reads its context, fetches the seven skills into `~/.claude/skills/<slug>/`, each
-     checked against its digest, sets this issue to Implementing, makes the correction below, runs the documents
+     checked against its digest, makes the correction below (the issue is set Implementing on `main` before the
+     switch, so the forge receives that state), runs the documents
      tests and the full suite in the task, and pushes. The gate opens the pull request; the agent reads the Build and
      the *Shared rules check* through the `forgejo` reader, both green, answers the reading, and sets Review.
   5. *The check:* the move's check for this repository, red before the start, green after.
