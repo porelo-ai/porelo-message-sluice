@@ -470,7 +470,8 @@ and the UTC time that text last changed; change it in the channel first, never i
   filter where Porelo looks for it; `buildtools/acceptance.sh` checks the installed package on a
   machine that has nothing of this repository but the package.
 - **The workflow's steps that run no Maven can be run here verbatim**, with `RUNNER_TEMP` and
-  `GITHUB_WORKSPACE` set, against the packages the native build wrote.
+  `GITHUB_WORKSPACE` set, against the packages the native build wrote after a `clean`: a package an
+  earlier build left in `target/` is unpacked too and fails the step.
 - **The tests tagged `documents` run alone with `./mvnw -B -s settings.xml -Pdocuments test`**, and
   `DocumentTestsTaggedTest` fails when a test reads a document without the tag; none reads one today.
 - **The documents are checked on the host before every hand-over**, on its exact commit, and by the
