@@ -1,9 +1,8 @@
 # porelo-message-sluice
 
-<img src="doc/images/early-bird.svg" width="350" alt="Early bird - work in progress">
+<img src="doc/images/crazy-chicken.svg" width="350" alt="Crazy chicken - just hatched">
 
-> **Early bird - work in progress.** Porelo is not stable yet: until release 1.0.0, its code, commands
-> and file formats can change without notice.
+> **Crazy chicken - just hatched.** Interfaces, formats and even the purpose may change any day. Use it only to try ideas, never to build on.
 
 The filter that every message an AI agent sends under Porelo passes through. It lets plain English
 prose through and refuses a message that carries data instead: an encoded payload, a file in a
