@@ -34,9 +34,9 @@ local registry settings, and the project's procedure for an agent's move.
   `Co-Authored-By:`), that its upstream is the host's forge and the central forge only through the gathered push,
   the room in place of the channel, and the operator's language and time zone. What is missing is said to the
   coordinator before the start.
-- **The reading a hand-over needs:** neither Codex CLI nor Antigravity CLI is in the task. The coordinator has the pull
-  request's diff read against the seven skills from outside and posts the findings in the room; the task's agent
-  answers each there.
+- **The reading a hand-over needs:** neither Codex CLI nor Antigravity CLI is in the task. The coordinator reads the pull
+  request's diff from outside, with an agy Gemini reading against the seven skills, and posts the findings in the
+  room; the task's agent answers each there, and the operator merges after them.
 - **A fix after the reading amends the task's commit**, pushed with `--force` to the task's own unmerged branch,
   which the gate passes on; the work stays one commit, and `main` is never pushed with force.
 - **A revoked sign-in** is renewed with `porelo vault login claude --force` and a restart of the task, which keeps the
@@ -86,8 +86,6 @@ local registry settings, and the project's procedure for an agent's move.
   fetch.
 - That the task's context gives what the plan names in place of `.AGENTS.md`, the attribution above all: the dry run's
   Claude wrote a `Co-Authored-By:` from its own default.
-- That the outside reading reaches the room by itself or says that a person relays it: in the dry run the reader could
-  not join the room from its harness.
 - Which of the five tests that skip as root run in the task, named in the hand-over:
   `aFileThatCannotBeReadStopsTheScanRatherThanLettingItsDuplicateThrough`,
   `aTechnicalErrorLeavesTheMessageWhereItWasAndSaysSo`, `aTechnicalErrorFilesNothingAndLeavesTheMessageWhereItWas`,
