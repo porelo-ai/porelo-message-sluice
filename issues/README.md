@@ -24,6 +24,7 @@ channel.
 
 | # | Size | Blocked by | Open questions | What it covers |
 |---|---|---|---|---|
+| <a id="sl37"></a>[SL37](SL37-A-Task-Of-Another-Project-Named-As-A-Peer.md) | S | — | 0 | A peer named `task:<project>:<task>`, a task of another project by its certificate's principal, passes the envelope check; a `:` anywhere else in a peer name is still refused. Waits for Porelo's exact task-name pattern. |
 | <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | — | 0 | A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways. |
 
 ## Idea
