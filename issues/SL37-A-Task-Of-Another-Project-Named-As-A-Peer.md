@@ -13,16 +13,19 @@ refused as `ENVELOPE/PEER_NAME_MALFORMED`.
   another project by its certificate's principal and checks a peer name with this whole-string pattern, which the
   filter takes character for character:
 
-      [a-zA-Z0-9][a-zA-Z0-9_.@-]*|task:[a-z0-9][a-z0-9-]{0,62}:[a-z0-9]([a-z0-9-]*[a-z0-9])?
+      [a-zA-Z0-9][a-zA-Z0-9_.@-]*|task:(?=[a-z0-9:-]{3,57}\z)[a-z0-9][a-z0-9-]{0,62}:(?!(?:people|person|[0-9]+)\z)[a-z0-9]([a-z0-9-]*[a-z0-9])?
 
-  The first alternative is today's rule; `default` is a project name of the second. The length limit
-  (`maxIdLength`) stays for both.
+  The first alternative is today's rule; the second takes exactly the tasks a start can make: `default` is a
+  project name like any other, `<project>:<task>` is 3 to 57 characters, so the container name
+  `porelo-<project>-<task>` fits in 64, and a task named `people`, `person` or only digits is refused. The length
+  limit (`maxIdLength`) stays for both.
 - The finding's text and `doc/filter.md`'s row for `ENVELOPE/PEER_NAME_MALFORMED` name the second form.
 - The comment on `PEER` says why a peer may be a principal; it no longer names `machine-signers`, which Porelo
   has dropped.
 - Red first, in `MessageSluiceTest`: a message to `task:billing:reviewer` and from `task:default:builder` is
   accepted; it fails today. Beside it, refused: `task::x`, `task:Billing:x` (upper case project), `task:p:`,
-  `task:p:x:y`, `task:p:-x`, `task:p:x-`, `a:b`, `task:p:../x`, and a principal longer than `maxIdLength`.
+  `task:p:x:y`, `task:p:-x`, `task:p:x-`, `task:p:people`, `task:p:person`, `task:p:42`, `a:b`,
+  `task:p:../x`, and `<project>:<task>` of 58 characters, while one of 57 passes.
 
 ## Acceptance
 
@@ -32,4 +35,4 @@ refused as `ENVELOPE/PEER_NAME_MALFORMED`.
 
 ## To be checked
 
-- That Porelo's pattern is unchanged after its review, read again before building.
+- That Porelo's pattern is still this one, read again in Porelo's `Mail.NAME_PATTERN` before building.
