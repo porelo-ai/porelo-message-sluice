@@ -219,7 +219,7 @@ class PersonalDataTest {
                         "The card " + badCard + " fails its checksum.",
                         "The account " + badIban + " fails its checksum.",
                         "Order " + ahv("123456789").replace(".", "") + "0 is no AHV number.",
-                        "The VM is at 192.168.122.174, the host at 10.0.0.1 and 127.0.0.1.",
+                        "The VM is at 192.168.1.50, the host at 10.0.0.1 and 127.0.0.1.",
                         "Build 39730936077 published 0.5.1~snapshot.57 on 2026-10-22.",
                         "GraalVM 25.0.4 and Maven 3.9.15 are pinned.",
                         "Clone git@github.com:porelo-ai/porelo.git and run it.",
