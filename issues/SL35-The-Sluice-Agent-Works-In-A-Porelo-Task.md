@@ -52,7 +52,7 @@ local registry settings, and the project's procedure for an agent's move.
      upstream.
   3. *The start:* `porelo task start --repository porelo-message-sluice --agent claude` on the host, attended, its
      terminal opened by the operator.
-  4. *Inside the task:* the agent reads its context, fetches the seven skills into `~/.claude/skills/<slug>/`, each
+  4. *Inside the task:* the agent reads its context, fetches the seven skills into Claude Code's skills folder, each under its slug,
      checked against its digest, makes the correction below (the issue is set Implementing on `main` before the
      switch, so the forge receives that state), runs the documents
      tests and the full suite in the task, and pushes. The gate opens the pull request; the agent reads the Build and

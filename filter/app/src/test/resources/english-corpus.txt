@@ -92,7 +92,7 @@ git ls-remote origin refs/heads/main            the tip, and it cannot be stale
   registry behaving as documented. **Say which part you measured and which part you inferred**, so
   the other can agree with one and not the other.
 - **An issue is one task.** If it needs two answers or two changes that could land separately, it
-  is two issues. A dependency on an issue in another Sokar repository is named in the issue, with
+  is two issues. A dependency on an issue in another Porelo repository is named in the issue, with
   the repository and the number, so nobody discovers it by starting.
 - **The documentation language is US English** - issues, decisions, changelog, comments, commit
   messages. The channel too.
@@ -109,9 +109,9 @@ git ls-remote origin refs/heads/main            the tip, and it cannot be stale
 - **`issues/README.md` is the index**, and it is part of the change that adds or closes an issue.
   It opens with a table - number (linked), status, what blocks it, what it covers, how many
   questions are still open - ordered by priority rather than by number, so the top row is what
-  to do next. **Blocked by** is a column, not prose inside the description, and names a Sokar
-  requirement by its number, so the dependency reads the same from Sokar's **Blocks** column.
-- **An issue whose design is long is two files**, `SL<nn>-Title.md` and `SL<nn>-Title_design.md`, as Sokar
+  to do next. **Blocked by** is a column, not prose inside the description, and names a Porelo
+  requirement by its number, so the dependency reads the same from Porelo's **Blocks** column.
+- **An issue whose design is long is two files**, `SL<nn>-Title.md` and `SL<nn>-Title_design.md`, as Porelo
   splits a requirement from its design. The issue says what must be true and how it is judged done;
   the design says how it would be built and is marked as a proposal until something is measured.
 - **`doc/decisions.md` opens with its own index**: a table of date and one line saying what was
@@ -129,7 +129,7 @@ git ls-remote origin refs/heads/main            the tip, and it cannot be stale
 - **The exceptions to the dot-file rule here** are what a Java build needs: `.github`, `.mvn`,
   `.gitignore`, `.gitkeep`.
 - **The changelog is part of the change**, written by hand in the same commit. Nothing enforces it:
-  requiring an entry returns with Sokar B55. An entry goes into the existing section of its kind
+  requiring an entry returns with Porelo B55. An entry goes into the existing section of its kind
   under `[Unreleased]`, never under a new heading of the same kind.
 - **A commit message is one brief line.** The reasoning behind a change is a finding, and a finding
   goes in `doc/decisions.md`, in an issue or in this file, where it can be found later without
@@ -138,7 +138,7 @@ git ls-remote origin refs/heads/main            the tip, and it cannot be stale
   otherwise have to reconstruct. No exhaustive prose inlined in source. **Never a requirement or an
   issue number**: a number is an authority rather than a reason, and the index that would resolve it
   is in a repository the reader of that class cannot open. Say what the constraint is. Seven
-  citations of `Sokar B14` came out of the Java on 2026-09-27, and **every one of them already had
+  citations of `Porelo B14` came out of the Java on 2026-09-27, and **every one of them already had
   the constraint written beside it** - the number was adding a pointer into nothing and nothing else.
 - **A test that passes both with and without the fix proves nothing.** Run it against the broken
   version before trusting it. **And a guard's reference set is part of what has to be checked rather
@@ -153,7 +153,7 @@ the set is EMPTY              everything passes forever
 Agent Smith's series, from the only repository where such a gate had fired - which is how the other
   three became visible at all. **So assert what the set is**, not that it has something in it: a
   non-empty set is not a correct one, and a correct one nobody reads is not a gate.
-- **The build is Java and Maven**, and a file that is not says why it stays (Sokar B53). What stays:
+- **The build is Java and Maven**, and a file that is not says why it stays (Porelo B53). What stays:
   `mvnw`, the Maven wrapper, which is how a pinned Maven arrives before any Java tooling can run;
   `install-local.sh` and the three scripts in `buildtools/`, each saying why in its own header.
 
@@ -198,9 +198,9 @@ Three standalone Java programs, in three Maven modules that do not depend on eac
 - **`transport-spool/`** carries what passed between users on one machine, through per-recipient drop
   directories, and attests which account owned each message. It decides nothing either.
 
-None of them knows Sokar's daemon, its gate or its containers, and nothing here depends on a Sokar
-artifact. Sokar drives them by placing files where they read them - **Sokar requirement B14** is that
-half, and a change to the file contract is a change to this repository and Sokar's.
+None of them knows Porelo's daemon, its gate or its containers, and nothing here depends on a Porelo
+artifact. Porelo drives them by placing files where they read them - **Porelo requirement B14** is that
+half, and a change to the file contract is a change to this repository and Porelo's.
 
 **The split is a rule, not a layout.** A transport that could apply the rules would make "was this
 checked?" depend on the route a message took; a filter that knew about transports would have to be
@@ -231,17 +231,17 @@ that did not exist then would make it say something that did not happen.
 - Issue SL12, a test that refuses a description the build can contradict - the modules named in
   the rules against the modules in the reactor.
 - Issue SL13, a test that refuses a requirement or issue number in code, and the seven citations
-  of a Sokar requirement taken out of the Java and the packaging.
+  of a Porelo requirement taken out of the Java and the packaging.
 - Issue SL14, the code read against the house skills, each finding fixed with a failing test or
   opened as an issue.
 - The filter's frame: it reads an A2A 1.0 message or task, checks its envelope, runs the detectors
   and fails closed, decides, redacts, answers, and moves the file (issue 001).
 - A first detector that refuses a token no English word could be (issue 005).
-- The local transport's adapter, with `describe`, `check` and `send` as agreed for Sokar B14
+- The local transport's adapter, with `describe`, `check` and `send` as agreed for Porelo B14
   (issue 002).
-- `doc/transport-local.md`, the local transport's contract, measured end to end against Sokar's
+- `doc/transport-local.md`, the local transport's contract, measured end to end against Porelo's
   host side, which closes issue 002.
-- Runnable jars and `install-local.sh`, which puts both programs where Sokar looks for them.
+- Runnable jars and `install-local.sh`, which puts both programs where Porelo looks for them.
 - A fixture set of messages whose names say what the filter does with them, kept true by a test.
 - Normalization before every detector: NFKC, invisible characters removed and reported, look-alike
   letters folded to Latin, and every finding still pointing into the original text.
@@ -249,9 +249,9 @@ that did not exist then would make it say something that did not happen.
   named encoding signatures - measured on two corpora of agent prose, which closes issues 005 and
   006.
 - `--calibrate`, which measures a directory of messages and prints a configuration for it.
-- `sokar-message-transport-spool`, a transport between users on one machine through per-recipient
+- `porelo-message-transport-spool`, a transport between users on one machine through per-recipient
   drop directories, with its `.deb` and `.rpm` and a test with real users in
-  `buildtools/spool-transport.sh`. It is measured end to end with Sokar's polling half, which closes
+  `buildtools/spool-transport.sh`. It is measured end to end with Porelo's polling half, which closes
   issue 010. Its contract is `doc/transport-spool.md`.
 - `buildtools/spool-permissions.sh`, which tries the spool transport's permission scheme with four
   real users.
@@ -262,10 +262,10 @@ that did not exist then would make it say something that did not happen.
   packages published and indexed.
 - A `.deb` and an `.rpm` for each program, built in `dist-deb` and `dist-rpm` modules beside its
   code, holding the native binary, its bill of materials and the declared glibc and zlib floors.
-- The local transport's packages declare `Provides: sokar-transport`, so Sokar lists it among the
+- The local transport's packages declare `Provides: porelo-transport`, so Porelo lists it among the
   transports a machine can have; the filter declares nothing of the kind, because nothing replaces it.
 - `buildtools/acceptance.sh` and the `ci-tools` profile, to install the packages on rented Ubuntu and
-  Fedora machines through Sokar's machine tool before a push.
+  Fedora machines through Porelo's machine tool before a push.
 - CI builds the packages, runs the binaries unpacked from them without Java, and on `main` publishes
   them to Artifactory and checks that they are indexed.
 - `doc/detectors.md`, what the detectors look for, their defaults and where each one was measured.
@@ -274,13 +274,13 @@ that did not exist then would make it say something that did not happen.
   detectors as issues 005 to 008, starting with a simple proof of concept; 004 narrowed to an
   external detector.
 - The filter writes what it accepted into one directory and no longer learns which transport
-  carries a message; the host dispatches, as agreed for Sokar B14.
+  carries a message; the host dispatches, as agreed for Porelo B14.
 - The long-token detector measures between separators on the masked text, so paths, file names and
   Markdown links no longer count as one long token.
 - A person's message, `ROLE_USER`, is accepted and checked like an agent's; `check.allowedRoles`
   replaces `check.requireAgentRole`, and refusing a container's `ROLE_USER` is the host's check.
 - A peer name may contain `@`, because a peer is named by its `allowed_signers` principal, as agreed
-  with Sokar on the channel.
+  with Porelo on the channel.
 - Each program is a module with its code in `app/` and its packages beside it.
 - Both programs are built as native executables in the `native` profile, installed as such by
   `install-local.sh`, and run against the fixtures in CI.
@@ -289,7 +289,7 @@ that did not exist then would make it say something that did not happen.
   text are masked, and with more, all of them are checked as hex.
 - `install-local.sh` said it installs two programs; it installs three.
 
-[Unreleased]: https://github.com/sokar-ai/sokar-message-sluice/commits/main
+[Unreleased]: https://github.com/porelo-ai/porelo-message-sluice/commits/main
 
 Read the rules in AGENTS.md and (if it exists) in .AGENTS.md
 
@@ -305,7 +305,7 @@ Three programs that let an AI agent exchange messages without letting it exchang
 
 **The filter is built** - its frame ([`doc/filter.md`](doc/filter.md)) and its detectors for
 encoded data, measured on agents' prose ([`doc/detectors.md`](doc/detectors.md)). **The local transport is built too**, and
-measured end to end against Sokar's host side ([`doc/transport-local.md`](doc/transport-local.md)). **So is the spool
+measured end to end against Porelo's host side ([`doc/transport-local.md`](doc/transport-local.md)). **So is the spool
 transport** between the users of one machine, where the operator allowed it
 ([`doc/transport-spool.md`](doc/transport-spool.md)). Credentials, personal data
 and payloads spread over several messages are still to come: see [`issues/`](issues/README.md).
@@ -319,15 +319,15 @@ files, and the same verdict every time for the same input. A checker built on a 
 to the same manipulation as the agent it checks, and its verdicts would be neither reproducible nor
 explainable.
 
-Sokar drives both: see Sokar requirement **B14**, which defines the mailbox mounted into a task, the
+Porelo drives both: see Porelo requirement **B14**, which defines the mailbox mounted into a task, the
 adapter contract a transport implements, and what a message may contain.
 
 Java 25, two programs, each with its code and its `.deb` and `.rpm` below it. `-s settings.xml` declares the snapshot repository; it is not optional while
 anything this builds against is a snapshot. More in [`build.md`](build.md).
 
-Nothing here needs a checkout of [Sokar](https://github.com/sokar-ai/sokar). This repository builds
-standalone tools: they read files, write files, and know nothing about Sokar's daemon, its gate or
-its containers. Sokar drives them by placing files where they read them - see Sokar requirement
+Nothing here needs a checkout of [Porelo](https://github.com/porelo-ai/porelo). This repository builds
+standalone tools: they read files, write files, and know nothing about Porelo's daemon, its gate or
+its containers. Porelo drives them by placing files where they read them - see Porelo requirement
 **B14**.
 
 Java 25. `-s settings.xml` declares the snapshot repository and keeps a developer's own
@@ -338,11 +338,11 @@ on each other:
 
 | Module | Artifact | What it is |
 |---|---|---|
-| `filter/app/` | `sokar-message-sluice-filter` | the filter's code: decides what may pass, knows no transport |
+| `filter/app/` | `porelo-message-sluice-filter` | the filter's code: decides what may pass, knows no transport |
 | `filter/dist-deb/`, `filter/dist-rpm/` | `…-filter-deb`, `…-filter-rpm` | its `.deb` and `.rpm` |
-| `transport-local/app/` | `sokar-message-transport-local` | the local transport's code: carries what passed, decides nothing |
+| `transport-local/app/` | `porelo-message-transport-local` | the local transport's code: carries what passed, decides nothing |
 | `transport-local/dist-deb/`, `transport-local/dist-rpm/` | `…-local-deb`, `…-local-rpm` | its `.deb` and `.rpm` |
-| `transport-spool/app/` | `sokar-message-transport-spool` | the transport between users of one machine, where the operator allowed it ([doc](doc/transport-spool.md)) |
+| `transport-spool/app/` | `porelo-message-transport-spool` | the transport between users of one machine, where the operator allowed it ([doc](doc/transport-spool.md)) |
 | `transport-spool/dist-deb/`, `transport-spool/dist-rpm/` | `…-spool-deb`, `…-spool-rpm` | its `.deb` and `.rpm` |
 
 The `dist-*` modules exist only in the `dist` profile. They package a file and build nothing. The
@@ -355,13 +355,13 @@ dependency on `app` only orders the reactor.
 fewer libraries parse an attacker's text before the rules see it, the smaller the surface. The chi
 squared test and every other statistic are written here rather than pulled in.
 
-Test scope is JUnit 5 and AssertJ, as in every other Sokar repository.
+Test scope is JUnit 5 and AssertJ, as in every other Porelo repository.
 
-**Both programs ship as native executables**, like every other Sokar tool. The profile `native`
+**Both programs ship as native executables**, like every other Porelo tool. The profile `native`
 needs a GraalVM as `JAVA_HOME` - here `~/.sdkman/candidates/java/25.3.4+1.r25-graalce`. It writes
-`filter/app/target/sokar-message-sluice-filter` and
-`transport-local/app/target/sokar-message-transport-local`, the names Sokar executes. The settings
-follow Sokar's own build: `native-maven-plugin` 1.1.11, no fallback image, full stack traces on a
+`filter/app/target/porelo-message-sluice-filter` and
+`transport-local/app/target/porelo-message-transport-local`, the names Porelo executes. The settings
+follow Porelo's own build: `native-maven-plugin` 1.1.11, no fallback image, full stack traces on a
 build failure.
 
 **The binaries are linked dynamically against glibc and zlib.** What a host needs is the highest
@@ -369,14 +369,14 @@ symbol version a binary uses, not the build host's glibc: measured with `readelf
 `GLIBC_2.34` and `ZLIB_1.2.2`. A fully static binary would need a musl toolchain. Nothing in either
 program uses the foreign-function API, so that option stays open.
 
-**One package per program and per format**: `sokar-message-sluice-filter` installs
-`/usr/libexec/sokar/sokar-message-sluice-filter`, and `sokar-message-transport-local` installs
-`/usr/libexec/sokar/transports/sokar-message-transport-local`. Those are the paths Sokar's host
+**One package per program and per format**: `porelo-message-sluice-filter` installs
+`/usr/libexec/porelo/porelo-message-sluice-filter`, and `porelo-message-transport-local` installs
+`/usr/libexec/porelo/transports/porelo-message-transport-local`. Those are the paths Porelo's host
 looks in. Each package also carries its CycloneDX bill of materials and its copyright or licence
-file, and depends on `sokar`, `libc6 (>= 2.34)` and `zlib1g (>= 1:1.2.2)`, or on the RPM names
+file, and depends on `porelo`, `libc6 (>= 2.34)` and `zlib1g (>= 1:1.2.2)`, or on the RPM names
 `rpmbuild` would generate for them.
 
-The technique is Sokar's and the agent repositories'. `jdeb` 1.14 and `de.dentrassi.maven:rpm`
+The technique is Porelo's and the agent repositories'. `jdeb` 1.14 and `de.dentrassi.maven:rpm`
 1.13.0 run in the profile `dist`, **on `verify`, not `package`**: native-image runs on `package`,
 and a packaging plugin there would pack the binary of the build before. Three things hold that:
 
@@ -392,8 +392,8 @@ and a packaging plugin there would pack the binary of the build before. Three th
 dpkg and rpm alike, and `-` would sort above it. CI passes its run number. A local build is marked
 `0+local.<timestamp>`.
 
-**Publishing happens only on a push to `main`**, into Sokar's two Artifactory repositories:
-`sokar-dist-deb` under `pool/main/s/<package>/`, and `sokar-dist-rpm` under `snapshots/`. The
+**Publishing happens only on a push to `main`**, into Porelo's two Artifactory repositories:
+`porelo-dist-deb` under `pool/main/s/<package>/`, and `porelo-dist-rpm` under `snapshots/`. The
 upload uses `jf rt upload`, with `JF_URL` as a repository variable and `JF_ACCESS_TOKEN` as a
 secret. The `.deb`'s properties are what put it into the index. Then the step *"The packages are
 indexed, not merely stored"* reads both indexes back, anonymously and with `-L`, until they name the
@@ -401,7 +401,7 @@ very files just uploaded.
 
 **First published on 2026-09-18** as `1.0.0~snapshot.3`, from CI run 35334467118: all four
 packages uploaded, the index check passing, and both indexes, read back anonymously, listing them
-with their dependencies and the transport's `Provides: sokar-transport`. Before that, both packages
+with their dependencies and the transport's `Provides: porelo-transport`. Before that, both packages
 were installed with `apt` and `dnf` on the two local VMs and on rented Ubuntu and Fedora machines.
 
 **The bill of materials is not made offline.** `cyclonedx-maven-plugin` skips itself in Maven's
@@ -410,8 +410,8 @@ online.
 
 The packages are installed on real machines before they are pushed, never only unpacked:
 
-The same with the `.rpm`s and `--os fedora`. The profile `ci-tools` puts Sokar's `sokar-machines`
-on the class path, as the agent repositories do. That tool rents a Hetzner machine, installs Sokar
+The same with the `.rpm`s and `--os fedora`. The profile `ci-tools` puts Porelo's `porelo-machines`
+on the class path, as the agent repositories do. That tool rents a Hetzner machine, installs Porelo
 from its repository and the candidate packages with the package manager, so `Depends` is honoured.
 It then runs [`buildtools/acceptance.sh`](buildtools/acceptance.sh) as an unprivileged user and
 deletes the machine. `sweep --mine` deletes by the leg's name what a failed run left behind. Both
@@ -419,16 +419,16 @@ credentials reach the tool through its environment, never on a command line: `HE
 private key's content, not its path.
 
 `buildtools/acceptance.sh` checks what an operator would: each installed package is registered with
-the package manager, its binary sits where Sokar looks, and it works with no Java on the `PATH`. The
+the package manager, its binary sits where Porelo looks, and it works with no Java on the `PATH`. The
 filter refuses a payload and a `raw` part and passes prose. The local transport delivers byte for
 byte. The spool transport attests the owner, and says whether messaging between users is allowed on
 the machine. Whether it carries between users is measured with real users by
 [`buildtools/spool-transport.sh`](buildtools/spool-transport.sh).
 
-`./install-local.sh` after a native build copies the three binaries to `$XDG_DATA_HOME/sokar/filter/`
-and `$XDG_DATA_HOME/sokar/transports/`, where Sokar looks. No Java is needed where they run.
+`./install-local.sh` after a native build copies the three binaries to `$XDG_DATA_HOME/porelo/filter/`
+and `$XDG_DATA_HOME/porelo/transports/`, where Porelo looks. No Java is needed where they run.
 `--uninstall` removes exactly those three files. It is a shell script because copying three files
-needs no program. Where the packages are installed, they are what Sokar finds under `/usr/libexec/sokar/`.
+needs no program. Where the packages are installed, they are what Porelo finds under `/usr/libexec/porelo/`.
 
 **Fixtures** for running the filter against something known are in
 [`filter/app/src/test/resources/fixtures/`](filter/app/src/test/resources/fixtures/README.md). A test
@@ -478,7 +478,7 @@ shape is kept anchorable rather than tied to a transport, so it stays possible.
 file that says who may speak for a peer, which the transports here verify against and which
 federation does not replace. It travels in the project repository instead and reaches every host
 through the follow each machine already does for its project file - no new remote and no new
-credential. The mechanism and its reasoning are Sokar's, in **Sokar B14**, and are deliberately not
+credential. The mechanism and its reasoning are Porelo's, in **Porelo B14**, and are deliberately not
 restated here.
 
 The thing being checked is an agent that may have been manipulated. A checker that itself asked a
@@ -516,21 +516,21 @@ smuggled field lives. So the model is ours, small, and exactly the 1.0 structure
 ## A person's message is accepted, and who wrote a file is the host's check
 
 The operator's design of 2026-09-16 had the filter refuse every outgoing message that was not
-`ROLE_AGENT`. Sokar B14 then let a person write into a conversation, signed with their own key and
+`ROLE_AGENT`. Porelo B14 then let a person write into a conversation, signed with their own key and
 marked `ROLE_USER` so that the receiving side can tell a person from an agent. The filter refused
-every one of those: measured on Sokar's side on 2026-09-18, where `sokar talk say` could not send at
+every one of those: measured on Porelo's side on 2026-09-18, where `porelo talk say` could not send at
 all.
 
 **Decided by the operator on 2026-09-18:** the filter accepts `ROLE_AGENT` and `ROLE_USER` and runs
 the same content checks on both. What the old rule really protected - a task must never write a
 message that claims to be from a person - is a property of where the file came from. The filter sees
-only files and cannot know that. Sokar's intake knows it, so **the host refuses a `ROLE_USER` that a
+only files and cannot know that. Porelo's intake knows it, so **the host refuses a `ROLE_USER` that a
 container wrote into its outbox.** A marker file beside each message was the alternative, and it was
 not taken: it would be a second input the filter has to trust, written by the same host.
 
 **The exposure:** if the host's intake check is missing or broken, a task can pass as a person. The
 filter would still check every word of it; what it would not catch is the claim of authorship.
-**What would change the answer:** a transport that delivers into the filter without passing Sokar's
+**What would change the answer:** a transport that delivers into the filter without passing Porelo's
 intake. Then the role would have to be established some other way before the filter runs.
 
 ## The encoded-data thresholds are measured on agents' prose, not taken from textbook English
@@ -580,8 +580,8 @@ the pair into that transport's queue. The original design had the filter write i
 
 Resolving a peer is policy, and policy is the host's - the same reason the container never sees an
 address. A filter that knew the destinations could be asked to invent one, and one invocation could
-not accept messages for three peers on three transports. Agreed with Sokar on the channel on
-2026-09-18; the other half is in Sokar requirement B14.
+not accept messages for three peers on three transports. Agreed with Porelo on the channel on
+2026-09-18; the other half is in Porelo requirement B14.
 
 **The exposure:** `accepted/` is one more directory whose content counts as checked. Whoever can write
 there bypasses the filter, exactly as with a transport queue before. **What would change the answer:**
@@ -803,13 +803,13 @@ each. A test keeps this true, with a fixed seed.
 - **Code quoted at length** can be refused: long camel-case identifiers, shell commands with many
   symbols, fingerprints. Calibration shows how often it happens in a mailbox's own traffic.
 
-`sokar-message-sluice-filter` checks the messages an AI agent sends out and lets through only plain
+`porelo-message-sluice-filter` checks the messages an AI agent sends out and lets through only plain
 English prose. Anything that is a data transfer in disguise is refused, and the agent is told why in
 a message of the same kind it sent.
 
 **It is an egress filter.** It does not protect the agent from what somebody sends it; it stops the
 agent from sending data out, whether by accident, by misconfiguration or because a prompt injection
-told it to. Sokar also runs it, in blocking mode, over what arrives from a peer it does not vouch
+told it to. Porelo also runs it, in blocking mode, over what arrives from a peer it does not vouch
 for.
 
 **It is a content filter in the delivery path, not a mail server.** It has no queue, no timer, no
@@ -821,7 +821,7 @@ See [`decisions.md`](decisions.md).
 What it looks for in the text is [`detectors.md`](detectors.md). This page is the frame around the
 detectors: the directories, the envelope, the verdict, the answers and the command line.
 
-Sokar lays out a task's mailbox, and the filter is given its paths. **It creates no directory**, and
+Porelo lays out a task's mailbox, and the filter is given its paths. **It creates no directory**, and
 refuses to start when one is missing:
 
 `--mail <dir>` supplies all of these at their places, and each can also be given on its own.
@@ -881,7 +881,7 @@ its position, `#3`.
 
 **Roles.** The outer message may be `ROLE_AGENT`, a task's, or `ROLE_USER`, a person's
 (`check.allowedRoles`). The content checks apply to both alike. **Who wrote a file is the host's
-check**: Sokar refuses a `ROLE_USER` that a container wrote. Inside a task's `history`, any valid role
+check**: Porelo refuses a `ROLE_USER` that a container wrote. Inside a task's `history`, any valid role
 is fine.
 
 **A2A 0.3 is refused, never converted.** A `kind` field or a lower-case enum marks it. A conversion
@@ -910,7 +910,7 @@ detector decides.
 refuses, and every other message is accepted, with what blocking mode would have refused named in
 its receipt (`wouldReject: true`). A mailbox is calibrated on its own traffic
 ([`detectors.md`](detectors.md)) before it blocks. **Where the sender is not trusted, blocking is on
-from the start** - Sokar's inbound check for `external` peers.
+from the start** - Porelo's inbound check for `external` peers.
 
 **Nothing a finding matched appears in clear text** in an answer, a receipt, a log line or a file
 name. A detector returns offsets, never an excerpt; the frame cuts the excerpt and masks it.
@@ -946,7 +946,7 @@ the first one's pid. `--watch` runs a pass whenever a file arrives, and at least
 `watchIntervalMillis`.
 
 **Configuration**, later sources beating earlier: defaults, `--config` (a properties file),
-environment variables (`SOKAR_MSGSLUICE_` and the key in upper case with dots as underscores), and
+environment variables (`PORELO_MSGSLUICE_` and the key in upper case with dots as underscores), and
 `--<key> <value>`. **An unknown key aborts the start**, and the effective configuration is logged at
 startup, each key with where its value came from. The keys of the frame are the directories,
 `blocking`, `receiptOnApproval`, `stabilityDelayMillis`, `watchIntervalMillis`, `check.*`
@@ -979,15 +979,15 @@ binary needs about 20 MB of memory.
 | A secret described rather than written (*"the password is the dog's name plus 77"*) | an intent check by a model - which this filter refuses to be, so it stays a stated limit |
 | Steganography in word choice, an acrostic | out of scope |
 | One instance at a time | a claim protocol through an atomic rename into a working directory |
-| A duplicate is found only among `accepted/`, `rejected/` and `sent/`; inbound, Sokar empties those between messages | Sokar's own duplicate check, by id |
+| A duplicate is found only among `accepted/`, `rejected/` and `sent/`; inbound, Porelo empties those between messages | Porelo's own duplicate check, by id |
 | **`accepted/` and the transport queues are never re-checked**: whoever can write there bypasses the filter | write permission for the filter and the host's dispatch alone, and a reconciliation of the queues against the corpus |
 
-`sokar-message-transport-local` carries a message from one task's mailbox to another **on the same
+`porelo-message-transport-local` carries a message from one task's mailbox to another **on the same
 machine**, by writing a file. It has no network, no credential, no history and no revision log. It
 is the whole of what a developer with several tasks on one laptop needs.
 
-It implements the adapter contract of Sokar requirement **B14**. Sokar finds it at
-`$XDG_DATA_HOME/sokar/transports/` or `/usr/libexec/sokar/transports/`.
+It implements the adapter contract of Porelo requirement **B14**. Porelo finds it at
+`$XDG_DATA_HOME/porelo/transports/` or `/usr/libexec/porelo/transports/`.
 
 | Call | What it does |
 |---|---|
@@ -996,7 +996,7 @@ It implements the adapter contract of Sokar requirement **B14**. Sokar finds it 
 | `send <message> <signature> --to <inbound>` | writes the pair into the recipient's `inbound/tmp/` and renames both into `inbound/`. Prints its receipt as one JSON object. |
 | `poll`, `receipt` | not implemented, and `describe` says so: delivery is a rename, so there is nothing to fetch or confirm later. |
 
-**Exit codes of `send`, fixed by Sokar B14:** 0 handed over, 75 temporary (the host moves the pair to
+**Exit codes of `send`, fixed by Porelo B14:** 0 handed over, 75 temporary (the host moves the pair to
 `deferred/` and tries again), anything else permanent (refused back to the sender). This adapter
 answers 1 for a refusal and 2 for a call outside the contract.
 
@@ -1019,12 +1019,12 @@ would tempt somebody to stream a message through it.
   with different bytes is a permanent refusal.
 - **A missing destination is only "the destination does not exist".** Whether that means
   `NO_SUCH_PEER` or `PEER_GONE` is the host's to say, because the host holds the peer table.
-- **Only the same Unix user.** Sokar runs as a user unit, one installation per user, so two users on
+- **Only the same Unix user.** Porelo runs as a user unit, one installation per user, so two users on
   one machine are two hosts with two signing identities. A mailbox owned by another user is refused
   permanently. The refusal is enforced, not only documented.
 - **Nothing it writes is readable by another user**: files `0600`.
 
-On 2026-09-18, Sokar's host side and both programs of this repository ran against each other on one
+On 2026-09-18, Porelo's host side and both programs of this repository ran against each other on one
 laptop, with the 17 fixtures then in `filter/app/src/test/resources/fixtures/`. All 17 were signed at
 intake, and each got an answer from the filter. Four passed: the two `accept-` fixtures, and the two
 `detector-` ones, because the host runs the filter in reporting mode. Those four were dispatched,
@@ -1035,20 +1035,20 @@ handing it to the agent.
 `error/` held twelve files after that run, not four: each unprocessable fixture with its
 `.error.txt` and its signature beside it. That count is not a defect.
 
-`sokar-message-transport-spool` carries a message between the Sokar installations of **different
+`porelo-message-transport-spool` carries a message between the Porelo installations of **different
 Unix users on one machine**. Each user has one installation, one mailbox root and one signing key.
 The message goes through a drop directory per recipient: every member of the group `agents` may
 write into it, and only the recipient may read it. The [local transport](transport-local.md) is not
 changed. It stays within one user.
 
-It implements the adapter contract of Sokar requirement **B14**. Sokar finds it at
-`$XDG_DATA_HOME/sokar/transports/` or `/usr/libexec/sokar/transports/`, and its packages provide
-`sokar-transport`.
+It implements the adapter contract of Porelo requirement **B14**. Porelo finds it at
+`$XDG_DATA_HOME/porelo/transports/` or `/usr/libexec/porelo/transports/`, and its packages provide
+`porelo-transport`.
 
 **Refusing another user is the default.** The operator decided on 2026-09-18 that messaging
 between users exists only where the operator has configured and allowed it for that machine. That
-is an option of Sokar's setup script, `--between-users on`, and it creates the drops. Without it
-there is no `/var/spool/sokar/drop/`. `send` then refuses every message permanently: *"Messaging
+is an option of Porelo's setup script, `--between-users on`, and it creates the drops. Without it
+there is no `/var/spool/porelo/drop/`. `send` then refuses every message permanently: *"Messaging
 between users is not allowed on this machine."* `check` exits 2 and says the same. Installing the
 package allows nothing. `--between-users off` removes the drops again.
 
@@ -1068,7 +1068,7 @@ removed. The transport checks the name as a POSIX account name before it becomes
 own. For tests only, `--root <dir>` right after the verb moves the whole layout. The host never
 passes it. Nothing is read from standard input.
 
-Root creates these once, with Sokar's setup script, for each user on a machine where messaging
+Root creates these once, with Porelo's setup script, for each user on a machine where messaging
 between users is allowed:
 
 - **`0730`**: the group may create entries and pass through, but **not list**. A sender can drop a
@@ -1119,7 +1119,7 @@ transport that attests the owner, and reads one that is present whoever left it.
 where one was promised is a hold. The host attributes a message to this transport by listing
 `inbound/` before and after the poll. It does not use `poll`'s own report for that.
 
-**Two accounts on one machine are `external` to each other by default**, as Sokar B14 has it in its
+**Two accounts on one machine are `external` to each other by default**, as Porelo B14 has it in its
 section *"Across Unix users on one machine"*. A peer whose `trust` is not declared reads as
 `external`, so a message that arrives by spool runs through the recipient's filter with
 `--blocking`. The signature proves the account. It does not prove that the account ran a filter,
@@ -1139,7 +1139,7 @@ On 2026-09-18, all of these were measured with real Unix users, never one user u
   group, is refused. Carol's planted link is removed with its signature and nothing is read through
   it. Carol cannot read Bob's dropped message.
 - **The packages**, on rented Hetzner machines with Ubuntu and Fedora, by `buildtools/acceptance.sh`.
-- **End to end, through both halves**, by Agent Sokar on the Ubuntu VM. A message went from the
+- **End to end, through both halves**, by Agent Porelo on the Ubuntu VM. A message went from the
   account `sok-ben` to `sok-ann`: through the filter, `send` by spool, `poll`, the owner check, and
   delivered. Nothing in this transport needed changing. Both peers were declared `vouched` for
   that run, so it did not exercise the inbound check.
@@ -1148,16 +1148,16 @@ On 2026-09-18, all of these were measured with real Unix users, never one user u
 - **A socket with `SO_PEERCRED`**: it attests the sender just as well, but it needs a daemon
   listening for every user, and it breaks the rule that everything here is files.
 - **Moving into the recipient's own mailbox**: that needs write access to another user's home, which
-  is exactly the permission Sokar B14 refused to invent.
+  is exactly the permission Porelo B14 refused to invent.
 
 | Limit | What would lift it |
 |---|---|
 | Root can read every drop | nothing on one machine; the design does not promise otherwise |
-| A member of `agents` can fill another's drop | Sokar's per-peer daily budget, and a quota for the group |
+| A member of `agents` can fill another's drop | Porelo's per-peer daily budget, and a quota for the group |
 | One machine only | the Matrix transport, which is its own adapter and not this one extended |
 
 One message per file, for running the filter against something known - in this repository's tests
-and on Sokar's host side. `FixturesTest` runs every one of them in both modes, so a file here stays
+and on Porelo's host side. `FixturesTest` runs every one of them in both modes, so a file here stays
 true as the code changes.
 
 | Prefix | Reporting mode (the default) | Blocking mode (`--blocking`) |
@@ -1186,14 +1186,14 @@ identity, not sequence.
 
 **Status** means: `open` - nobody is on it. `in progress` - somebody is. `handed on` - the work
 belongs to another repository and this row tracks what has to change here afterwards. `blocked` -
-waiting on something else, and **Blocked by** names it: an issue here by its number, a Sokar
-requirement as `Sokar B<n>`.
+waiting on something else, and **Blocked by** names it: an issue here by its number, a Porelo
+requirement as `Porelo B<n>`.
 
 `filter/` decides what may pass and knows no transport. `transport-local/` and `transport-spool/`
 carry what passed and decide nothing. They do not depend on each other: what they share is the
 directory contract and the message format, both written down rather than compiled against.
 
-Nothing here is blocked by Sokar: these are programs that read and write directories. **Sokar
+Nothing here is blocked by Porelo: these are programs that read and write directories. **Porelo
 requirement B14** is the other half - the mailbox mounted into a task, who feeds this filter, which
 transport a peer uses, and what may be in a message in the first place.
 
@@ -1209,7 +1209,7 @@ built-in detectors to measure against are in [`doc/detectors.md`](../doc/detecto
 [SL07](README.md) adds more. The reasoning is in [`doc/decisions.md`](../doc/decisions.md).
 
 The envelope checks, the decision model, the answer format and the directory contract are this
-repository's own work and are what Sokar leans on. The **catalog** behind the content checks is not
+repository's own work and are what Porelo leans on. The **catalog** behind the content checks is not
 special: credential patterns age as providers invent new prefixes, de-obfuscation is a specialist's
 game, and fragment reassembly is expensive to build and to keep honest.
 
@@ -1241,7 +1241,7 @@ does not.
 - **Whether correlation is delegable.** In the scanner surveyed for the decision it is session-scoped
   and lives inside a long-running proxy. If that is the general shape, correlation stays a built-in
   and only the single-message detectors are pluggable.
-- **Whether a second language in the build is acceptable at all**, given Sokar B53. A subprocess is
+- **Whether a second language in the build is acceptable at all**, given Porelo B53. A subprocess is
   not a library, but it is still something to package, pin, patch and put in the bill of materials.
 
 # SL07 — Refuse credentials and personal data
@@ -1479,7 +1479,7 @@ must exist*, and an implementation that assumes it will go red on true history.
     line often enough that a line-wise scan is green while seeing nothing - measured in another
     repository, where such a guard passed for two minutes seeing nothing at all;
   - **emphasis sits between the repository and the number.** This repository writes
-    `Sokar requirement **B14**`, and a pattern matching `Sokar (requirement )?B\d+` does not match
+    `Porelo requirement **B14**`, and a pattern matching `Porelo (requirement )?B\d+` does not match
     it. A first count here reported 11 of 19 citations as bare; the true figure was 18 of 19 named,
     and every one of the seven differences was bold markers or a line wrap rather than a document
     that needed repair. **A classifier that reads shape must first see the shape.**
@@ -1488,15 +1488,15 @@ must exist*, and an implementation that assumes it will go red on true history.
   refused. A guard that is green because nobody has yet done the legitimate thing is not green.
 - `CHANGELOG.md` is still able to say which issues it closed.
 
-A citation of **another repository's** number - `Sokar B14` and the like - cannot be checked from
+A citation of **another repository's** number - `Porelo B14` and the like - cannot be checked from
 here, because the truth is in a repository this build may not read. That is the third row of the
 predicate saying where the gap is rather than a gap in the predicate: no test in the citing
 repository can check it, and none in the cited one either, because neither holds both ends. It is
 the coordinating agent's standing check, ruled on 2026-09-20, and is deliberately out of scope.
 
-**This repository is one where that row has instances**, which `sokar` itself does not: every
+**This repository is one where that row has instances**, which `porelo` itself does not: every
 `B`-number there is its own, so a repository-named number cannot arise in its documents. Here all
-eighteen are Sokar's. A guard written from `sokar`'s example would therefore be missing the row this
+eighteen are Porelo's. A guard written from `porelo`'s example would therefore be missing the row this
 repository needs most.
 
 # SL12 — Refuse a description that stopped being true
@@ -1564,9 +1564,9 @@ this repository keeps paying for and no build reads.**
 
 `AGENTS.md` now says a comment never carries a requirement or an issue number. Nothing enforces it.
 
-On 2026-09-27 the operator asked why `Mailbox.java` said *"A task's mail directory as Sokar B14 lays
-it out"*. **Seven citations of `Sokar B14` were in the Java**, in the filter and both transports, and
-two of `Sokar QF19` — a channel position — were in published RPM specifications.
+On 2026-09-27 the operator asked why `Mailbox.java` said *"A task's mail directory as Porelo B14 lays
+it out"*. **Seven citations of `Porelo B14` were in the Java**, in the filter and both transports, and
+two of `Porelo QF19` — a channel position — were in published RPM specifications.
 
 **How they survived a sweep the same morning:** the sweep asked whether a rule *forbade* them, found
 none here, and read the absence of a prohibition as permission. **The rule that did apply was the
@@ -1574,7 +1574,7 @@ positive one** — a comment gives the reason a reader would otherwise reconstru
 authority, not a reason.
 
 **What makes the case unarguable:** at six of the seven sites the constraint was already written
-beside the number. *"the exit codes fixed by Sokar B14: 0 handed over, 75 temporary"* states the
+beside the number. *"the exit codes fixed by Porelo B14: 0 handed over, 75 temporary"* states the
 codes. The number added a pointer whose index is in a repository this build cannot read.
 
 1. **No `[A-Z]{1,2}\d{2}` and no `Q[A-Z]\d+` in anything that ships or executes** — `.java`, `.xml`,
@@ -1609,7 +1609,7 @@ and are three issues because each could land alone.**
 **Opened:** 2026-09-27
 
 Everything here was written and tested by the author of its tests. **Tests prove what their author
-thought of**; the house skills are a second author's list. On the same day, Sokar read its newest
+thought of**; the house skills are a second author's list. On the same day, Porelo read its newest
 tool against two of them after 104 green tests and found two defects none of those tests had - a
 token sent wherever a configured property pointed, and an exception that exited with the code for
 *disagree*.
@@ -1636,5 +1636,5 @@ closed. A finding that touches either is at the top of whatever this issue produ
   told apart from one that was not done.
 - The suite is green, with the counts of tests run and skipped stated.
 
-Nothing here is blocked by Sokar. The same review is open in every Sokar repository at the
+Nothing here is blocked by Porelo. The same review is open in every Porelo repository at the
 operator's instruction; each covers its own code.
