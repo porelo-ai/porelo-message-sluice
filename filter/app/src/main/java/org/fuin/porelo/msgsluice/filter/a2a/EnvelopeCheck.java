@@ -76,9 +76,14 @@ public final class EnvelopeCheck {
     private static final Pattern ID = Pattern.compile("[A-Za-z0-9._:-]+");
 
     /**
-     * A peer is named by its principal in the project's machine-signers, which is often user@host.
+     * Porelo's own rule for a peer name, character for character, so a name it gives is never
+     * refused here: a plain name such as user@host, or a task of another project by its
+     * certificate's principal.
      */
-    private static final Pattern PEER = Pattern.compile("[A-Za-z0-9][A-Za-z0-9._@-]*");
+    private static final Pattern PEER =
+            Pattern.compile(
+                    "[a-zA-Z0-9][a-zA-Z0-9_.@-]*|task:(?=[a-z0-9:-]{3,57}\\z)[a-z0-9][a-z0-9-]{0,62}"
+                            + ":(?!(?:people|person|[0-9]+)\\z|porelo-)[a-z0-9]([a-z0-9-]*[a-z0-9])?");
 
     private static final Pattern URI = Pattern.compile("[A-Za-z][A-Za-z0-9+.-]*:\\S+");
 
@@ -508,9 +513,10 @@ public final class EnvelopeCheck {
                                     Severity.BLOCKING,
                                     path + "." + peer,
                                     -1,
-                                    "The peer name is not a plain name of at most "
+                                    "The peer name is neither a plain name of at most "
                                             + config.maxIdLength()
-                                            + " letters, digits, '.', '_', '@' or '-'."));
+                                            + " letters, digits, '.', '_', '@' or '-', nor a task "
+                                            + "of another project, task:<project>:<task>."));
                 }
             }
             freeForm(metadata, path, "metadata");

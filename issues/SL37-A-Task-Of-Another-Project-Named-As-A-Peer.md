@@ -1,6 +1,6 @@
 # SL37 — A Task Of Another Project Named As A Peer
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** S - one pattern in `EnvelopeCheck`, its tests and one line of `doc/filter.md`, but a contract Porelo reads.
 
 **What must be true.** A message whose `metadata.to` or `metadata.from` names a task of another project by its

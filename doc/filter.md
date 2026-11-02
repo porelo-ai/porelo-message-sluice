@@ -67,7 +67,7 @@ A message is **A2A 1.0** in its JSON form. A2A 0.3 is refused, never converted.
 | `filename` on a text part | `ENVELOPE/FILENAME_ON_TEXT_PART` | `SUSPICIOUS`, `BLOCKING` for a binary extension |
 | a `mediaType` other than `text/plain` | `ENVELOPE/UNEXPECTED_MEDIA_TYPE` | `SUSPICIOUS`, `BLOCKING` for octet-stream, zip or JSON |
 | an id too long or not `[A-Za-z0-9._:-]` | `ENVELOPE/ID_MALFORMED` | `BLOCKING` |
-| `metadata.to` or `.from` not a plain name (letters, digits, `.` `_` `-` `@`) | `ENVELOPE/PEER_NAME_MALFORMED` | `BLOCKING` |
+| `metadata.to` or `.from` neither a plain name (letters, digits, `.` `_` `-` `@`) nor a task of another project, `task:<project>:<task>` | `ENVELOPE/PEER_NAME_MALFORMED` | `BLOCKING` |
 | metadata too deep or too large | `ENVELOPE/METADATA_TOO_DEEP`, `…_TOO_LARGE` | `BLOCKING` |
 | too many parts, a text too long | `ENVELOPE/TOO_MANY_PARTS`, `…/TEXT_TOO_LONG` | `BLOCKING` |
 | too many `referenceTaskIds` | `ENVELOPE/TOO_MANY_REFERENCES` | `BLOCKING` |

@@ -186,6 +186,98 @@ class MessageSluiceTest {
     }
 
     @Test
+    void aPeerNamedAsATaskOfAnotherProjectIsAcceptedAsPoreloNamesIt() throws Exception {
+        final String longest = "a".repeat(28) + ":" + "b".repeat(28);
+        final List<String> names =
+                List.of(
+                        "task:billing:reviewer",
+                        "task:default:builder",
+                        "task:project-1:task-2",
+                        "task:p:x",
+                        "task:p:1a",
+                        "task:p:42-run",
+                        "task:p:people-sync",
+                        "task:" + longest,
+                        "builder",
+                        "people",
+                        "user@host.example.org");
+
+        int run = 0;
+        for (final String name : names) {
+            final Mailbox mail = new Mailbox(tmp.resolve("accepted-" + run++));
+            mail.deliver("msg-1.json", withPeers("m-1", name, "task:default:builder"));
+            mail.deliver("msg-2.json", withPeers("m-2", "task:default:builder", name));
+
+            mail.sluice("blocking", "true").runOnce();
+
+            assertThat(mail.files(mail.accepted()))
+                    .as("a peer %s is a name Porelo gives, in to and in from", name)
+                    .hasSize(2);
+            assertThat(mail.files(mail.rejected())).as("nothing refused for %s", name).isEmpty();
+        }
+    }
+
+    @Test
+    void aColonOutsideTheTaskFormOfAPeerNameIsRefused() throws Exception {
+        final List<String> names =
+                List.of(
+                        "a:b",
+                        "task:",
+                        "task:x",
+                        "task::x",
+                        "task:-p:x",
+                        "task:Billing:x",
+                        "task:p_1:x",
+                        "task:p:X",
+                        "task:p:x.1",
+                        "task:p:x@y",
+                        "task:p:",
+                        "task:p:x:y",
+                        "task:p:-x",
+                        "task:p:x-",
+                        "task:p:people",
+                        "task:p:person",
+                        "task:p:42",
+                        "task:p:porelo-x",
+                        "task:p:../x",
+                        "task:p:x\n",
+                        "Task:p:x",
+                        "task:" + "a".repeat(28) + ":" + "b".repeat(29));
+
+        int run = 0;
+        for (final String name : names) {
+            final Mailbox mail = new Mailbox(tmp.resolve("refused-" + run++));
+            mail.deliver("msg-1.json", withPeers("m-1", name, "builder"));
+            mail.deliver("msg-2.json", withPeers("m-2", "builder", name));
+
+            mail.sluice("blocking", "true").runOnce();
+
+            assertThat(mail.files(mail.accepted()))
+                    .as("no task can be named %s, in to or in from", name)
+                    .isEmpty();
+            assertThat(mail.files(mail.rejected()))
+                    .as("the original of %s is kept among the refused", name)
+                    .hasSize(2);
+            assertThat(mail.files(mail.feedback()))
+                    .as("each refusal of %s is answered", name)
+                    .hasSize(2);
+            for (final Path answer : mail.files(mail.feedback())) {
+                assertThat(ruleIds(readAnswer(answer)))
+                        .as("%s is refused for its name", name)
+                        .contains("ENVELOPE/PEER_NAME_MALFORMED");
+            }
+        }
+    }
+
+    private static String withPeers(final String id, final String to, final String from) {
+        return """
+                {"messageId":%s,"role":"ROLE_AGENT",
+                 "parts":[{"text":"Hello."}],
+                 "metadata":{"to":%s,"from":%s}}"""
+                .formatted(Mailbox.quote(id), Mailbox.quote(to), Mailbox.quote(from));
+    }
+
+    @Test
     void aRejectionNeverCarriesWhatItRefused() throws Exception {
         final Mailbox mail = new Mailbox(tmp);
         mail.deliver(

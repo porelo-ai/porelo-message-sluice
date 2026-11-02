@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- A peer may be named as a task of another project, `task:<project>:<task>`, as Porelo names one; a `:`
+  anywhere else in a peer name is still refused as `ENVELOPE/PEER_NAME_MALFORMED`.
 - The build takes `porelo-parent` 0.2.2-SNAPSHOT and `porelo-buildtools` 0.5.2-SNAPSHOT. `validate` checks
   the shared code style - `google-java-format` in its AOSP style for Java, `shfmt` for the scripts - and the
   code is formatted to it. The workflows check out without keeping the job's token.
