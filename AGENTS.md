@@ -2,7 +2,7 @@
 
 ## Shared across the Porelo repositories
 
-> **BEGIN Shared Area** · sha256 `bb8fd36857a3b8c4` · changed 2026-10-30T07:31Z
+> **BEGIN Shared Area** · sha256 `b141286c14aeb6a0` · changed 2026-11-01T08:21Z
 
 Identical in every repository `project.yml` names but `porelo-parent`, which holds only the parent pom
 and no `AGENTS.md`. The markers carry the SHA-256 of the lines between them (the first 16 hex digits)
@@ -201,6 +201,8 @@ and the UTC time that text last changed; change it in the channel first, never i
 - **After a failed run, rerun the failed step and the tests of the area the fix changes; the unit
   suite still runs whole.** The handover names the final commit, what was rerun and why that covers
   the fix, and keeps checks passed earlier apart from those rerun on it.
+- **A small change is tried on a local VM only as far as the change needs, not by a full run of
+  the whole flow.** The complete run is the workflow's on GitHub afterwards.
 - **A workflow step replayed locally runs on a clean build (`clean`, or a fresh clone), as the
   runner's checkout does.** What an earlier build left in `target/` is read too and fails, or passes,
   what the runner would not.
@@ -261,6 +263,9 @@ and the UTC time that text last changed; change it in the channel first, never i
 - **Every command or step in an operator test guide has an observed result or is labeled “not run”
   in the guide itself.** Rehearse executable steps in the required installed environment or a clean
   checkout, checking options and creating the state the test needs.
+- **An interface step of an operator test guide has run once against a real host before the guide is
+  ready**; a run against fakes alone leaves it "not run". A step that needs a state no earlier step
+  makes (a host prepared by the interface, a followed project) names the step that makes it.
 - **An operator test guide gives each action as its own numbered step**, one action per step, its
   command in its own block and the expected result right under it; explanations stand before or
   after the steps, never between them.
@@ -280,6 +285,9 @@ and the UTC time that text last changed; change it in the channel first, never i
 - **Before a walk starts, have the responsible repositories prepare the operator’s test environment
   with the newest intended snapshots and verify installed versions and adapter commits.** Keep an
   ongoing walk stable.
+- **A bug fix made during a running walk gets only its short unit tests, not the full suite, so the
+  walk is held up as little as possible.** The walk’s live rerun is the fix’s test; the reading by
+  another model follows after the walk.
 - **Budget each lease using its provider’s billing units at the current price.** Include every new
   lease required for a rerun.
 - **An assigned isolated test environment’s test-only vault may be unlocked, reset, or recreated
@@ -376,10 +384,11 @@ and the UTC time that text last changed; change it in the channel first, never i
 ### Code and builds
 
 - **A change is ready only after a read-only reviewer, another model than the one that built it, has
-  read its final changes against the repository's skills, and every finding has been checked.** A
-  later fix gets a reading of its added diff, and that reading reads only the fix: the changed files and
-  those the diff names directly (a callee, the changed code's test), listed by path in the brief, with
-  only the skills that apply; whatever else it needs it asks as a question instead of reading it.
+  read its final changes against the repository's skills, and every finding has been checked.** An
+  issue gets this reading once, and the result of a reading is never read again: its findings are fixed,
+  each with a test seen to fail first, and the issue is handed over. A grave finding the fix does not
+  settle becomes an issue of its own, without a reading of its own; smaller ones gather in one issue of
+  the repository.
 - **Fail closed and loud**: when a dependency is unreachable, a key is unknown or a check cannot run,
   stop with a non-zero exit code and say why; inside a program, an exception that says why does the
   same. Never silently do less.
@@ -463,7 +472,7 @@ and the UTC time that text last changed; change it in the channel first, never i
   with `+`: estimates summed, the earliest start and the stack's readiness, VM time and tokens counted
   once.
 
-> **END Shared Area** · sha256 `bb8fd36857a3b8c4`
+> **END Shared Area** · sha256 `b141286c14aeb6a0`
 
 ## Work in this repository
 
