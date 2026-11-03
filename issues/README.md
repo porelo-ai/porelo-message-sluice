@@ -37,6 +37,7 @@ channel.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
+| <a id="sl39"></a>[SL39](SL39-An-Organization-Proved-Against-Real-GitHub.md) | — | — | A short test by a person, against real GitHub: `trust-host`, `org create`, `setup` and `project open` at a `git@github.com:` address, with the read back; waits until after the next release |
 | <a id="sl34"></a>[SL34](SL34-A-Dependabot-Pull-Request-Gets-The-Variables.md) | — | — | A Dependabot pull request's *Workflow check* receives the repository variables, so Maven reads snapshots from a named URL. |
 
 ## Estimated
