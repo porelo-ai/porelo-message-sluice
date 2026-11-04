@@ -22,9 +22,9 @@ import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Maven on a forge's runner holds only a token that reads the registry, since a test on an
- * unreviewed branch can read whatever the step holds; and a forge that names no snapshot repository
- * stops the job rather than resolving snapshots from Sonatype. Tagged, since a change to the
- * workflows alone starts no Build.
+ * unreviewed branch can read whatever the step holds; and a forge that names no snapshot
+ * repository, or no token to read it with, stops the job rather than resolving snapshots from
+ * Sonatype alone. Tagged, since a change to the workflows alone starts no Build.
  */
 @Tag("documents")
 class WorkflowTokensTest {
@@ -39,13 +39,15 @@ class WorkflowTokensTest {
     // A value given to the variable, as a key of an environment or as a shell assignment.
     private static final Pattern SNAPSHOTS_SET =
             Pattern.compile("MAVEN_SNAPSHOTS_URL[\"']?\\s*[:=]");
-    private static final String GUARD_STEP = "The forge names its snapshot repository";
+    private static final String READ_TOKEN = "PORELO_PACKAGES_READ_TOKEN";
+    private static final String GUARD_STEP = "A forge names its registry and its token";
     private static final String SNAPSHOTS_BINDING =
             "    MAVEN_SNAPSHOTS_URL: ${{ vars.MAVEN_SNAPSHOTS_URL }}";
     private static final String GITHUB = "https://github.com";
     // Any forge but GitHub, as the host's forge names itself to its runner.
     private static final String FORGE = "https://forge.example:3000";
     private static final String FORGE_REGISTRY = "https://forge.example:3000/api/packages/o/maven";
+    private static final String A_TOKEN = "stand-in";
 
     @TempDir Path directory;
 
@@ -98,7 +100,7 @@ class WorkflowTokensTest {
     @Test
     void aForgeWithoutASnapshotRepositoryStopsTheJob() throws IOException, InterruptedException {
         for (final Map.Entry<String, Step> guard : guards().entrySet()) {
-            final Run run = execute(guard.getValue(), FORGE, "");
+            final Run run = execute(guard.getValue(), FORGE, "", A_TOKEN);
             assertThat(run.exit())
                     .as("%s: a forge without a repository: %s", guard.getKey(), run.log())
                     .isNotZero();
@@ -109,13 +111,50 @@ class WorkflowTokensTest {
         }
     }
 
+    // Prevents a forge's answer of 401, only a warning to Maven, from building without what the
+    // host built.
+    @Test
+    void aForgeWithoutAReadTokenStopsTheJob() throws IOException, InterruptedException {
+        for (final Map.Entry<String, Step> guard : guards().entrySet()) {
+            final Run run = execute(guard.getValue(), FORGE, FORGE_REGISTRY, "");
+            assertThat(run.exit())
+                    .as("%s: a forge without a token: %s", guard.getKey(), run.log())
+                    .isNotZero();
+            assertThat(run.log())
+                    .as("%s: the refusal is a workflow error naming the secret", guard.getKey())
+                    .contains("::error::")
+                    .contains("secrets." + READ_TOKEN);
+        }
+    }
+
+    // Prevents a Maven step without the token from building past the forge's 401, which Maven only
+    // warns about, without what the host built.
+    @Test
+    void everyMavenStepHoldsTheReadToken() throws IOException {
+        final List<String> without = new ArrayList<>();
+        int read = 0;
+        for (final Map.Entry<String, Path> workflow : mavenWorkflows().entrySet()) {
+            for (final Step step : steps(workflow.getValue())) {
+                if (mavenLines(step.run().lines()) > 0) {
+                    read++;
+                    if (!("${{ secrets." + READ_TOKEN + " }}").equals(step.env().get(READ_TOKEN))) {
+                        without.add(workflow.getKey() + ": " + step.name());
+                    }
+                }
+            }
+        }
+
+        assertThat(read).as("the Maven steps read").isPositive();
+        assertThat(without).as("Maven steps without %s", READ_TOKEN).isEmpty();
+    }
+
     // Prevents the guard from stopping the builds that do name where their snapshots come from.
     @Test
     void githubAndAForgeThatNamesItsRepositoryPass() throws IOException, InterruptedException {
         for (final Map.Entry<String, Step> guard : guards().entrySet()) {
-            final Run github = execute(guard.getValue(), GITHUB, "");
+            final Run github = execute(guard.getValue(), GITHUB, "", "");
             assertThat(github.exit()).as("%s: GitHub: %s", guard.getKey(), github.log()).isZero();
-            final Run forge = execute(guard.getValue(), FORGE, FORGE_REGISTRY);
+            final Run forge = execute(guard.getValue(), FORGE, FORGE_REGISTRY, A_TOKEN);
             assertThat(forge.exit())
                     .as("%s: a forge naming its own registry: %s", guard.getKey(), forge.log())
                     .isZero();
@@ -131,8 +170,10 @@ class WorkflowTokensTest {
                     .as("%s: the guard has no condition and no way to fail softly", guard.getKey())
                     .containsExactlyInAnyOrder("name", "run");
             assertThat(guard.getValue().env())
-                    .as("%s: the server is the one the workflow runs on", guard.getKey())
-                    .containsExactly(Map.entry("SERVER_URL", "${{ github.server_url }}"));
+                    .as("%s: the server the workflow runs on, the token it holds", guard.getKey())
+                    .containsOnly(
+                            Map.entry("SERVER_URL", "${{ github.server_url }}"),
+                            Map.entry(READ_TOKEN, "${{ secrets." + READ_TOKEN + " }}"));
             assertThat(guard.getValue().run())
                     .as("%s: the script reads its environment alone", guard.getKey())
                     .doesNotContain("${{");
@@ -141,8 +182,9 @@ class WorkflowTokensTest {
 
     private record Run(int exit, String log) {}
 
-    /** Runs a guard's own script with only the server and the snapshot repository set. */
-    private Run execute(final Step guard, final String server, final String snapshots)
+    /** Runs a guard's own script with only the server, the repository and the token set. */
+    private Run execute(
+            final Step guard, final String server, final String snapshots, final String token)
             throws IOException, InterruptedException {
         final Path output = directory.resolve("output");
         final ProcessBuilder command =
@@ -162,6 +204,7 @@ class WorkflowTokensTest {
         command.environment().put("PATH", "/usr/bin:/bin");
         command.environment().put("SERVER_URL", server);
         command.environment().put("MAVEN_SNAPSHOTS_URL", snapshots);
+        command.environment().put(READ_TOKEN, token);
         final Process process = command.start();
         try {
             assertThat(process.waitFor(10, TimeUnit.SECONDS))

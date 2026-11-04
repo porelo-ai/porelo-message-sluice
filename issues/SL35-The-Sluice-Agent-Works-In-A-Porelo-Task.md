@@ -1,10 +1,9 @@
 # SL35 — The Sluice's Agent Works In A Porelo Task
 
-**Status:** Backlog: every remaining step needs a host whose forge's Build reads snapshots from the central source as
-well as from its own registry, so an empty registry builds at once.
-**Size:** S - nothing to build in this repository's code but `settings.xml`'s snapshot sources; the work is the trial
-move's steps, one document corrected in the task and this issue worked to Review from inside it, about 3 hours: 1½ of
-the agent's work, the rest the forge's Build, the reading from outside and the way back.
+**Status:** Backlog: every remaining step needs the host.
+**Size:** S - nothing to build in this repository's code; the work is the trial move's steps, one document corrected in
+the task and this issue worked to Review from inside it, about 3 hours: 1½ of the agent's work, the rest the forge's
+Build, the reading from outside and the way back.
 
 **What must be true.** porelo-message-sluice's own agent works in a Porelo task of the project `porelo` on the
 move's host, the first to move, as the project's procedure for an agent's move lays out. The task
@@ -25,17 +24,19 @@ local registry settings, and the project's procedure for an agent's move.
   package tools, the pins the Build takes. [SL29](README.md#sl29) ran the whole local check, native images and both
   packages, in a task built from it.
 - **Snapshots come from the central source; the host's registry holds only what was built there and has not yet gone
-  through the central forge.** The task sets no `MAVEN_SNAPSHOTS_URL`, so `settings.xml`'s `standard` profile reads them
+  through the central forge.** The task sets no `MAVEN_SNAPSHOTS_URL`, so `settings.xml`'s `central` profile alone reads them
   from Sonatype there, which this trial is content with: it changes no snapshot another repository builds against.
-- **`settings.xml` changes for that:** its `forge` profile, which the forge's Build activates, reads the forge's
-  registry under `porelo-forge` alone, so with an empty registry the parent pom does not resolve. It takes the
-  central source beside the registry before the start, with the filter that keeps a private group's names from being
-  asked of that source, as the release tools' repository defines them.
+- **`settings.xml` reads both on a forge**, the central source and the registry under `porelo-forge-snapshots`, the
+  newest winning, with `.mvn/rrf/` keeping every group but `org.fuin.porelo` from the central source. Measured with
+  this repository's build and an empty local repository: a registry answering 404 to everything builds green from the
+  central source; a private group's name is asked of the registry and not of a stand-in for the central source, and
+  with no filter file it is asked of both. On a real forge it is not yet measured. `check-snapshot-filter` holds the
+  shape.
 - **Forgejo's build needs nothing new in the workflows:** the host's `up` sets `PORELO_PUBLISH=false` and
   `MAVEN_SNAPSHOTS_URL` to the forge's registry, and the runner offers both labels the workflows name (`ubuntu-24.04`,
-  `ubuntu-26.04`), as [SL33](README.md#sl33) measured on a host's local Forgejo, recorded in `96509d5`. The token that
-  only reads the registry, which the workflows take as `PORELO_PACKAGES_READ_TOKEN`, the host's `up` does not set yet:
-  it sets only the publisher's, so a Build there has no token to read with until it does.
+  `ubuntu-26.04`), as [SL33](README.md#sl33) measured on a host's local Forgejo, recorded in `96509d5`. The host's
+  project setup gives each project the token that only reads the registry, which the workflows take as
+  `PORELO_PACKAGES_READ_TOKEN`, and a Build without it stops at once.
 - **What the task's context gives the agent in place of `.AGENTS.md`**, which is not committed: its name
   `Agent Sluice`, its attribution `Assisted-by: Claude Code, <model>` and no other trailer (check-commits refuses a
   `Co-Authored-By:`), that its upstream is the host's forge and the central forge only through the gathered push,

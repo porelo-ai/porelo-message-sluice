@@ -488,7 +488,7 @@ and the UTC time that text last changed; change it in the channel first, never i
 - **The documents are checked on the host before every hand-over**, on its exact commit, and by the
   `shared-rules` workflow once a day and on a pull request, while the build skips a change to
   documents alone: `check-shared`, `check-citations`, `check-doc-site`,
-  `check-readmes` and the tests tagged `documents`. `citations-exempt.txt` names the measured
+  `check-readmes`, `check-snapshot-filter` and the tests tagged `documents`. `citations-exempt.txt` names the measured
   corpus, whose lines hold the shape of issue numbers on purpose.
 
 ## Tests

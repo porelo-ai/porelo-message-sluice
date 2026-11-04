@@ -6,7 +6,7 @@ filter, and the token's name is the only thing read from outside.
 
 **What must be true.** No step of this repository's workflows holds a token that can write to a forge's package
 registry: snapshots are resolved with a token that can only read, and a Build on a forge other than github.com that
-names no snapshot repository stops at once instead of falling back to Sonatype's.
+names no snapshot repository, or holds no token to read it with, stops at once instead of reading Sonatype's alone.
 
 ## Why
 
@@ -21,17 +21,17 @@ Read in today's `build.yml`, `shared-rules.yml`, `workflows.yml`, `settings.xml`
 
 - **The contract read from outside:** the host's forge is to hand every build the secret `PORELO_PACKAGES_READ_TOKEN`, a
   token whose one scope is reading the organization's packages, and the variable `MAVEN_SNAPSHOTS_URL` names its
-  registry. Today it sets the variable but not that secret, so a Build there has no token to read with, and the
-  acceptance on the host's forge waits for it. On GitHub the same secret holds a placeholder, since Sonatype needs none. Maven sends it with the user
+  registry. On GitHub the same secret holds a placeholder, since Sonatype needs none. Maven sends it with the user
   name `settings.xml` names today.
-- **`settings.xml`:** the server `porelo-forge` takes its password from `PORELO_PACKAGES_READ_TOKEN` in place of
-  `PORELO_PUBLISHER_TOKEN`; its comment says it only reads.
+- **`settings.xml`:** the server `porelo-forge-snapshots` takes its password from `PORELO_PACKAGES_READ_TOKEN`; its
+  comment says it only reads.
 - **The workflows:** every step that runs Maven (`build.yml`'s GraalVM classpath, effective pom and `verify`,
   `shared-rules.yml`'s classpath and documents tests, `workflows.yml`'s classpath) gets `PORELO_PACKAGES_READ_TOKEN`, and
   `PORELO_PUBLISHER_TOKEN` is named in none of them.
-- **A missing snapshot repository fails:** the step after the checkout of each job that runs Maven stops with an
-  error naming `vars.MAVEN_SNAPSHOTS_URL` when it is empty and `github.server_url` is not `https://github.com`; on
-  GitHub the guard lets an empty value pass, as today.
+- **A missing snapshot repository or token fails:** the step after the checkout of each job that runs Maven stops with
+  an error naming `vars.MAVEN_SNAPSHOTS_URL` or `secrets.PORELO_PACKAGES_READ_TOKEN` when it is empty and
+  `github.server_url` is not `https://github.com`, since a forge answering 401 is only a warning to Maven; on GitHub
+  the guard lets both pass empty.
 - **`doc/decisions.md`**, *The workflows run unchanged…*: the token that reads, and why the publisher's is never here.
 - **Red first:** `WorkflowTokensTest`, tagged `documents`, reads the four workflows and `settings.xml` as lines and
   fails when any of them names `PORELO_PUBLISHER_TOKEN`, naming the file and line; it was red on the workflows before. A
@@ -52,8 +52,8 @@ Read in today's `build.yml`, `shared-rules.yml`, `workflows.yml`, `settings.xml`
 - No workflow names `PORELO_PUBLISHER_TOKEN`, and the test says so; it was seen to fail on the workflows before.
 - On GitHub the Build, the *Shared rules check* and the *Workflow check* run green with the placeholder secret and
   today's `MAVEN_SNAPSHOTS_URL`.
-- On the host's forge the Build resolves its snapshots from the forge's registry with the read-only token, and with
-  `MAVEN_SNAPSHOTS_URL` removed it fails in the step after its checkout, naming the variable.
+- On the host's forge the Build reads the forge's registry with the read-only token, and with `MAVEN_SNAPSHOTS_URL` or
+  the token removed it fails in the step after its checkout, naming what is missing.
 
 ## To be checked
 

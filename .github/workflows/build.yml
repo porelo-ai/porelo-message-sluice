@@ -46,15 +46,15 @@ jobs:
                   persist-credentials: false
                   fetch-depth: 0
 
-            # A forge that names no snapshot repository would resolve Sonatype's snapshots in place of its own.
-            - name: The forge names its snapshot repository
+            # A forge with no registry or no token for it would quietly read Sonatype's snapshots alone.
+            - name: A forge names its registry and its token
               env:
                   SERVER_URL: ${{ github.server_url }}
+                  PORELO_PACKAGES_READ_TOKEN: ${{ secrets.PORELO_PACKAGES_READ_TOKEN }}
               run: |
-                  if [ -z "$MAVEN_SNAPSHOTS_URL" ] && [ "$SERVER_URL" != 'https://github.com' ]; then
-                      echo "::error::vars.MAVEN_SNAPSHOTS_URL is empty on $SERVER_URL; only github.com may leave it empty"
-                      exit 1
-                  fi
+                  [ "$SERVER_URL" != 'https://github.com' ] || exit 0
+                  [ -n "$MAVEN_SNAPSHOTS_URL" ] || { echo "::error::vars.MAVEN_SNAPSHOTS_URL is empty on $SERVER_URL"; exit 1; }
+                  [ -n "$PORELO_PACKAGES_READ_TOKEN" ] || { echo "::error::secrets.PORELO_PACKAGES_READ_TOKEN is empty on $SERVER_URL"; exit 1; }
 
             - name: Cache the Maven repository
               uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
