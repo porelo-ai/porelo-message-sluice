@@ -19,7 +19,7 @@ channel.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="sl35"></a>[SL35](SL35-The-Sluice-Agent-Works-In-A-Porelo-Task.md) | S | — | The sluice's agent works in a Porelo task, the first to move: the dry run on this laptop done, then a trial on the host with its forge and the way back; its image from `porelo.yml` unchanged, the room under `Agent Sluice`, the reading from outside, a fix amended. Every remaining step needs the host. Back in the backlog until a task on its host fetches the snapshots it builds against from the host's forge. |
+| <a id="sl35"></a>[SL35](SL35-The-Sluice-Agent-Works-In-A-Porelo-Task.md) | S | — | The sluice's agent works in a Porelo task, the first to move: the dry run on this laptop done, then a trial on the host with its forge and the way back; its image from `porelo.yml` unchanged, the room under `Agent Sluice`, the reading from outside, a fix amended. Every remaining step needs the host. Back in the backlog until the forge's Build on the host reads snapshots from the central source as well as from its registry. |
 
 ## Analyzed
 

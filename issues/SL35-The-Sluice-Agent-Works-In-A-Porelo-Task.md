@@ -1,10 +1,10 @@
 # SL35 — The Sluice's Agent Works In A Porelo Task
 
-**Status:** Backlog: every remaining step needs a task on its host that fetches the snapshots it builds against
-from the host's forge, which none can yet, and a forge whose Build publishes them there.
-**Size:** S - nothing to build in this repository's code; the work is the trial move's steps, one document corrected in
-the task and this issue worked to Review from inside it, about 3 hours: 1½ of the agent's work, the rest the forge's
-Build, the reading from outside and the way back.
+**Status:** Backlog: every remaining step needs a host whose forge's Build reads snapshots from the central source as
+well as from its own registry, so an empty registry builds at once.
+**Size:** S - nothing to build in this repository's code but `settings.xml`'s snapshot sources; the work is the trial
+move's steps, one document corrected in the task and this issue worked to Review from inside it, about 3 hours: 1½ of
+the agent's work, the rest the forge's Build, the reading from outside and the way back.
 
 **What must be true.** porelo-message-sluice's own agent works in a Porelo task of the project `porelo` on the
 move's host, the first to move, as the project's procedure for an agent's move lays out. The task
@@ -24,9 +24,13 @@ local registry settings, and the project's procedure for an agent's move.
 - **The image needs nothing new:** `porelo.yml` names Ubuntu 24.04 by digest, the pinned GraalVM, shfmt and the
   package tools, the pins the Build takes. [SL29](README.md#sl29) ran the whole local check, native images and both
   packages, in a task built from it.
-- **Snapshots:** the task sets no `MAVEN_SNAPSHOTS_URL` today, so `settings.xml`'s `standard` profile reads them from
-  Sonatype there, which the wait in the status is to change; the forge's Build sets it and reads them from the forge's
-  registry under `porelo-forge`.
+- **Snapshots come from the central source; the host's registry holds only what was built there and has not yet gone
+  through the central forge.** The task sets no `MAVEN_SNAPSHOTS_URL`, so `settings.xml`'s `standard` profile reads them
+  from Sonatype there, which this trial is content with: it changes no snapshot another repository builds against.
+- **`settings.xml` changes for that:** its `forge` profile, which the forge's Build activates, reads the forge's
+  registry under `porelo-forge` alone, so with an empty registry the parent pom does not resolve. It takes the
+  central source beside the registry before the start, with the filter that keeps a private group's names from being
+  asked of that source, as the release tools' repository defines them.
 - **Forgejo's build needs nothing new in the workflows:** the host's `up` sets `PORELO_PUBLISH=false` and
   `MAVEN_SNAPSHOTS_URL` to the forge's registry, and the runner offers both labels the workflows name (`ubuntu-24.04`,
   `ubuntu-26.04`), as [SL33](README.md#sl33) measured on a host's local Forgejo, recorded in `96509d5`. The token that
@@ -46,9 +50,9 @@ local registry settings, and the project's procedure for an agent's move.
   token it read at its start; a `429` after that is the account's limit.
 - **The steps, in the move procedure's order:**
   1. *Before:* the dry run on this laptop passed (done: the task, the room, the wake, the gate's push to GitHub and
-     the `github` reader). The forge's registry holds the snapshots the forge's Build resolves - the parent pom
-     `org.fuin.porelo:porelo-parent` and the release tools (`porelo-release`, `porelo-machines`) - no older than
-     Sonatype's on the day. The project's registration on the host brings this repository onto its forge, with `main`
+     the `github` reader). The forge's Build resolves the parent pom `org.fuin.porelo:porelo-parent` and the release
+     tools (`porelo-release`, `porelo-machines`) from the central source, so neither is built on the forge unless it is
+     changed there. The project's registration on the host brings this repository onto its forge, with `main`
      protected and the gate's identity made.
   2. *The switch:* the coordinator's `project.yml` commit gives the repository, nickname `sluice`, the host's forge as
      upstream.
@@ -82,8 +86,8 @@ local registry settings, and the project's procedure for an agent's move.
 
 ## To be checked
 
-- On the host, before the start: the forge's registry holds the snapshots named in step 1, and the forge holds this
-  repository with `main` protected.
+- On the host, before the start: the forge holds this repository with `main` protected, and its Build resolves what
+  step 1 names with the registry empty.
 - That the task's egress reaches what the build and the agent fetch: Maven Central, Sonatype's snapshots, GitHub's
   release downloads (GraalVM, shfmt), and `fuinorg.jfrog.io` for the skills, which [SL29](README.md#sl29) did not
   fetch.
