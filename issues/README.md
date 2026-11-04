@@ -38,14 +38,14 @@ channel.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="sl39"></a>[SL39](SL39-An-Organization-Proved-Against-Real-GitHub.md) | — | — | A short test by a person, against real GitHub: `trust-host`, `org create`, `setup` and `project open` at a `git@github.com:` address, with the read back; waits until after the next release |
-| <a id="sl34"></a>[SL34](SL34-A-Dependabot-Pull-Request-Gets-The-Variables.md) | — | — | A Dependabot pull request's *Workflow check* receives the repository variables, so Maven reads snapshots from a named URL. |
+| <a id="sl34"></a>[SL34](SL34-A-Dependabot-Pull-Request-Gets-The-Variables.md) | — | — | A Dependabot pull request's *Workflow check* receives the repository variables, so Maven reads snapshots from a named URL. Measured harmless without it; proposed to close. |
 
 ## Estimated
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="sl04"></a>[SL04](SL04-An-External-Detector-Measured.md) | L | — | Somebody else's detector catalog behind the interface, measured before anything is adopted. |
-| <a id="sl23"></a>[SL23](SL23-The-Narrowed-Message-Schema-The-Filters-Side.md) | M | — | Porelo's narrowed message schema enforced in the envelope: four `metadata` keys, five kinds with their fixed data parts, one text part, one extension URI. |
+| <a id="sl23"></a>[SL23](SL23-The-Narrowed-Message-Schema-The-Filters-Side.md) | M | — | Porelo's narrowed message schema enforced in the envelope: four `metadata` keys, six kinds with their fixed data parts, one text part, one extension URI. |
 | <a id="sl08"></a>[SL08](SL08-Refuse-A-Payload-Spread-Over-Several-Messages.md) | XL | — | A payload cut into pieces and sent over several messages, caught by correlating against what the task already sent. |
 
 ## Finished

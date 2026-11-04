@@ -17,7 +17,8 @@ correlation across messages. How it would be built is
 
 ## The shape
 
-- Messages are correlated over `contextId`, `taskId` and `metadata.thread` against **what this task
+- Messages are grouped as the design says: by `contextId`, then `taskId`, then `referenceTaskIds`, by a time window
+  when none is present; `metadata.thread` is no key of it. They are correlated against **what this task
   has already sent**, and caught at the latest when the accumulated size crosses the threshold.
 - The corpus lives with the task's mailbox and dies with it. **The accepted gap:** a sender that
   spreads its pieces over two tasks it started itself is seen by neither.
@@ -35,7 +36,7 @@ correlation across messages. How it would be built is
 - **Split into three, each its own issue when started:**
   1. **L - the corpus and the accumulated payload:** the fragment index (`filter/.index/`, metadata
      only) written forward and rebuilt by `--rebuild-index` (`cli/Main`), the grouping by `contextId`,
-     `taskId` and `metadata.thread`, the history cap, `AccumulatedPayloadRule` and `ReconstructionRule`.
+     `taskId`, `referenceTaskIds` and the time window, the history cap, `AccumulatedPayloadRule` and `ReconstructionRule`.
   2. **M - pieces that only add up as a secret:** `SplitSecretRule`, `SequenceMarkerRule`,
      `ConsistentAlphabetRule`, on the index of the first.
   3. **M - a script rather than a dialogue:** `NearDuplicateRule` and `BurstRateRule`, `SUSPICIOUS` only.
@@ -50,7 +51,7 @@ correlation across messages. How it would be built is
 
 - A ZIP or a PEM file, base64-encoded and spread over 2, 5, 20 and 100 messages of one task, is
   refused at the latest when the threshold is crossed.
-- **200 real English messages** in one thread produce no correlation finding at all.
+- **200 real English messages** in one context produce no correlation finding at all.
 - Scenario directories with a pre-filled corpus - with and without sequence markers, with noise
   messages in between, and with messages that have no `contextId` - each have a stated outcome, and
   each test is seen to fail with the detector switched off.

@@ -12,7 +12,8 @@ the filter refuses anything else by a rule that names what is wrong.
 Today the filter takes any A2A 1.0 message and refuses only what carries data instead of prose
 ([`doc/filter.md`](../doc/filter.md#the-envelope)). Porelo's narrowed message schema narrows that:
 `metadata` holds `kind`, `to`, `from` and `thread` and nothing else; `kind` is one of `question`,
-`answer`, `review-request`, `handover` or `status`, each with its fixed data part; exactly one text
+`answer`, `review-request`, `handover`, `status` or `comment`, each with its fixed data part, `comment`'s being
+the SARIF document of [SL24](README.md#sl24); exactly one text
 part; `extensions` exactly a Porelo messaging extension URI. The filter is where the envelope is
 checked ([`doc/decisions.md`](../doc/decisions.md), *Content detectors sit behind an interface, and
 the envelope stays ours*), so the shape is the filter's to enforce, and whom `to` may name stays the
@@ -23,7 +24,7 @@ host's.
 - **A data part is refused today** (`ENVELOPE/DATA_PART_NOT_ALLOWED`, always blocking). A kind's
   fixed data part is let through by its exact shape - its fields, their types, their lengths - and
   nothing else, and every string in it still goes to the detectors, as `metadata` does now.
-- **`metadata` outside the four keys, a `kind` outside the five, more than one text part, an
+- **`metadata` outside the four keys, a `kind` outside the six, more than one text part, an
   `extensions` other than the one URI** - each is refused by a rule of its own, named in the answer.
 - **The schema is written down, not compiled against**: one document, kept in `porelo`, which Porelo and
   the filter each read, and a test on each side holds them to it.
@@ -40,7 +41,7 @@ host's.
 
 ## Plan
 
-- **`a2a/EnvelopeCheck`:** a rule each for a `metadata` key outside the four, a `kind` outside the five,
+- **`a2a/EnvelopeCheck`:** a rule each for a `metadata` key outside the four, a `kind` outside the six,
   a second text part and a foreign extension URI, added to its list of rule ids. Where it refuses a
   `data` part today (`ENVELOPE/DATA_PART_NOT_ALLOWED`), a kind's fixed data part is let through when it
   matches its shape, and its strings are added to the texts the detectors read, as `metadata`'s are.
@@ -66,5 +67,5 @@ host's.
 
 - How the filter's build reads the schema document that lives in `porelo` - a copy pinned here and
   held to `porelo`'s by a test, or read from a published artifact - once Porelo publishes it.
-- Whether Porelo's schema document takes `metadata.via`, a fifth key its mailbox guide asks for today, and `comment`,
-  a sixth kind a review comment uses on today's envelope; the document decides, and the keys and kinds here follow it.
+- Whether Porelo's schema document takes `metadata.via`, a fifth key its mailbox guide asks for today; the document
+  decides, and the keys here follow it.
