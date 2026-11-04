@@ -24,12 +24,14 @@ local registry settings, and the project's procedure for an agent's move.
 - **The image needs nothing new:** `porelo.yml` names Ubuntu 24.04 by digest, the pinned GraalVM, shfmt and the
   package tools, the pins the Build takes. [SL29](README.md#sl29) ran the whole local check, native images and both
   packages, in a task built from it.
-- **Snapshots:** the task sets no `MAVEN_SNAPSHOTS_URL`, so `settings.xml`'s `standard` profile reads them from
-  Sonatype there; the forge's Build sets it and reads them from the forge's registry under `porelo-forge`.
-- **Forgejo's build needs nothing new in the workflows:** the host's `up` sets `PORELO_PUBLISH=false`,
-  `MAVEN_SNAPSHOTS_URL` to the forge's registry and a token that only reads it, and the runner offers both labels the
-  workflows name (`ubuntu-24.04`, `ubuntu-26.04`), as [SL33](README.md#sl33) measured on a host's
-  local Forgejo, recorded in `96509d5`.
+- **Snapshots:** the task sets no `MAVEN_SNAPSHOTS_URL` today, so `settings.xml`'s `standard` profile reads them from
+  Sonatype there, which the wait in the status is to change; the forge's Build sets it and reads them from the forge's
+  registry under `porelo-forge`.
+- **Forgejo's build needs nothing new in the workflows:** the host's `up` sets `PORELO_PUBLISH=false` and
+  `MAVEN_SNAPSHOTS_URL` to the forge's registry, and the runner offers both labels the workflows name (`ubuntu-24.04`,
+  `ubuntu-26.04`), as [SL33](README.md#sl33) measured on a host's local Forgejo, recorded in `96509d5`. The token that
+  only reads the registry, which the workflows take as `PORELO_PACKAGES_READ_TOKEN`, the host's `up` does not set yet:
+  it sets only the publisher's, so a Build there has no token to read with until it does.
 - **What the task's context gives the agent in place of `.AGENTS.md`**, which is not committed: its name
   `Agent Sluice`, its attribution `Assisted-by: Claude Code, <model>` and no other trailer (check-commits refuses a
   `Co-Authored-By:`), that its upstream is the host's forge and the central forge only through the gathered push,

@@ -31,8 +31,8 @@ host's.
   comment, that its lines exist.** Nothing of the shape is left to the host.
 - A message from before the schema is enforced is refused, not converted: the filter never rewrites
   a message.
-- **A person as a sender:** `metadata.from` must be a plain name today, so a Matrix user id
-  (`@person:localhost`) is refused (`ENVELOPE/PEER_NAME_MALFORMED`). A person's message is not
+- **A person as a sender:** `metadata.from` must be a plain name or a task of another project
+  (`task:<project>:<task>`) today, so a Matrix user id (`@person:localhost`) is refused (`ENVELOPE/PEER_NAME_MALFORMED`). A person's message is not
   filtered, so nothing needs it now. If Porelo's schema names a person by a Matrix id, the rule takes
   it only in a `ROLE_USER` message's `from`, never in `to` and never from an agent, in Matrix's own
   grammar (`@` a lower-case localpart of `a-z 0-9 . _ = - / +`, `:` a host name or IPv4 address, an
@@ -44,7 +44,8 @@ host's.
   a second text part and a foreign extension URI, added to its list of rule ids. Where it refuses a
   `data` part today (`ENVELOPE/DATA_PART_NOT_ALLOWED`), a kind's fixed data part is let through when it
   matches its shape, and its strings are added to the texts the detectors read, as `metadata`'s are.
-- **The schema read, not compiled in:** the shapes come from Porelo's schema document, loaded by `a2a/CheckConfig`;
+- **The schema read, not compiled in:** the shapes come from Porelo's schema document, which Porelo's plan gives the filter as
+  `--schema <path>`, an option `cli/Main` does not have yet, and which `a2a/CheckConfig` loads;
   a test reads the same document and fails when it and the rules disagree.
 - **Fixtures** named for where they land (`envelope-*.json` refused, `accept-*.json` passing),
   counted by `FixturesTest` and by the Build's packaged-binary step; `doc/filter.md`'s envelope table
@@ -65,3 +66,5 @@ host's.
 
 - How the filter's build reads the schema document that lives in `porelo` - a copy pinned here and
   held to `porelo`'s by a test, or read from a published artifact - once Porelo publishes it.
+- Whether Porelo's schema document takes `metadata.via`, a fifth key its mailbox guide asks for today, and `comment`,
+  a sixth kind a review comment uses on today's envelope; the document decides, and the keys and kinds here follow it.

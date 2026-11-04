@@ -10,8 +10,8 @@ names no snapshot repository stops at once instead of falling back to Sonatype's
 
 ## Why
 
-Every Maven step on the host's forge holds the publisher's token today, `verify` on an unreviewed task branch
-included, so a test in such a branch could read it and overwrite a snapshot in the forge's registry. This repository
+A Maven step holding the publisher's token on the host's forge, `verify` on an unreviewed task branch included, would
+let a test in such a branch read it and overwrite a snapshot in the forge's registry. This repository
 deploys nothing with Maven - its packages go to Artifactory with their own token, and only from `main` or a tag
 on GitHub - so it needs no writing token for Maven at all.
 
@@ -19,9 +19,10 @@ on GitHub - so it needs no writing token for Maven at all.
 
 Read in today's `build.yml`, `shared-rules.yml`, `workflows.yml`, `settings.xml` and `doc/decisions.md`.
 
-- **The contract read from outside:** the host's forge hands every build the secret `PORELO_PACKAGES_READ_TOKEN`, a
+- **The contract read from outside:** the host's forge is to hand every build the secret `PORELO_PACKAGES_READ_TOKEN`, a
   token whose one scope is reading the organization's packages, and the variable `MAVEN_SNAPSHOTS_URL` names its
-  registry. On GitHub the same secret holds a placeholder, since Sonatype needs none. Maven sends it with the user
+  registry. Today it sets the variable but not that secret, so a Build there has no token to read with, and the
+  acceptance on the host's forge waits for it. On GitHub the same secret holds a placeholder, since Sonatype needs none. Maven sends it with the user
   name `settings.xml` names today.
 - **`settings.xml`:** the server `porelo-forge` takes its password from `PORELO_PACKAGES_READ_TOKEN` in place of
   `PORELO_PUBLISHER_TOKEN`; its comment says it only reads.
@@ -33,7 +34,7 @@ Read in today's `build.yml`, `shared-rules.yml`, `workflows.yml`, `settings.xml`
   GitHub the guard lets an empty value pass, as today.
 - **`doc/decisions.md`**, *The workflows run unchanged…*: the token that reads, and why the publisher's is never here.
 - **Red first:** `WorkflowTokensTest`, tagged `documents`, reads the four workflows and `settings.xml` as lines and
-  fails when any of them names `PORELO_PUBLISHER_TOKEN`, naming the file and line; it is red on today's workflows. A
+  fails when any of them names `PORELO_PUBLISHER_TOKEN`, naming the file and line; it was red on the workflows before. A
   second assertion fails when a job that runs Maven has no step checking `MAVEN_SNAPSHOTS_URL` before it, and the
   guard's own script is run: it must stop on a forge without the variable and pass on GitHub and on a forge that
   names it. The guard carries no condition, a workflow's `*.yaml` is read too, and Maven is found however its path

@@ -60,3 +60,5 @@ correlation across messages. How it would be built is
 
 - The thresholds (512 characters, 500 messages or 30 days) - measured against the 200 real messages
   of the acceptance.
+- Who makes `filter/.index/`: `doc/filter.md` says the filter creates no directory and does not start when one is
+  missing, so Porelo lays it out or that sentence changes.
