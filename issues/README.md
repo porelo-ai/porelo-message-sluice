@@ -38,7 +38,6 @@ channel.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="sl39"></a>[SL39](SL39-An-Organization-Proved-Against-Real-GitHub.md) | — | — | A short test by a person, against real GitHub: `trust-host`, `org create`, `setup` and `project open` at a `git@github.com:` address, with the read back; waits until after the next release |
-| <a id="sl34"></a>[SL34](SL34-A-Dependabot-Pull-Request-Gets-The-Variables.md) | — | — | A Dependabot pull request's *Workflow check* receives the repository variables, so Maven reads snapshots from a named URL. Measured harmless without it; proposed to close. |
 
 ## Estimated
 
@@ -64,7 +63,13 @@ channel.
 | <a id="sl27"></a>[SL27](README.md#sl27) | Reformatted to the shared style | Spotless with the shared Java, YAML and shell formats, one reformatting commit that `git blame` skips, the shared `.editorconfig`, and checkouts without a kept token. |
 | <a id="sl26"></a>[SL26](README.md#sl26) | The rename to Porelo here | The filter is published as `org.fuin.porelo` 0.5.0 and installed where Porelo looks for it, accepts only signatures in the namespace `porelo-message`, and a documents test refuses the old name in any tracked file. |
 
-Nothing is in Rework, Implementing or Rejected.
+## Rejected
+
+| # | Title | Why |
+|---|---|---|
+| <a id="sl34"></a>[SL34](README.md#sl34) | A Dependabot Pull Request Gets The Variables | Measured harmless: an empty `MAVEN_SNAPSHOTS_URL` activates `settings.xml`'s `standard` profile as an unset one does, so Maven reads Sonatype's snapshots on GitHub and no empty URL. |
+
+Nothing is in Rework or Implementing.
 
 **Open questions**, in *Analyzed* only, counts what waits on the operator; what this repository's
 agent finds out itself stands under each issue's *To be checked* and is not counted.
