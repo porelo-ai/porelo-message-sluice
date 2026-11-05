@@ -6,8 +6,8 @@
 # The pins are those the Build takes: the Ubuntu image and the GraalVM from porelo-machines' own pins
 # (machines.properties), shfmt from build.yml. A move there is not followed here by itself.
 image:
-    base_image: "docker.io/library/ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac"
-    snippet: |
+    from: "docker.io/library/ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac"
+    run: |
         # From Ubuntu: the C toolchain and zlib's headers for native-image, rpm for the .rpm, rpm2cpio and cpio
         # to unpack it beside the .deb for the fixture step.
         RUN apt-get update \
