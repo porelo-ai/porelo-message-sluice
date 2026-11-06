@@ -15,7 +15,7 @@ channel.
 | <a id="sl36"></a>[SL36](SL36-Snapshots-Resolved-With-A-Read-Only-Token.md) | S | — | No workflow holds a token that can write to a forge's registry: snapshots resolved with a read-only token, and a Build on a forge other than GitHub without `MAVEN_SNAPSHOTS_URL` or that token fails at once. |
 | <a id="sl37"></a>[SL37](SL37-A-Task-Of-Another-Project-Named-As-A-Peer.md) | S | — | A peer named `task:<project>:<task>`, a task of another project by its certificate's principal, passes the envelope check; a `:` anywhere else in a peer name is still refused. |
 
-## Backlog
+## Implementing
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
