@@ -1,6 +1,6 @@
 # SL43 — Masking Hides No Payload
 
-**Status:** Analyzed.
+**Status:** Backlog.
 **Size:** S - tests of `Masked` only.
 
 **What must be true.** What `Masked` takes out of the text for the English checks is only what its documentation names: a host no DNS name could be, a chain of UUIDs, more short hashes than its limit, a long URL path segment and a URL's user part stay for the checks.

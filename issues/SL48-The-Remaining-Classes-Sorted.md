@@ -1,6 +1,6 @@
 # SL48 — The Remaining Classes Sorted
 
-**Status:** Analyzed.
+**Status:** Backlog.
 **Size:** S - the same sorting for 120 mutants in eleven classes.
 
 **What must be true.** The mutants PIT leaves in the classes not yet sorted are sorted like the others, real gaps and harmless ones, and the real gaps written as issues.

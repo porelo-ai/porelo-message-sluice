@@ -1,6 +1,6 @@
 # SL42 — Every Part Of A Task Is Walked
 
-**Status:** Analyzed.
+**Status:** Backlog.
 **Size:** S - tests of `EnvelopeCheck` only; the walk exists, no test holds it.
 
 **What must be true.** Every field of a task or message envelope that can carry text reaches the detectors and the envelope's limits: a task's artifacts, their parts, metadata and extensions, a part's URL, a task's history, and anything shaped like A2A 0.3 at any depth.

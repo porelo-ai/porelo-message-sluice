@@ -1,6 +1,6 @@
 # SL47 — No Message Is Lost Or Filed Twice
 
-**Status:** Analyzed.
+**Status:** Backlog.
 **Size:** M - file handling across `FileOps` and `MessageSluice`, several of it race paths.
 
 **What must be true.** A message and its signature are never overwritten, filed apart or read past their limit: a free name is never a taken one, a signature that went ahead is not filed beside the wrong message, a file over the size limit is answered, a replaced directory is noticed, and the production path with a stability delay passes a message.

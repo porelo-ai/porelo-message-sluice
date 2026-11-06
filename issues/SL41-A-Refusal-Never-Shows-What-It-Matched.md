@@ -1,6 +1,6 @@
 # SL41 — A Refusal Never Shows What It Matched
 
-**Status:** Analyzed.
+**Status:** Backlog.
 **Size:** S - the tests and at most a line of `DetectorRunner` and `EnvelopeResult`; the most direct harm of the set.
 
 **What must be true.** A refusal never carries what a rule matched: a finding's explanation that quotes the matched text is refused, and every key of a message is named by its position in an answer whenever the detectors did not vouch for it.

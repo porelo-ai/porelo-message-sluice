@@ -1,6 +1,6 @@
 # SL44 — Every Encoding Signature Is Held
 
-**Status:** Analyzed.
+**Status:** Backlog.
 **Size:** M - many small cases in one detector, each with a payload and with the prose next to it.
 
 **What must be true.** Each encoding `EncodingSignatureDetector` names is refused by a test of its own, and each of its exemptions for prose is held on both sides: uuencode, ascii85, hex bytes, dense escapes, and runs whose alphabet says base32, base58, base64 or base64url.

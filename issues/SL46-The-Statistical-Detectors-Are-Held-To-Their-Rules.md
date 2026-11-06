@@ -1,6 +1,6 @@
 # SL46 — The Statistical Detectors Are Held To Their Rules
 
-**Status:** Analyzed.
+**Status:** Backlog.
 **Size:** M - three detectors whose rules no test tells apart from a rule taken out.
 
 **What must be true.** Each rule of the token-shape, entropy and English-distribution detectors is held by a test that a text just inside the rule is found and one just outside passes.
