@@ -390,10 +390,10 @@ in no workflow and not in `settings.xml`, and a test tagged `documents` refuses 
 What a runner's image lacks is installed in a step that does nothing where it is present: the packaging
 tools, from the distribution's signed archive. The Java 25 that starts the build is the runner's, on both.
 
-One gap remains, measured on the local Forgejo. The Shared rules check fails for a pull request in the
-step that checks its commit messages. That step fetches both sides without a credential, which the
-forge's private copy refuses. Forgejo also reports no `author_association`, so every author counts as from
-outside there.
+The Shared rules check's commit-message step fetches nothing, since the checkout holds every commit, and it
+counts a pull request from the same repository on a forge other than GitHub as from inside, because Forgejo
+reports no `author_association` and only write access pushes a branch of the same repository. It is green on a
+host's forge, on a pull request from a task's branch.
 
 **What would change the answer**: a setting no variable can reach. That is raised before anything is built
 around it.

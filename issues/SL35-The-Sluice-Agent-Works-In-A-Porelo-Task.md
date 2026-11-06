@@ -1,6 +1,6 @@
 # SL35 — The Sluice's Agent Works In A Porelo Task
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** S - nothing to build in this repository's code; the work is the trial move's steps, one document corrected in
 the task and this issue worked to Review from inside it, about 3 hours: 1½ of the agent's work, the rest the forge's
 Build, the reading from outside and the way back.
@@ -99,3 +99,21 @@ local registry settings, and the project's procedure for an agent's move.
   `aTechnicalErrorLeavesTheMessageWhereItWasAndSaysSo`, `aTechnicalErrorFilesNothingAndLeavesTheMessageWhereItWas`,
   `aDirectoryHoldingRefusedOriginalsMustBeOwnedByTheUserTheFilterRunsAs` and
   `aMessageThatCannotBeFiledIsAnsweredOnceHoweverOftenItIsTried`.
+
+## Findings from the trial
+
+- **The Shared rules check is green on the forge.** Pull request #1 (`porelo/sluice` to `main`, commit `3c5319d`)
+  ran it as `pull_request` in 2m48s, its step "The pull request's commit messages" included; `doc/decisions.md`
+  now says so.
+- **The Build does not start on a documents-only change**, by `build.yml`'s paths filter. It was started by hand
+  (`workflow_dispatch`) on `porelo/sluice`: run #3, green in 4m08s on the runner `porelo-host`.
+- **The task's egress does not reach `fuinorg.jfrog.io`** (its allowed set is `maven`; the name does not resolve),
+  so the seven skills were not fetched and the change was not read against them in the task. The egress needs that
+  host before the real move.
+- **Forgejo warned that a job `check` with a `permissions` field is not supported and is ignored.** Not
+  `shared-rules.yml`'s, which ran; `workflows.yml` has the other job `check`, and `build.yml`, with the same
+  workflow-level block, ran too. Followed in [SL40](README.md#sl40).
+- **All five tests that skip as root ran and passed** in the task (user 1001): the documents tests (27) and the
+  full `verify` (279, none skipped) exited 0.
+- **No `forgejo` reader was available inside the task**; the operator relayed the forge's results through the
+  coordinator.
