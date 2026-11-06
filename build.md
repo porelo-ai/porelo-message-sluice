@@ -54,6 +54,21 @@ symbol version the binary uses, not the build host's glibc: measured with `reade
 `ZLIB_1.2.2`. A fully static binary would need a musl toolchain. Nothing in the
 program uses the foreign-function API, so that option stays open.
 
+## Mutation testing
+
+**PIT shows which checks no test holds**, run by hand and in no workflow, with no threshold:
+
+```
+./mvnw -B -s settings.xml -Ppit test-compile org.pitest:pitest-maven:mutationCoverage -pl filter/app -am
+```
+
+`-Dpit.classes=org.fuin.porelo.msgsluice.filter.detect.*` narrows it to one change's classes, and
+`-Dpit.threads=<n>` sets its workers (4 by default). The report is `filter/app/target/pit-reports/index.html`,
+with `mutations.xml` beside it. The whole filter takes about 20 minutes on 4 threads. The timeout is 10 s, since a
+mutant that only slows a scanning loop must finish and count as surviving, not as timed out by the machine's load. A mutant that only `MainTest` reaches survives without being a gap:
+that test starts the filter in a JVM of its own, which loads the unmutated classes. Run it as a user other than
+root, or the tests that check file permissions skip and their mutants survive.
+
 ## Packages
 
 **One package per format**: `porelo-message-sluice-filter` installs

@@ -20,12 +20,20 @@ channel.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | M | — | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; measured on the host: 1558 mutants, 278 survived, 64 uncovered, 31 minutes. |
+| <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | M | — | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; the harm-guarding classes sorted into seven gap issues. |
 
 ## Analyzed
 
 | # | Size | Blocked by | Open questions | What it covers |
 |---|---|---|---|---|
+| <a id="sl41"></a>[SL41](SL41-A-Refusal-Never-Shows-What-It-Matched.md) | S | — | 0 | A finding's explanation that quotes its match is refused, and keys are hidden when the detectors did not run: both held by no test today (PIT). |
+| <a id="sl42"></a>[SL42](SL42-Every-Part-Of-A-Task-Is-Walked.md) | S | — | 0 | A task's artifacts, their parts, metadata and extensions, a part's URL and a nested A2A 0.3 shape each reach the detectors and limits under a test; today no test fails without them (PIT). |
+| <a id="sl47"></a>[SL47](SL47-No-Message-Is-Lost-Or-Filed-Twice.md) | M | — | 0 | A free name is never a taken one, a signature that went ahead is not filed apart, a file over the limit is answered, a swapped directory noticed, the stability delay's path tested (PIT). |
+| <a id="sl43"></a>[SL43](SL43-Masking-Hides-No-Payload.md) | S | — | 0 | An impossible host, a UUID chain, many short hashes, a long path segment and a URL's user part stay unmasked under a test (PIT). |
+| <a id="sl44"></a>[SL44](SL44-Every-Encoding-Signature-Is-Held.md) | M | — | 0 | uuencode, ascii85, hex bytes, dense escapes and the alphabet runs each refused by a test of their own, the prose exemptions held on both sides (PIT). |
+| <a id="sl45"></a>[SL45](SL45-Invisible-Characters-And-Look-Alikes-Are-Held.md) | S | — | 0 | Every kind of invisible character, a joiner outside an emoji and a mixed-script word each found by a test (PIT). |
+| <a id="sl46"></a>[SL46](SL46-The-Statistical-Detectors-Are-Held-To-Their-Rules.md) | M | — | 0 | Each rule of the token-shape, entropy and letter-distribution detectors held just inside and just outside its limit (PIT). |
+| <a id="sl48"></a>[SL48](SL48-The-Remaining-Classes-Sorted.md) | S | — | 0 | The 120 mutants left in eleven classes not sorted first, sorted the same way, `SshSignature`, `DirectoryLock` and `MessageArchive` first. |
 | <a id="sl40"></a>[SL40](SL40-A-Workflow-Only-Change-Is-Checked-On-A-Forge.md) | S | — | 0 | A pull request changing only `.github/` is checked on a host's forge too: Forgejo ignored a job `check` for its `permissions` field, most likely the light Workflow check; measured there first, GitHub's read-only token kept. |
 | <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | — | 0 | A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways. |
 

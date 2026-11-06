@@ -201,6 +201,55 @@
             </properties>
         </profile>
 
+        <!-- Mutation testing, run by hand and in no workflow, with no threshold: which checks no test
+             holds. 'mvn -Ppit test-compile org.pitest:pitest-maven:mutationCoverage -pl filter/app -am';
+             one change's classes with -Dpit.classes=org.fuin.porelo.msgsluice.filter.detect.*,... -->
+
+        <profile>
+            <id>pit</id>
+            <properties>
+                <pit.classes>org.fuin.porelo.msgsluice.filter.*</pit.classes>
+                <pit.threads>4</pit.threads>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-maven</artifactId>
+                        <version>1.30.2</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.pitest</groupId>
+                                <artifactId>pitest-junit5-plugin</artifactId>
+                                <version>1.2.3</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                            <targetClasses>${pit.classes}</targetClasses>
+                            <targetTests>
+                                <param>org.fuin.porelo.msgsluice.filter.*Test</param>
+                            </targetTests>
+                            <excludedClasses>
+                                <param>org.fuin.porelo.msgsluice.filter.**.package-info</param>
+                            </excludedClasses>
+                            <excludedMethods>
+                                <param>main</param>
+                            </excludedMethods>
+                            <threads>${pit.threads}</threads>
+                            <!-- A mutant that only slows a scanning loop finishes and survives; with PIT's
+                                 default of 4 s it timed out or survived by the machine's load. -->
+                            <timeoutConstant>10000</timeoutConstant>
+                            <timestampedReports>false</timestampedReports>
+                            <outputFormats>
+                                <param>HTML</param>
+                                <param>XML</param>
+                            </outputFormats>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <profile>
             <id>dist</id>
             <build>
