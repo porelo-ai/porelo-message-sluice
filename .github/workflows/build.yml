@@ -63,6 +63,32 @@ jobs:
                   key: maven-${{ hashFiles('**/pom.xml') }}
                   restore-keys: maven-
 
+            # The wrapper's Maven, fetched once per pin rather than by every job with one download and no retry.
+            - name: Cache the wrapper's Maven
+              uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              with:
+                  path: ~/.m2/wrapper
+                  key: maven-wrapper-${{ hashFiles('.mvn/wrapper/maven-wrapper.properties') }}
+
+            # The wrapper checks its Maven against distributionSha256Sum and installs it only whole, so asking again
+            # after a failed fetch is a safe retry; a cached one answers at once.
+            - name: The wrapper's Maven
+              env:
+                  PORELO_PACKAGES_READ_TOKEN: ${{ secrets.PORELO_PACKAGES_READ_TOKEN }}
+              run: |
+                  export JAVA_HOME="$JAVA_HOME_25_X64"
+                  for attempt in 1 2 3 4 5; do
+                      if ./mvnw -B -q --version > /dev/null; then
+                          break
+                      fi
+                      if [ "$attempt" = 5 ]; then
+                          echo "::error::the wrapper could not fetch its Maven in 5 attempts"
+                          exit 1
+                      fi
+                      echo "::warning::the wrapper's Maven did not arrive (attempt $attempt); trying again"
+                      sleep $((attempt * 10))
+                  done
+
             # Publishing is switched by a variable present on both forges, true where the packages are published and
             # false where they are not; one missing or misspelt would leave them unpublished without a word.
             - name: Whether this forge publishes
@@ -274,7 +300,7 @@ jobs:
                   if [ "$CHANNEL" = releases ]; then
                     # Fetched to a file, so an index that cannot be read stops the release rather than reading as
                     # "not published".
-                    curl -sfL -o "$RUNNER_TEMP/published-index" "$base/porelo-dist-deb/dists/releases/main/binary-amd64/Packages" \
+                    curl --retry 5 --retry-all-errors -sfL -o "$RUNNER_TEMP/published-index" "$base/porelo-dist-deb/dists/releases/main/binary-amd64/Packages" \
                         || { echo "::error::the release index could not be read, so whether this release is published is unknown"; exit 1; }
                     for p in */dist-deb/target/*.deb; do
                       name="$(dpkg-deb -f "$p" Package)"
@@ -286,7 +312,7 @@ jobs:
                   [ -n "$JF_ACCESS_TOKEN" ] || { echo "::error::secret JF_ACCESS_TOKEN is not set"; exit 1; }
                   put() {
                     printf 'header = "Authorization: Bearer %s"\n' "$JF_ACCESS_TOKEN" \
-                      | curl -fsS -K - -o /dev/null -T "$1" \
+                      | curl --retry 5 --retry-all-errors -fsS -K - -o /dev/null -T "$1" \
                         -H "X-Checksum-Sha1: $(sha1sum "$1" | cut -d' ' -f1)" \
                         -H "X-Checksum-Sha256: $(sha256sum "$1" | cut -d' ' -f1)" \
                         "$base/$2$(basename "$1")${3:+;$3}"
@@ -313,15 +339,15 @@ jobs:
                   base="${JF_URL%/}/artifactory"
                   indexed() {
                     local packages primary
-                    packages="$(curl -sfL "$base/porelo-dist-deb/dists/${CHANNEL}/main/binary-amd64/Packages" || true)"
+                    packages="$(curl --retry 5 --retry-all-errors -sfL "$base/porelo-dist-deb/dists/${CHANNEL}/main/binary-amd64/Packages" || true)"
                     for p in */dist-deb/target/*.deb; do
                       name="$(dpkg-deb -f "$p" Package)"
                       grep -qxF "Filename: pool/main/p/$name/$(basename "$p")" <<< "$packages" || return 1
                     done
-                    primary="$(curl -sfL "$base/porelo-dist-rpm/${CHANNEL}/repodata/repomd.xml" \
+                    primary="$(curl --retry 5 --retry-all-errors -sfL "$base/porelo-dist-rpm/${CHANNEL}/repodata/repomd.xml" \
                         | sed -n 's/.*<location href="\([^"]*primary.xml.gz\)".*/\1/p' | head -1)"
                     [ -n "$primary" ] || return 1
-                    primary="$(curl -sfL "$base/porelo-dist-rpm/${CHANNEL}/$primary" | gunzip || true)"
+                    primary="$(curl --retry 5 --retry-all-errors -sfL "$base/porelo-dist-rpm/${CHANNEL}/$primary" | gunzip || true)"
                     for p in */dist-rpm/target/*.rpm; do
                       grep -qF "$(basename "$p")" <<< "$primary" || return 1
                     done

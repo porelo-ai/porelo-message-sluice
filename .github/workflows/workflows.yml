@@ -35,6 +35,32 @@ jobs:
                   [ -n "$MAVEN_SNAPSHOTS_URL" ] || { echo "::error::vars.MAVEN_SNAPSHOTS_URL is empty on $SERVER_URL"; exit 1; }
                   [ -n "$PORELO_PACKAGES_READ_TOKEN" ] || { echo "::error::secrets.PORELO_PACKAGES_READ_TOKEN is empty on $SERVER_URL"; exit 1; }
 
+            # The wrapper's Maven, fetched once per pin rather than by every job with one download and no retry.
+            - name: Cache the wrapper's Maven
+              uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              with:
+                  path: ~/.m2/wrapper
+                  key: maven-wrapper-${{ hashFiles('.mvn/wrapper/maven-wrapper.properties') }}
+
+            # The wrapper checks its Maven against distributionSha256Sum and installs it only whole, so asking again
+            # after a failed fetch is a safe retry; a cached one answers at once.
+            - name: The wrapper's Maven
+              env:
+                  PORELO_PACKAGES_READ_TOKEN: ${{ secrets.PORELO_PACKAGES_READ_TOKEN }}
+              run: |
+                  export JAVA_HOME="$JAVA_HOME_25_X64"
+                  for attempt in 1 2 3 4 5; do
+                      if ./mvnw -B -q --version > /dev/null; then
+                          break
+                      fi
+                      if [ "$attempt" = 5 ]; then
+                          echo "::error::the wrapper could not fetch its Maven in 5 attempts"
+                          exit 1
+                      fi
+                      echo "::warning::the wrapper's Maven did not arrive (attempt $attempt); trying again"
+                      sleep $((attempt * 10))
+                  done
+
             # The Build's own check-actions, on the runner's Java 25: it reads files and fetches no JDK.
             - name: Every step pinned to a commit
               env:
