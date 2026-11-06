@@ -1,6 +1,6 @@
 # SL38 — Mutation Testing With PIT
 
-**Status:** Implementing.
+**Status:** Review.
 **Size:** M - the profile is a few lines in the root pom, but sorting about 340 mutants that no test kills, across 21
 classes, is about a day.
 
@@ -84,6 +84,11 @@ sorted here; the 120 in the others go to [SL48](README.md#sl48).
 | Fails closed: the mutant refuses or hides more | 4 | the personal-data rules' context before a match, `Redactor`'s stars, `EnvelopeResult`'s hiding of every key, a wider look-alike span |
 | Durability or an interrupt flag, seen only after a crash or an interrupt | 4 | `FileOps.force`, `Thread.interrupt` |
 | A detector's own argument check, which guards a configuration, not a message | 5 | constructors of three detectors |
+
+**The VM's run**, on ubuntu26.04 non-root in a container from `porelo.yml`'s image, 4 threads: 1557 mutants, 1027 killed,
+19 timed out, 446 survived, 63 not covered, 2 out of memory, in 18 minutes. The same mutants as on the host but six,
+which moved between killed, timed out and out of memory; one of them survived on the VM and was killed on the host:
+the longest-first order of `EnvelopeResult.withKeysHidden`, counted with [SL41](README.md#sl41).
 
 The sorting reads each place in the code; a harmless one becomes a gap when a test of the issue above shows harm.
 

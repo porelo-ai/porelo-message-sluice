@@ -15,6 +15,8 @@ PIT with the `pit` profile left these mutants alive; no test fails when the chec
 - `EnvelopeResult.withKeysHidden`: when the detectors did not run, every key is hidden. Negating `!detectorsRan`
   survives, so keys would be shown in clear; `under`'s exact match on the key itself survives, and so does its match of the key's own value, `key(`, when no
   child of the key is in the message: a key a rule matched with a plain value next to it would be shown.
+- `withKeysHidden`'s longest-first order of the keys it hides survived on one run and was killed on another: a key
+  below a hidden key must be rewritten before its parent's prefix is, and no test holds that order every time.
 - Red first: a detector stand-in whose explanation repeats the match, a quote spread inside a longer word in mixed case,
   and a message whose key carries a secret refused before the detectors ran; each answer is read for the secret.
 
