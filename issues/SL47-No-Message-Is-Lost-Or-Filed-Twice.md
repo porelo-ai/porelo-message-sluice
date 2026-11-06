@@ -12,6 +12,9 @@ PIT left these mutants alive, or found the path not covered:
 - `FileOps.freeName` and `taken`: the name split at the dot and the test whether a name is taken survive; filing could
   overwrite a message.
 - `FileOps.writeWithSignature`, `moveWithSignature`: the case of a signature that went ahead survives.
+- `FileOps.deleteWithSignatureIfUnchanged`: skipping the signature's deletion survives, so a signature stays in
+  `incoming/` beside the next message of its name; `deleteIfUnchanged` answering deleted for a changed file survives,
+  so `keepAsRead` moves the signature away from a message that stays.
 - `FileOps.read`: the size limit's arithmetic survives; `MessageSluice.process`'s answer to a file over the limit is
   not covered.
 - `MessageSluice.identity`: returning an empty identity survives, so a directory replaced since the start would not be

@@ -13,6 +13,7 @@ PIT with the `pit` profile left 120 mutants alive or uncovered in classes that w
 
 - Each sorted by the categories of the first sorting: a real gap, or harmless as an edge, wording, equivalent,
   durability, a check that fails closed, or reached only through `MainTest`'s own JVM.
+- No test goes red first: this issue sorts; the real gaps it finds go red in their own issues.
 - `SshSignature`, `DirectoryLock` and `MessageArchive` first: they guard who sent a message, one filter at a time,
   and a message processed twice.
 

@@ -65,8 +65,8 @@ program uses the foreign-function API, so that option stays open.
 `-Dpit.classes=org.fuin.porelo.msgsluice.filter.detect.*` narrows it to one change's classes, and
 `-Dpit.threads=<n>` sets its workers (4 by default). The report is `filter/app/target/pit-reports/index.html`,
 with `mutations.xml` beside it. The whole filter takes about 20 minutes on 4 threads. The timeout is 10 s, since a
-mutant that only slows a scanning loop must finish and count as surviving, not as timed out by the machine's load. A mutant that only `MainTest` reaches survives without being a gap:
-that test starts the filter in a JVM of its own, which loads the unmutated classes. Run it as a user other than
+mutant that only slows a scanning loop must finish and count as surviving, not as timed out by the machine's load. A mutant that only `MainTest`'s test of the inherited environment reaches survives without
+being a gap: that test starts the filter in a JVM of its own, which loads the unmutated classes. Run it as a user other than
 root, or the tests that check file permissions skip and their mutants survive.
 
 ## Packages

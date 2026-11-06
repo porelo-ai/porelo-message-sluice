@@ -20,7 +20,7 @@ channel.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | M | — | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; the harm-guarding classes sorted into seven gap issues. |
+| <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | M | — | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; the harm-guarding classes sorted into eight gap issues. |
 
 ## Analyzed
 
@@ -29,6 +29,7 @@ channel.
 | <a id="sl41"></a>[SL41](SL41-A-Refusal-Never-Shows-What-It-Matched.md) | S | — | 0 | A finding's explanation that quotes its match is refused, and keys are hidden when the detectors did not run: both held by no test today (PIT). |
 | <a id="sl42"></a>[SL42](SL42-Every-Part-Of-A-Task-Is-Walked.md) | S | — | 0 | A task's artifacts, their parts, metadata and extensions, a part's URL and a nested A2A 0.3 shape each reach the detectors and limits under a test; today no test fails without them (PIT). |
 | <a id="sl47"></a>[SL47](SL47-No-Message-Is-Lost-Or-Filed-Twice.md) | M | — | 0 | A free name is never a taken one, a signature that went ahead is not filed apart, a file over the limit is answered, a swapped directory noticed, the stability delay's path tested (PIT). |
+| <a id="sl49"></a>[SL49](SL49-A-Credential-Context-Is-Read-On-Both-Sides.md) | XS | — | 0 | A credential whose context word follows it is refused under a test; PIT shows the window after the match held by none. |
 | <a id="sl43"></a>[SL43](SL43-Masking-Hides-No-Payload.md) | S | — | 0 | An impossible host, a UUID chain, many short hashes, a long path segment and a URL's user part stay unmasked under a test (PIT). |
 | <a id="sl44"></a>[SL44](SL44-Every-Encoding-Signature-Is-Held.md) | M | — | 0 | uuencode, ascii85, hex bytes, dense escapes and the alphabet runs each refused by a test of their own, the prose exemptions held on both sides (PIT). |
 | <a id="sl45"></a>[SL45](SL45-Invisible-Characters-And-Look-Alikes-Are-Held.md) | S | — | 0 | Every kind of invisible character, a joiner outside an emoji and a mixed-script word each found by a test (PIT). |
@@ -73,7 +74,6 @@ channel.
 |---|---|---|
 | <a id="sl34"></a>[SL34](README.md#sl34) | A Dependabot Pull Request Gets The Variables | Measured harmless: an empty `MAVEN_SNAPSHOTS_URL` activates `settings.xml`'s `standard` profile as an unset one does, so Maven reads Sonatype's snapshots on GitHub and no empty URL. |
 
-Nothing is in Rework or Implementing.
 
 **Open questions**, in *Analyzed* only, counts what waits on the operator; what this repository's
 agent finds out itself stands under each issue's *To be checked* and is not counted.

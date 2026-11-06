@@ -27,8 +27,9 @@ takes 18 seconds, 279 tests, none skipped as a non-root user.
   scanning loop, finish, and no test fails. With PIT's default of 4 s they counted as timed out in one run (192) and
   as survivors in the next (39 timed out). The profile sets `timeoutConstant` to 10 s and 4 threads by default, so such
   a mutant finishes and counts as what it is; a run on fewer cores than threads raises the timeout further.
-- **A child JVM runs unmutated code:** `MainTest` starts the filter in a JVM of its own on `java.class.path`; under PIT
-  that JVM loads the original classes, so a mutant only that test reaches survives without being a gap. The model
+- **A child JVM runs unmutated code:** one test of `MainTest` starts the filter in a JVM of its own on `java.class.path`;
+  under PIT that JVM loads the original classes, so a mutant only that test reaches survives without being a gap; the
+  other tests of `MainTest` run in PIT's own JVM. The model
   passes Surefire's class path in a property for the same reason. Such mutants are sorted harmless and named.
 - **The run on the VM:** in the `sluice` account, non-root, in a podman container from `porelo.yml`'s image as for a
   workflow run, so `mkfifo`, `bash`, a separate `/dev/shm` and the permission tests are real. The numbers are compared
@@ -60,27 +61,33 @@ The host's run with the `pit` profile as committed, 4 threads and a 10 s timeout
 out, 445 survived, 63 not covered, in 18 minutes. Of the 508 left, the 388 in the classes that guard what does harm are
 sorted here; the 120 in the others go to [SL48](README.md#sl48).
 
-**Real gaps, 227 mutants, each area an issue of its own:**
+**Real gaps, 232 mutants, each area an issue of its own:**
 
 | Area | Mutants | Issue |
 |---|---|---|
-| A refusal's explanation and keys (`DetectorRunner.quotes`, `EnvelopeResult`) | 16 | [SL41](README.md#sl41) |
+| A refusal's explanation and keys (`DetectorRunner.quotes`, `EnvelopeResult`) | 17 | [SL41](README.md#sl41) |
 | The envelope's walk of a task, artifact, part, extensions, A2A 0.3 (`EnvelopeCheck`) | 38 | [SL42](README.md#sl42) |
-| Filing, names, signatures, size limit, directory identity (`FileOps`, `MessageSluice`) | 24 | [SL47](README.md#sl47) |
+| Filing, names, signatures, size limit, directory identity (`FileOps`, `MessageSluice`) | 27 | [SL47](README.md#sl47) |
 | What masking takes out (`Masked`) | 43 | [SL43](README.md#sl43) |
 | Encoding signatures and their prose exemptions (`EncodingSignatureDetector`) | 49 | [SL44](README.md#sl44) |
 | Invisible characters and look-alikes (`Normalizer`) | 9 | [SL45](README.md#sl45) |
 | Token shape, entropy, letter distribution (`TokenShapeDetector`, `Tokens`, `EntropyDetector`, `DistributionDetector`) | 48 | [SL46](README.md#sl46) |
+| A credential's context after its match (`CredentialDetector.nearContext`) | 1 | [SL49](README.md#sl49) |
 
-**Harmless, 161 mutants:**
+**Harmless, 156 mutants:**
 
 | Why | Mutants | Where |
 |---|---|---|
 | An edge: `>` for `>=` on a measured threshold or a limit, one character or a rounding apart | 80 | detectors, `Masked`, `Normalizer`, `Tokens`, `Redactor`, the envelope's limits, `FileOps.read`'s last check |
-| Wording: a detector's id or label, a count in an explanation, a log line, a note, a version | 54 | every detector, `MessageSluice`, `EnvelopeCheck.where`, `FileOps`' deleted-or-not result, which only picks a note |
+| Wording: a detector's id or label, a count in an explanation, a log line, a note, a version | 51 | every detector, `MessageSluice`, `EnvelopeCheck.where`, the two early answers of `FileOps.deleteWithSignatureIfUnchanged`, which only pick a note |
 | Equivalent: the outcome is decided elsewhere first (a blocking finding before the weighing, offsets checked twice) | 12 | `DecisionModel`, `DetectorRunner.toFinding`, `Normalizer`, `Masked.source`, `PersonalDataDetector` |
-| Fails closed: the mutant refuses or hides more | 6 | context windows of credential and personal-data rules, `Redactor`'s stars, `EnvelopeResult.under`, a wider look-alike span |
+| Fails closed: the mutant refuses or hides more | 4 | the personal-data rules' context before a match, `Redactor`'s stars, `EnvelopeResult`'s hiding of every key, a wider look-alike span |
 | Durability or an interrupt flag, seen only after a crash or an interrupt | 4 | `FileOps.force`, `Thread.interrupt` |
 | A detector's own argument check, which guards a configuration, not a message | 5 | constructors of three detectors |
 
 The sorting reads each place in the code; a harmless one becomes a gap when a test of the issue above shows harm.
+
+**Declined from the reading by another model:** `FileOps.read`'s last check stays an edge, since `<` for `<=` only
+refuses a file of exactly the limit, which fails closed. `SshSignature`, `DirectoryLock` and `MessageArchive` stay in
+[SL48](README.md#sl48), first there, as the scope of this issue was set. Naming `porelo-message-matrix`'s pom as the
+model cites no issue of it. `-Dpit.classes` with two classes separated by a comma mutates exactly those two, measured.
