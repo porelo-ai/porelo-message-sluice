@@ -1,6 +1,6 @@
 # SL38 — Mutation Testing With PIT
 
-**Status:** Analyzed.
+**Status:** Implementing.
 **Size:** M - the profile is a few lines in the root pom, but sorting about 340 mutants that no test kills, across 21
 classes, is about a day.
 
@@ -40,6 +40,8 @@ takes 18 seconds, 279 tests, none skipped as a non-root user.
   wording, or reached only through the child JVM), with the reason in a few words.
 - **How to run it** goes into `build.md`, a short section beside the native build: the command, `-Dpit.classes`, where
   the report lands, and that it has no threshold and runs in no workflow.
+- **The real gaps become new issues of this repository**, one per class or area, filed Analyzed and sized, each to be
+  fixed with a test seen to fail first; this issue itself is the profile, `build.md`'s lines and the sorted report.
 - **No test goes red first:** the profile changes nothing that ships or runs in CI; the real gaps are what goes red,
   in the issues they become.
 
@@ -50,8 +52,3 @@ takes 18 seconds, 279 tests, none skipped as a non-root user.
 - No workflow runs the profile, and the normal build does not resolve PIT.
 - Every surviving and uncovered mutant of the VM run is in the report, sorted, each harmless one with its reason.
 - `build.md` says how to run it.
-
-## Open questions
-
-- The real gaps: written as new issues of this repository, one per class or area, each fixed with a test seen to fail
-  first (proposed), or fixed inside this issue, which would make it L.
