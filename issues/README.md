@@ -25,13 +25,8 @@ channel.
 
 | # | Size | Blocked by | Open questions | What it covers |
 |---|---|---|---|---|
+| <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | M | — | 1 | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; measured on the host: 1558 mutants, 278 survived, 64 uncovered, 31 minutes. |
 | <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | — | 0 | A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways. |
-
-## Accepted
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | — | — | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones. |
 
 ## Idea
 
