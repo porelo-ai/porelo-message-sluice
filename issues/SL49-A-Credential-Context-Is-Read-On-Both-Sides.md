@@ -1,6 +1,6 @@
 # SL49 — A Credential's Context Is Read On Both Sides
 
-**Status:** Analyzed.
+**Status:** Backlog.
 **Size:** XS - one test of `CredentialDetector`.
 
 **What must be true.** A credential rule that needs a context word finds the word after the match as well as before
