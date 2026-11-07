@@ -15,7 +15,6 @@ channel.
 | <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | M | — | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; the harm-guarding classes sorted into eight gap issues. |
 | <a id="sl36"></a>[SL36](SL36-Snapshots-Resolved-With-A-Read-Only-Token.md) | S | — | No workflow holds a token that can write to a forge's registry: snapshots resolved with a read-only token, and a Build on a forge other than GitHub without `MAVEN_SNAPSHOTS_URL` or that token fails at once. |
 | <a id="sl37"></a>[SL37](SL37-A-Task-Of-Another-Project-Named-As-A-Peer.md) | S | — | A peer named `task:<project>:<task>`, a task of another project by its certificate's principal, passes the envelope check; a `:` anywhere else in a peer name is still refused. |
-| <a id="sl35"></a>[SL35](SL35-The-Sluice-Agent-Works-In-A-Porelo-Task.md) | S | — | The sluice's agent works in a Porelo task, the first to move: the dry run on this laptop done, then a trial on the host with its forge and the way back; its image from `porelo.yml` unchanged, the room under `Agent Sluice`, the reading from outside, a fix amended. Measured on a host's forge: the Shared rules check and a Build started by hand green; findings in the issue. |
 
 ## Backlog
 
@@ -56,6 +55,7 @@ channel.
 
 | # | Title | What was built |
 |---|---|---|
+| <a id="sl35"></a>[SL35](README.md#sl35) | The Sluice's Agent Works In A Porelo Task | The sluice's agent worked in a Porelo task on a rented host's forge and came back: the gate's push, the pull request, the Shared rules check and a Build started by hand all green there, the skills fetched in the task, and the work brought back to this checkout. |
 | <a id="sl33"></a>[SL33](README.md#sl33) | The Workflows Run On The Local Forge As On GitHub | The Build runs unchanged on the local Forgejo and on GitHub, switched only by variables: missing package tools installed, Publish switched by `PORELO_PUBLISH`, snapshots read from `MAVEN_SNAPSHOTS_URL`. |
 | <a id="sl32"></a>[SL32](README.md#sl32) | Refuse personal and financial data | Payment cards, IBANs and national ids are refused, e-mail addresses, phone numbers, IP addresses and dates of birth reported suspicious, cards and IBANs told by their checksums, matched values redacted in answers, and false positives under 1 % on clean English. |
 | <a id="sl07"></a>[SL07](README.md#sl07) | Refuse credentials | A catalog of pattern, validation and context catches ten credential categories in text and metadata, with matched values redacted in answers, rules switchable, and false positives under 1 % on clean English. |
