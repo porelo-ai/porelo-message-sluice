@@ -37,6 +37,12 @@ channel.
 | <a id="sl40"></a>[SL40](SL40-A-Workflow-Only-Change-Is-Checked-On-A-Forge.md) | S | — | 0 | A pull request changing only `.github/` is checked on a host's forge too: Forgejo ignored a job `check` for its `permissions` field, most likely the light Workflow check; measured there first, GitHub's read-only token kept. |
 | <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | — | 0 | A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways. |
 
+## Accepted
+
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="sl50"></a>[SL50](SL50-The-Message-Check-Is-Proven-Below-The-Mailbox.md) | L | — | The test pyramid audited: 157 unit, 129 integration, 5 end-to-end runs; the envelope check, the answer and the per-file decision proven only through a real mailbox, moved to unit tests over fakes, and a watch's end tested without a clock. |
+
 ## Idea
 
 | # | Size | Blocked by | What it covers |
