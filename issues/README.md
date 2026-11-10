@@ -14,7 +14,7 @@ channel.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="sl39"></a>[SL39](SL39-An-Organization-Proved-Against-Real-GitHub.md) | - | - | A short test by a person, against real GitHub: `trust-host`, `org create`, `setup` and `project open` at a `git@github.com:` address, with the read back; waits until after the next release |
-| <a id="sl51"></a>[SL51](SL51-The-Third-Party-Notices-Ship-With-The-Filter.md) | - | - | The .deb and the .rpm carry one THIRD-PARTY-NOTICES file with the full license and notice texts of everything compiled into the native filter, made by the shared generator. |
+| <a id="sl51"></a>[SL51](SL51-The-Third-Party-Notices-Ship-With-The-Filter.md) | S | - | The .deb and the .rpm carry one THIRD-PARTY-NOTICES file with the full license and notice texts of everything compiled into the native filter, made by the shared generator. |
 
 ## Accepted
 
