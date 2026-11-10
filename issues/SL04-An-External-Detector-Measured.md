@@ -1,7 +1,20 @@
 # SL04 — An external content detector, measured before it is adopted
 
-**Status:** Estimated.
-**Size:** L - a new detector kind with its own process protocol and pinning, plus a measurement of a
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL04",
+  "title": "An external content detector, measured before it is adopted",
+  "state": "Estimated",
+  "size": "L",
+  "priority": "Medium",
+  "rank": 1,
+  "blockedBy": [],
+  "covers": "Somebody else's detector catalog behind the interface, measured before anything is adopted."
+}
+```
+
+**Why this size.** a new detector kind with its own process protocol and pinning, plus a measurement of a
 catalog still to be chosen.
 
 **What must be true.** Somebody else's detector catalog can sit behind the filter's detector

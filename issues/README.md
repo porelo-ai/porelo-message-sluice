@@ -1,61 +1,62 @@
 # Issues
 
 What is open in this repository, ordered by what to do next rather than by number. The number is
-identity, not sequence.
+identity, not sequence. The tables are written from the issues' heads by `porelo-release issues index issues`,
+never by hand.
 
 **Grouped by state**, each group's heading naming it, as the shared rules set them out; within a group
 the order is the priority. Only the operator sets Accepted, Rejected, Estimated, Backlog, Rework and
 Finished; this repository's agent sets Analyzed, Implementing and Review, and proposes the rest in the
 channel.
 
-## Review
+## Idea
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | M | — | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; the harm-guarding classes sorted into eight gap issues. |
-| <a id="sl36"></a>[SL36](SL36-Snapshots-Resolved-With-A-Read-Only-Token.md) | S | — | No workflow holds a token that can write to a forge's registry: snapshots resolved with a read-only token, and a Build on a forge other than GitHub without `MAVEN_SNAPSHOTS_URL` or that token fails at once. |
-| <a id="sl37"></a>[SL37](SL37-A-Task-Of-Another-Project-Named-As-A-Peer.md) | S | — | A peer named `task:<project>:<task>`, a task of another project by its certificate's principal, passes the envelope check; a `:` anywhere else in a peer name is still refused. |
-
-## Backlog
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="sl41"></a>[SL41](SL41-A-Refusal-Never-Shows-What-It-Matched.md) | S | — | A finding's explanation that quotes its match is refused, and keys are hidden when the detectors did not run: both held by no test today (PIT). |
-| <a id="sl49"></a>[SL49](SL49-A-Credential-Context-Is-Read-On-Both-Sides.md) | XS | — | A credential whose context word follows it is refused under a test; PIT shows the window after the match held by none. |
-| <a id="sl42"></a>[SL42](SL42-Every-Part-Of-A-Task-Is-Walked.md) | S | — | A task's artifacts, their parts, metadata and extensions, a part's URL and a nested A2A 0.3 shape each reach the detectors and limits under a test; today no test fails without them (PIT). |
-| <a id="sl47"></a>[SL47](SL47-No-Message-Is-Lost-Or-Filed-Twice.md) | M | — | A free name is never a taken one, a signature that went ahead is not filed apart, a file over the limit is answered, a swapped directory noticed, the stability delay's path tested (PIT). |
-| <a id="sl43"></a>[SL43](SL43-Masking-Hides-No-Payload.md) | S | — | An impossible host, a UUID chain, many short hashes, a long path segment and a URL's user part stay unmasked under a test (PIT). |
-| <a id="sl44"></a>[SL44](SL44-Every-Encoding-Signature-Is-Held.md) | M | — | uuencode, ascii85, hex bytes, dense escapes and the alphabet runs each refused by a test of their own, the prose exemptions held on both sides (PIT). |
-| <a id="sl45"></a>[SL45](SL45-Invisible-Characters-And-Look-Alikes-Are-Held.md) | S | — | Every kind of invisible character, a joiner outside an emoji and a mixed-script word each found by a test (PIT). |
-| <a id="sl46"></a>[SL46](SL46-The-Statistical-Detectors-Are-Held-To-Their-Rules.md) | M | — | Each rule of the token-shape, entropy and letter-distribution detectors held just inside and just outside its limit (PIT). |
-| <a id="sl48"></a>[SL48](SL48-The-Remaining-Classes-Sorted.md) | S | — | The 120 mutants left in eleven classes not sorted first, sorted the same way, `SshSignature`, `DirectoryLock` and `MessageArchive` first. |
-
-## Analyzed
-
-| # | Size | Blocked by | Open questions | What it covers |
-|---|---|---|---|---|
-| <a id="sl40"></a>[SL40](SL40-A-Workflow-Only-Change-Is-Checked-On-A-Forge.md) | S | — | 0 | A pull request changing only `.github/` is checked on a host's forge too: Forgejo ignored a job `check` for its `permissions` field, most likely the light Workflow check; measured there first, GitHub's read-only token kept. |
-| <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | — | 0 | A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways. |
+| <a id="sl39"></a>[SL39](SL39-An-Organization-Proved-Against-Real-GitHub.md) | - | - | A short test by a person, against real GitHub: `trust-host`, `org create`, `setup` and `project open` at a `git@github.com:` address, with the read back; waits until after the next release |
 
 ## Accepted
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="sl50"></a>[SL50](SL50-The-Message-Check-Is-Proven-Below-The-Mailbox.md) | L | — | The test pyramid audited: 157 unit, 129 integration, 5 end-to-end runs; the envelope check, the answer and the per-file decision proven only through a real mailbox, moved to unit tests over fakes, and a watch's end tested without a clock. |
+| <a id="sl50"></a>[SL50](SL50-The-Message-Check-Is-Proven-Below-The-Mailbox.md) | L | - | The test pyramid audited: 157 unit, 129 integration, 5 end-to-end runs; the envelope check, the answer and the per-file decision proven only through a real mailbox, moved to unit tests over fakes, and a watch's end tested without a clock. |
 
-## Idea
+## Analyzed
 
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="sl39"></a>[SL39](SL39-An-Organization-Proved-Against-Real-GitHub.md) | — | — | A short test by a person, against real GitHub: `trust-host`, `org create`, `setup` and `project open` at a `git@github.com:` address, with the read back; waits until after the next release |
+| # | Size | Blocked by | What it covers | Open questions |
+|---|---|---|---|---|
+| <a id="sl40"></a>[SL40](SL40-A-Workflow-Only-Change-Is-Checked-On-A-Forge.md) | S | - | A pull request changing only `.github/` is checked on a host's forge too: Forgejo ignored a job `check` for its `permissions` field, most likely the light Workflow check; measured there first, GitHub's read-only token kept. | 0 |
+| <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | - | A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways. | 0 |
 
 ## Estimated
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="sl04"></a>[SL04](SL04-An-External-Detector-Measured.md) | L | — | Somebody else's detector catalog behind the interface, measured before anything is adopted. |
-| <a id="sl23"></a>[SL23](SL23-The-Narrowed-Message-Schema-The-Filters-Side.md) | M | — | Porelo's narrowed message schema enforced in the envelope: four `metadata` keys, six kinds with their fixed data parts, one text part, one extension URI. |
-| <a id="sl08"></a>[SL08](SL08-Refuse-A-Payload-Spread-Over-Several-Messages.md) | XL | — | A payload cut into pieces and sent over several messages, caught by correlating against what the task already sent. |
+| <a id="sl04"></a>[SL04](SL04-An-External-Detector-Measured.md) | L | - | Somebody else's detector catalog behind the interface, measured before anything is adopted. |
+| <a id="sl23"></a>[SL23](SL23-The-Narrowed-Message-Schema-The-Filters-Side.md) | M | - | Porelo's narrowed message schema enforced in the envelope: four `metadata` keys, six kinds with their fixed data parts, one text part, one extension URI. |
+| <a id="sl08"></a>[SL08](SL08-Refuse-A-Payload-Spread-Over-Several-Messages.md) | XL | - | A payload cut into pieces and sent over several messages, caught by correlating against what the task already sent. |
+
+## Backlog
+
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="sl41"></a>[SL41](SL41-A-Refusal-Never-Shows-What-It-Matched.md) | S | - | A finding's explanation that quotes its match is refused, and keys are hidden when the detectors did not run: both held by no test today (PIT). |
+| <a id="sl49"></a>[SL49](SL49-A-Credential-Context-Is-Read-On-Both-Sides.md) | XS | - | A credential whose context word follows it is refused under a test; PIT shows the window after the match held by none. |
+| <a id="sl42"></a>[SL42](SL42-Every-Part-Of-A-Task-Is-Walked.md) | S | - | A task's artifacts, their parts, metadata and extensions, a part's URL and a nested A2A 0.3 shape each reach the detectors and limits under a test; today no test fails without them (PIT). |
+| <a id="sl47"></a>[SL47](SL47-No-Message-Is-Lost-Or-Filed-Twice.md) | M | - | A free name is never a taken one, a signature that went ahead is not filed apart, a file over the limit is answered, a swapped directory noticed, the stability delay's path tested (PIT). |
+| <a id="sl43"></a>[SL43](SL43-Masking-Hides-No-Payload.md) | S | - | An impossible host, a UUID chain, many short hashes, a long path segment and a URL's user part stay unmasked under a test (PIT). |
+| <a id="sl44"></a>[SL44](SL44-Every-Encoding-Signature-Is-Held.md) | M | - | uuencode, ascii85, hex bytes, dense escapes and the alphabet runs each refused by a test of their own, the prose exemptions held on both sides (PIT). |
+| <a id="sl45"></a>[SL45](SL45-Invisible-Characters-And-Look-Alikes-Are-Held.md) | S | - | Every kind of invisible character, a joiner outside an emoji and a mixed-script word each found by a test (PIT). |
+| <a id="sl46"></a>[SL46](SL46-The-Statistical-Detectors-Are-Held-To-Their-Rules.md) | M | - | Each rule of the token-shape, entropy and letter-distribution detectors held just inside and just outside its limit (PIT). |
+| <a id="sl48"></a>[SL48](SL48-The-Remaining-Classes-Sorted.md) | S | - | The 120 mutants left in eleven classes not sorted first, sorted the same way, `SshSignature`, `DirectoryLock` and `MessageArchive` first. |
+
+## Review
+
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | M | - | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; the harm-guarding classes sorted into eight gap issues. |
+| <a id="sl36"></a>[SL36](SL36-Snapshots-Resolved-With-A-Read-Only-Token.md) | S | - | No workflow holds a token that can write to a forge's registry: snapshots resolved with a read-only token, and a Build on a forge other than GitHub without `MAVEN_SNAPSHOTS_URL` or that token fails at once. |
+| <a id="sl37"></a>[SL37](SL37-A-Task-Of-Another-Project-Named-As-A-Peer.md) | S | - | A peer named `task:<project>:<task>`, a task of another project by its certificate's principal, passes the envelope check; a `:` anywhere else in a peer name is still refused. |
 
 ## Finished
 

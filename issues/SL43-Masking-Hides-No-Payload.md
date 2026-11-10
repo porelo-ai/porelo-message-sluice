@@ -1,7 +1,20 @@
 # SL43 — Masking Hides No Payload
 
-**Status:** Backlog.
-**Size:** S - tests of `Masked` only.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL43",
+  "title": "Masking Hides No Payload",
+  "state": "Backlog",
+  "size": "S",
+  "priority": "Medium",
+  "rank": 5,
+  "blockedBy": [],
+  "covers": "An impossible host, a UUID chain, many short hashes, a long path segment and a URL's user part stay unmasked under a test (PIT)."
+}
+```
+
+**Why this size.** tests of `Masked` only.
 
 **What must be true.** What `Masked` takes out of the text for the English checks is only what its documentation names: a host no DNS name could be, a chain of UUIDs, more short hashes than its limit, a long URL path segment and a URL's user part stay for the checks.
 

@@ -1,11 +1,26 @@
 # SL23 — The narrowed message schema, the filter's side
 
-**Status:** Estimated; it waits for Porelo's schema document, which decides the schema and which side checks what.
-**Size:** M - several new envelope rules and a kind's data part let through by shape, against a
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL23",
+  "title": "The narrowed message schema, the filter's side",
+  "state": "Estimated",
+  "size": "M",
+  "priority": "Medium",
+  "rank": 2,
+  "blockedBy": [],
+  "covers": "Porelo's narrowed message schema enforced in the envelope: four `metadata` keys, six kinds with their fixed data parts, one text part, one extension URI."
+}
+```
+
+**Why this size.** several new envelope rules and a kind's data part let through by shape, against a
 schema document shared with Porelo: one contract change.
 
 **What must be true.** A message Porelo sends has exactly the shape Porelo's narrowed message schema allows, and
 the filter refuses anything else by a rule that names what is wrong.
+
+**How it stands.** It waits for Porelo's schema document, which decides the schema and which side checks what.
 
 ## Why
 

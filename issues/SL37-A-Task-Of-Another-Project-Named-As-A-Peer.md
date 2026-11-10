@@ -1,7 +1,20 @@
 # SL37 — A Task Of Another Project Named As A Peer
 
-**Status:** Review.
-**Size:** S - one pattern in `EnvelopeCheck`, its tests and one line of `doc/filter.md`, but a contract Porelo reads.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL37",
+  "title": "A Task Of Another Project Named As A Peer",
+  "state": "Review",
+  "size": "S",
+  "priority": "Medium",
+  "rank": 3,
+  "blockedBy": [],
+  "covers": "A peer named `task:<project>:<task>`, a task of another project by its certificate's principal, passes the envelope check; a `:` anywhere else in a peer name is still refused."
+}
+```
+
+**Why this size.** one pattern in `EnvelopeCheck`, its tests and one line of `doc/filter.md`, but a contract Porelo reads.
 
 **What must be true.** A message whose `metadata.to` or `metadata.from` names a task of another project by its
 principal, `task:<project>:<task>`, passes the envelope check, while a `:` anywhere else in a peer name is still

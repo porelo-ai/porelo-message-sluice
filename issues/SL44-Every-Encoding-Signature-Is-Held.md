@@ -1,7 +1,20 @@
 # SL44 — Every Encoding Signature Is Held
 
-**Status:** Backlog.
-**Size:** M - many small cases in one detector, each with a payload and with the prose next to it.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL44",
+  "title": "Every Encoding Signature Is Held",
+  "state": "Backlog",
+  "size": "M",
+  "priority": "Medium",
+  "rank": 6,
+  "blockedBy": [],
+  "covers": "uuencode, ascii85, hex bytes, dense escapes and the alphabet runs each refused by a test of their own, the prose exemptions held on both sides (PIT)."
+}
+```
+
+**Why this size.** many small cases in one detector, each with a payload and with the prose next to it.
 
 **What must be true.** Each encoding `EncodingSignatureDetector` names is refused by a test of its own, and each of its exemptions for prose is held on both sides: uuencode, ascii85, hex bytes, dense escapes, and runs whose alphabet says base32, base58, base64 or base64url.
 

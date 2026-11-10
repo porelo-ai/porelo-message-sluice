@@ -1,7 +1,20 @@
 # SL42 — Every Part Of A Task Is Walked
 
-**Status:** Backlog.
-**Size:** S - tests of `EnvelopeCheck` only; the walk exists, no test holds it.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL42",
+  "title": "Every Part Of A Task Is Walked",
+  "state": "Backlog",
+  "size": "S",
+  "priority": "Medium",
+  "rank": 3,
+  "blockedBy": [],
+  "covers": "A task's artifacts, their parts, metadata and extensions, a part's URL and a nested A2A 0.3 shape each reach the detectors and limits under a test; today no test fails without them (PIT)."
+}
+```
+
+**Why this size.** tests of `EnvelopeCheck` only; the walk exists, no test holds it.
 
 **What must be true.** Every field of a task or message envelope that can carry text reaches the detectors and the envelope's limits: a task's artifacts, their parts, metadata and extensions, a part's URL, a task's history, and anything shaped like A2A 0.3 at any depth.
 

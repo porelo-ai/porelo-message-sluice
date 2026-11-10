@@ -1,7 +1,20 @@
 # SL46 — The Statistical Detectors Are Held To Their Rules
 
-**Status:** Backlog.
-**Size:** M - three detectors whose rules no test tells apart from a rule taken out.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL46",
+  "title": "The Statistical Detectors Are Held To Their Rules",
+  "state": "Backlog",
+  "size": "M",
+  "priority": "Medium",
+  "rank": 8,
+  "blockedBy": [],
+  "covers": "Each rule of the token-shape, entropy and letter-distribution detectors held just inside and just outside its limit (PIT)."
+}
+```
+
+**Why this size.** three detectors whose rules no test tells apart from a rule taken out.
 
 **What must be true.** Each rule of the token-shape, entropy and English-distribution detectors is held by a test that a text just inside the rule is found and one just outside passes.
 

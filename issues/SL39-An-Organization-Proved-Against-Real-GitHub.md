@@ -1,6 +1,18 @@
 # SL39 — An Organization Proved Against Real GitHub
 
-**Status:** Idea.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL39",
+  "title": "An Organization Proved Against Real GitHub",
+  "state": "Idea",
+  "size": "-",
+  "priority": "Medium",
+  "rank": 1,
+  "blockedBy": [],
+  "covers": "A short test by a person, against real GitHub: `trust-host`, `org create`, `setup` and `project open` at a `git@github.com:` address, with the read back; waits until after the next release"
+}
+```
 
 **What must be true.** A person can make and read an organization kept at a `git@github.com:` address on the real
 forge: `credentials trust-host github.com`, `org create`, `setup` on a second machine that finds the person's card by

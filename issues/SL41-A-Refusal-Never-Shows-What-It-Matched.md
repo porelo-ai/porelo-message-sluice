@@ -1,7 +1,20 @@
 # SL41 — A Refusal Never Shows What It Matched
 
-**Status:** Backlog.
-**Size:** S - the tests and at most a line of `DetectorRunner` and `EnvelopeResult`; the most direct harm of the set.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL41",
+  "title": "A Refusal Never Shows What It Matched",
+  "state": "Backlog",
+  "size": "S",
+  "priority": "Medium",
+  "rank": 1,
+  "blockedBy": [],
+  "covers": "A finding's explanation that quotes its match is refused, and keys are hidden when the detectors did not run: both held by no test today (PIT)."
+}
+```
+
+**Why this size.** the tests and at most a line of `DetectorRunner` and `EnvelopeResult`; the most direct harm of the set.
 
 **What must be true.** A refusal never carries what a rule matched: a finding's explanation that quotes the matched text is refused, and every key of a message is named by its position in an answer whenever the detectors did not vouch for it.
 

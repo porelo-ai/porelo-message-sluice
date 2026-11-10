@@ -1,7 +1,20 @@
 # SL36 — Snapshots Resolved With A Read-Only Token
 
-**Status:** Review.
-**Size:** S - four workflows, `settings.xml`, one test that reads the workflows and one decision; no code of the
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL36",
+  "title": "Snapshots Resolved With A Read-Only Token",
+  "state": "Review",
+  "size": "S",
+  "priority": "Medium",
+  "rank": 2,
+  "blockedBy": [],
+  "covers": "No workflow holds a token that can write to a forge's registry: snapshots resolved with a read-only token, and a Build on a forge other than GitHub without `MAVEN_SNAPSHOTS_URL` or that token fails at once."
+}
+```
+
+**Why this size.** four workflows, `settings.xml`, one test that reads the workflows and one decision; no code of the
 filter, and the token's name is the only thing read from outside.
 
 **What must be true.** No step of this repository's workflows holds a token that can write to a forge's package

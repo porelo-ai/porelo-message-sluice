@@ -1,7 +1,20 @@
 # SL45 — Invisible Characters And Look-Alikes Are Held
 
-**Status:** Backlog.
-**Size:** S - tests of `Normalizer` only.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL45",
+  "title": "Invisible Characters And Look-Alikes Are Held",
+  "state": "Backlog",
+  "size": "S",
+  "priority": "Medium",
+  "rank": 7,
+  "blockedBy": [],
+  "covers": "Every kind of invisible character, a joiner outside an emoji and a mixed-script word each found by a test (PIT)."
+}
+```
+
+**Why this size.** tests of `Normalizer` only.
 
 **What must be true.** Every kind of invisible character the normalizer looks for is found by a test, a joiner counts as part of an emoji only after a symbol, and a word mixing Latin with look-alikes is found.
 

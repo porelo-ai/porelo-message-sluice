@@ -1,7 +1,20 @@
 # SL48 — The Remaining Classes Sorted
 
-**Status:** Backlog.
-**Size:** S - the same sorting for 120 mutants in eleven classes.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL48",
+  "title": "The Remaining Classes Sorted",
+  "state": "Backlog",
+  "size": "S",
+  "priority": "Medium",
+  "rank": 9,
+  "blockedBy": [],
+  "covers": "The 120 mutants left in eleven classes not sorted first, sorted the same way, `SshSignature`, `DirectoryLock` and `MessageArchive` first."
+}
+```
+
+**Why this size.** the same sorting for 120 mutants in eleven classes.
 
 **What must be true.** The mutants PIT leaves in the classes not yet sorted are sorted like the others, real gaps and harmless ones, and the real gaps written as issues.
 

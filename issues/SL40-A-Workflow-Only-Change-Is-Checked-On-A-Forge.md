@@ -1,7 +1,21 @@
 # SL40 — A Workflow-Only Change Is Checked On A Forge
 
-**Status:** Analyzed.
-**Size:** S - one workflow and its measurement on a host's forge, no contract; larger only if the cause is Forgejo's
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL40",
+  "title": "A Workflow-Only Change Is Checked On A Forge",
+  "state": "Analyzed",
+  "size": "S",
+  "priority": "Medium",
+  "rank": 1,
+  "blockedBy": [],
+  "covers": "A pull request changing only `.github/` is checked on a host's forge too: Forgejo ignored a job `check` for its `permissions` field, most likely the light Workflow check; measured there first, GitHub's read-only token kept.",
+  "openQuestions": 0
+}
+```
+
+**Why this size.** one workflow and its measurement on a host's forge, no contract; larger only if the cause is Forgejo's
 and needs a setting of the host.
 
 **What must be true.** A pull request that changes only `.github/` is checked on a host's forge as it is on GitHub,

@@ -1,7 +1,20 @@
 # SL47 — No Message Is Lost Or Filed Twice
 
-**Status:** Backlog.
-**Size:** M - file handling across `FileOps` and `MessageSluice`, several of it race paths.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL47",
+  "title": "No Message Is Lost Or Filed Twice",
+  "state": "Backlog",
+  "size": "M",
+  "priority": "Medium",
+  "rank": 4,
+  "blockedBy": [],
+  "covers": "A free name is never a taken one, a signature that went ahead is not filed apart, a file over the limit is answered, a swapped directory noticed, the stability delay's path tested (PIT)."
+}
+```
+
+**Why this size.** file handling across `FileOps` and `MessageSluice`, several of it race paths.
 
 **What must be true.** A message and its signature are never overwritten, filed apart or read past their limit: a free name is never a taken one, a signature that went ahead is not filed beside the wrong message, a file over the size limit is answered, a replaced directory is noticed, and the production path with a stability delay passes a message.
 

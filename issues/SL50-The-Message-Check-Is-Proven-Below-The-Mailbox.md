@@ -1,7 +1,20 @@
 # SL50 — The Message Check Is Proven Below The Mailbox
 
-**Status:** Accepted.
-**Size:** L - three fixes, M, S and S, each one commit; they split into three issues if wished.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL50",
+  "title": "The Message Check Is Proven Below The Mailbox",
+  "state": "Accepted",
+  "size": "L",
+  "priority": "Medium",
+  "rank": 1,
+  "blockedBy": [],
+  "covers": "The test pyramid audited: 157 unit, 129 integration, 5 end-to-end runs; the envelope check, the answer and the per-file decision proven only through a real mailbox, moved to unit tests over fakes, and a watch's end tested without a clock."
+}
+```
+
+**Why this size.** three fixes, M, S and S, each one commit; they split into three issues if wished.
 
 **What must be true.** The filter's tests follow the test pyramid: what a message may contain, what its answer may
 say and when a watch ends are proven by unit tests over fakes in milliseconds, and only what the real filesystem, a

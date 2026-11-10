@@ -1,7 +1,20 @@
 # SL49 — A Credential's Context Is Read On Both Sides
 
-**Status:** Backlog.
-**Size:** XS - one test of `CredentialDetector`.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL49",
+  "title": "A Credential's Context Is Read On Both Sides",
+  "state": "Backlog",
+  "size": "XS",
+  "priority": "Medium",
+  "rank": 2,
+  "blockedBy": [],
+  "covers": "A credential whose context word follows it is refused under a test; PIT shows the window after the match held by none."
+}
+```
+
+**Why this size.** one test of `CredentialDetector`.
 
 **What must be true.** A credential rule that needs a context word finds the word after the match as well as before
 it, so a credential followed by its context word is refused.

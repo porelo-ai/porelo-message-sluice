@@ -1,9 +1,25 @@
 # SL24 — A code comment, the filter's side
 
-**Status:** Analyzed; it waits for the one SARIF profile for every review written down in Porelo, and Porelo's hardened SARIF reader on `java-sarif`. It does not wait for [SL23](README.md#sl23)'s narrowed schema: it works on today's envelope.
-**Size:** L - direction-specific envelope rules for the closed SARIF 2.1.0 profile, pre-binding parser budgets, and a second set of detector thresholds measured on a code corpus.
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL24",
+  "title": "A code comment, the filter's side",
+  "state": "Analyzed",
+  "size": "L",
+  "priority": "Medium",
+  "rank": 2,
+  "blockedBy": [],
+  "covers": "A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways.",
+  "openQuestions": 0
+}
+```
+
+**Why this size.** direction-specific envelope rules for the closed SARIF 2.1.0 profile, pre-binding parser budgets, and a second set of detector thresholds measured on a code corpus.
 
 **What must be true.** A review message (`comment`) carrying SARIF 2.1.0 passes the filter only when it conforms to Porelo's closed, direction-specific SARIF profile within strict parser budgets: anchors are validated by shape as repository-relative paths and bounded line ranges, comment bodies are restricted to the safe Markdown subset and scanned as prose, and suggested replacements are confined to the anchored region and scanned by the encoded-payload, credential and personal-data detectors tuned on a code corpus. Any unpermitted SARIF field, unknown property-bag key or sender-claimed authority is refused by a named rule in both directions.
+
+**How it stands.** It waits for the one SARIF profile for every review written down in Porelo, and Porelo's hardened SARIF reader on `java-sarif`. It does not wait for [SL23](README.md#sl23)'s narrowed schema: it works on today's envelope.
 
 ## Why
 

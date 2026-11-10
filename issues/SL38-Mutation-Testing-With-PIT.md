@@ -1,7 +1,20 @@
 # SL38 — Mutation Testing With PIT
 
-**Status:** Review.
-**Size:** M - the profile is a few lines in the root pom, but sorting about 340 mutants that no test kills, across 21
+```json
+{
+  "$schema": "issue-1.json",
+  "id": "SL38",
+  "title": "Mutation Testing With PIT",
+  "state": "Review",
+  "size": "M",
+  "priority": "Medium",
+  "rank": 1,
+  "blockedBy": [],
+  "covers": "A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; the harm-guarding classes sorted into eight gap issues."
+}
+```
+
+**Why this size.** the profile is a few lines in the root pom, but sorting about 340 mutants that no test kills, across 21
 classes, is about a day.
 
 **What must be true.** Whoever works on the filter can run PIT by hand and read which checks no test holds: a `pit`

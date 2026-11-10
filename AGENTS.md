@@ -537,8 +537,8 @@ and the UTC time that text last changed; change it in the channel first, never i
 
 ## Work in this repository
 
-- **Issue prefix `SL`.** An issue whose design is long is two files, `SL<nn>-Title.md` and
-  `SL<nn>-Title_design.md`; the design is marked as a proposal until something is measured.
+- **Issue prefix `SL`.** An issue's design stands in its own file, under *Design*, marked as a proposal until
+  something is measured.
 - **Not Java, each because it runs where there is no Java:** `install-local.sh` copies the native
   filter where Porelo looks for it; `buildtools/acceptance.sh` checks the installed package on a
   machine that has nothing of this repository but the package.
