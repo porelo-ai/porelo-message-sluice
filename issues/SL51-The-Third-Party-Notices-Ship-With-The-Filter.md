@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "SL51",
   "title": "The Third-Party Notices Ship With The Filter",
-  "state": "Idea",
+  "state": "Backlog",
   "size": "S",
   "priority": "Medium",
   "rank": 1,
@@ -20,6 +20,8 @@ check; no contract another repository reads.
 **What must be true.** Whoever installs the filter's `.deb` or `.rpm` finds the full license and notice texts of
 every third-party piece compiled into the native executable in one file, `THIRD-PARTY-NOTICES`, beside the filter's
 own license, as the licenses of those pieces require.
+
+**How it stands.** Backlog (operator, 2026-11-10).
 
 ## Why
 

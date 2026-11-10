@@ -14,7 +14,6 @@ channel.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="sl39"></a>[SL39](SL39-An-Organization-Proved-Against-Real-GitHub.md) | - | - | A short test by a person, against real GitHub: `trust-host`, `org create`, `setup` and `project open` at a `git@github.com:` address, with the read back; waits until after the next release |
-| <a id="sl51"></a>[SL51](SL51-The-Third-Party-Notices-Ship-With-The-Filter.md) | S | - | The .deb and the .rpm carry one THIRD-PARTY-NOTICES file with the full license and notice texts of everything compiled into the native filter, made by the shared generator. |
 
 ## Accepted
 
@@ -42,6 +41,7 @@ channel.
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="sl41"></a>[SL41](SL41-A-Refusal-Never-Shows-What-It-Matched.md) | S | - | A finding's explanation that quotes its match is refused, and keys are hidden when the detectors did not run: both held by no test today (PIT). |
+| <a id="sl51"></a>[SL51](SL51-The-Third-Party-Notices-Ship-With-The-Filter.md) | S | - | The .deb and the .rpm carry one THIRD-PARTY-NOTICES file with the full license and notice texts of everything compiled into the native filter, made by the shared generator. |
 | <a id="sl49"></a>[SL49](SL49-A-Credential-Context-Is-Read-On-Both-Sides.md) | XS | - | A credential whose context word follows it is refused under a test; PIT shows the window after the match held by none. |
 | <a id="sl42"></a>[SL42](SL42-Every-Part-Of-A-Task-Is-Walked.md) | S | - | A task's artifacts, their parts, metadata and extensions, a part's URL and a nested A2A 0.3 shape each reach the detectors and limits under a test; today no test fails without them (PIT). |
 | <a id="sl47"></a>[SL47](SL47-No-Message-Is-Lost-Or-Filed-Twice.md) | M | - | A free name is never a taken one, a signature that went ahead is not filed apart, a file over the limit is answered, a swapped directory noticed, the stability delay's path tested (PIT). |
