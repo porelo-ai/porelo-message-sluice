@@ -108,7 +108,7 @@ jobs:
               run: |
                   set -euo pipefail
                   missing=()
-                  for tool in gcc:gcc rpm2cpio:rpm2cpio cpio:cpio dpkg-deb:dpkg; do
+                  for tool in gcc:gcc rpm:rpm rpm2cpio:rpm2cpio cpio:cpio dpkg-deb:dpkg; do
                       command -v "${tool%%:*}" > /dev/null || missing+=("${tool#*:}")
                   done
                   dpkg-query -W -f='${Status}' zlib1g-dev 2> /dev/null | grep -q 'ok installed' || missing+=(zlib1g-dev)
@@ -217,6 +217,26 @@ jobs:
                       for p in */dist-rpm/target/*.rpm; do (cd "$R" && rpm2cpio "$GITHUB_WORKSPACE/$p" | cpio -idm); done
                     fi
                     FILTER="$R/usr/libexec/porelo/porelo-message-sluice-filter"
+                    # The licenses of what is compiled into the filter ship with it: the .deb's beside its copyright,
+                    # which names them, the .rpm's as a license file. A section for every runtime jar and the
+                    # runtime, and jackson-core's embedded parser's notice, which only the jar itself carries.
+                    if [ "$format" = deb ]; then
+                      N="$R/usr/share/doc/porelo-message-sluice-filter/THIRD-PARTY-NOTICES"
+                      C="$R/usr/share/doc/porelo-message-sluice-filter/copyright"
+                      grep -qF THIRD-PARTY-NOTICES "$C" \
+                        || { echo "::error::the .deb's copyright does not name THIRD-PARTY-NOTICES; it reads:"; cat "$C"; exit 1; }
+                    else
+                      N="$R/usr/share/licenses/porelo-message-sluice-filter/THIRD-PARTY-NOTICES"
+                      L=$(rpm -qp --dbpath "$RUNNER_TEMP/rpmdb" -L filter/dist-rpm/target/*.rpm)
+                      grep -qxF "${N#"$R"}" <<< "$L" \
+                        || { echo "::error::the .rpm marks no ${N#"$R"} as a license; it marks:"; echo "$L"; exit 1; }
+                    fi
+                    test -f "$N" || { echo "::error::the .$format holds no ${N#"$R"}; it holds:"; ls -R "$(dirname "$N")"; exit 1; }
+                    for want in '^com\.fasterxml\.jackson\.core:jackson-annotations:' '^com\.fasterxml\.jackson\.core:jackson-core:' \
+                      '^com\.fasterxml\.jackson\.core:jackson-databind:' '^org\.jspecify:jspecify:' '^GraalVM runtime ' 'Werner Randelshofer'; do
+                      grep -q "$want" "$N" || { echo "::error::${N#"$R"} in the .$format has no line matching '$want'; its sections:"
+                        grep -A1 '^=====' "$N" | grep -v '^=====\|^--$'; exit 1; }
+                    done
                     M="$RUNNER_TEMP/mail-$format"
                     mkdir -p "$M"/{incoming,sent} "$M"/filter/{accepted,feedback}
                     mkdir -m 700 "$M"/filter/{rejected,error}

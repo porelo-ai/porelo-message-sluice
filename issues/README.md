@@ -50,17 +50,12 @@ channel.
 | <a id="sl46"></a>[SL46](SL46-The-Statistical-Detectors-Are-Held-To-Their-Rules.md) | M | - | Each rule of the token-shape, entropy and letter-distribution detectors held just inside and just outside its limit (PIT). |
 | <a id="sl48"></a>[SL48](SL48-The-Remaining-Classes-Sorted.md) | S | - | The 120 mutants left in eleven classes not sorted first, sorted the same way, `SshSignature`, `DirectoryLock` and `MessageArchive` first. |
 
-## Implementing
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="sl51"></a>[SL51](SL51-The-Third-Party-Notices-Ship-With-The-Filter.md) | S | - | The .deb and the .rpm carry one THIRD-PARTY-NOTICES file with the full license and notice texts of everything compiled into the native filter, made by the shared generator. |
-
 ## Review
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
 | <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | M | - | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; the harm-guarding classes sorted into eight gap issues. |
+| <a id="sl51"></a>[SL51](SL51-The-Third-Party-Notices-Ship-With-The-Filter.md) | S | - | The .deb and the .rpm carry one THIRD-PARTY-NOTICES file with the full license and notice texts of everything compiled into the native filter, made by the shared generator. |
 | <a id="sl36"></a>[SL36](SL36-Snapshots-Resolved-With-A-Read-Only-Token.md) | S | - | No workflow holds a token that can write to a forge's registry: snapshots resolved with a read-only token, and a Build on a forge other than GitHub without `MAVEN_SNAPSHOTS_URL` or that token fails at once. |
 | <a id="sl37"></a>[SL37](SL37-A-Task-Of-Another-Project-Named-As-A-Peer.md) | S | - | A peer named `task:<project>:<task>`, a task of another project by its certificate's principal, passes the envelope check; a `:` anywhere else in a peer name is still refused. |
 

@@ -53,6 +53,66 @@
                         <groupId>org.cyclonedx</groupId>
                         <artifactId>cyclonedx-maven-plugin</artifactId>
                     </plugin>
+                    <!-- The licenses of every jar compiled into the executable and of the JDK it is built with,
+                         in full, for both packages to ship; refused when a jar's bill names no license. -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>notices-classpath</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build-classpath</goal>
+                                </goals>
+                                <configuration>
+                                    <includeScope>runtime</includeScope>
+                                    <outputFile>${project.build.directory}/classpath.txt</outputFile>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>third-party-notices</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${java.home}/bin/java</executable>
+                                    <includeProjectDependencies>false</includeProjectDependencies>
+                                    <includePluginDependencies>true</includePluginDependencies>
+                                    <executableDependency>
+                                        <groupId>org.fuin.porelo</groupId>
+                                        <artifactId>porelo-release</artifactId>
+                                    </executableDependency>
+                                    <arguments>
+                                        <argument>-classpath</argument>
+                                        <classpath/>
+                                        <argument>org.fuin.porelo.release.Main</argument>
+                                        <argument>third-party-notices</argument>
+                                        <argument>${project.build.directory}/classpath.txt</argument>
+                                        <argument>${project.build.directory}/bom.json</argument>
+                                        <argument>${java.home}</argument>
+                                        <argument>${project.build.directory}/THIRD-PARTY-NOTICES</argument>
+                                        <argument>--own</argument>
+                                        <argument>org\.fuin\.porelo:porelo-message-sluice.*</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.fuin.porelo</groupId>
+                                <artifactId>porelo-release</artifactId>
+                                <version>${porelo.buildtools.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>

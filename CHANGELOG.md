@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Both packages carry `THIRD-PARTY-NOTICES`, the full licenses and notices of the code compiled into the
+  filter and of the runtime it is built with: in the `.deb` beside its copyright, which names it, in the
+  `.rpm` as a license file.
 - Credentials are refused by what they are: a private key, a cloud key, a code host's or a registry's
   token, a signed JSON Web Token, an address with a password, a password named beside its value, a
   password for `sshpass`, and a random key next to a word naming one. A certificate or a password hash is

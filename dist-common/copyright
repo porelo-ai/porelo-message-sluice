@@ -1,6 +1,8 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: porelo-message-sluice
 Source: https://github.com/porelo-ai/porelo-message-sluice
+Comment: The licenses and notices of the third-party code compiled into the filter, in full, are in
+ /usr/share/doc/porelo-message-sluice-filter/THIRD-PARTY-NOTICES.
 
 Files: *
 Copyright: Michael Schnell and the Porelo contributors

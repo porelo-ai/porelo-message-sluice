@@ -98,6 +98,14 @@
                                     <mode>0644</mode>
                                     <license>true</license>
                                 </entry>
+                                <entry>
+                                    <name>/usr/share/licenses/porelo-message-sluice-filter/THIRD-PARTY-NOTICES</name>
+                                    <file>${project.basedir}/../app/target/THIRD-PARTY-NOTICES</file>
+                                    <user>root</user>
+                                    <group>root</group>
+                                    <mode>0644</mode>
+                                    <license>true</license>
+                                </entry>
                             </entries>
                         </configuration>
                     </execution>

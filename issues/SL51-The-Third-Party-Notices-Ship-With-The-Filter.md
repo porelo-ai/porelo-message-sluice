@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "SL51",
   "title": "The Third-Party Notices Ship With The Filter",
-  "state": "Implementing",
+  "state": "Review",
   "size": "S",
   "priority": "Medium",
   "rank": 1,
@@ -21,7 +21,7 @@ check; no contract another repository reads.
 every third-party piece compiled into the native executable in one file, `THIRD-PARTY-NOTICES`, beside the filter's
 own license, as the licenses of those pieces require.
 
-**How it stands.** Backlog (operator, 2026-11-10).
+**How it stands.** Backlog (operator, 2026-11-10); built, in Review.
 
 ## Why
 
@@ -67,3 +67,16 @@ Build; no VM, since what is checked is the packages' content, not an install.
 - Both packages, unpacked, hold the file, and it holds the full texts of Jackson's license and notice,
   FastDoubleParser's license and notice, JSpecify's license and the GraalVM runtime's terms.
 - The packaged-binary checks fail when the file is missing from either package.
+
+## The reading
+
+Read by another model against `graal`, `security-audit`, `clean-code` and `java-code-review`; five small findings, no
+grave one.
+
+- Fixed: the packaged-binary check now prints what it found when it fails, asks for a section for each runtime jar
+  and the runtime, not only jackson-core's parser, and asks the `.rpm` to mark the file as a license (`rpm` is added
+  to the runner's package tools); the generator's arguments are passed one by one, so a path with a space stays one.
+- Declined: a leftover package or root in a reused directory, and an offline or partial build packing an old file.
+  The workflow and its local replay run on a clean build in a fresh directory, as the shared rules ask.
+- Declined: `${java.home}` against a `GRAALVM_HOME` that names another JDK. Both name the one pinned GraalVM in the
+  workflow and here, and the check fails when the runtime's section is missing.
