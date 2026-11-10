@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "SL51",
   "title": "The Third-Party Notices Ship With The Filter",
-  "state": "Backlog",
+  "state": "Implementing",
   "size": "S",
   "priority": "Medium",
   "rank": 1,
