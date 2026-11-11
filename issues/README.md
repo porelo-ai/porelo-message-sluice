@@ -27,6 +27,7 @@ channel.
 |---|---|---|---|---|
 | <a id="sl40"></a>[SL40](SL40-A-Workflow-Only-Change-Is-Checked-On-A-Forge.md) | S | - | A pull request changing only `.github/` is checked on a host's forge too: Forgejo ignored a job `check` for its `permissions` field, most likely the light Workflow check; measured there first, GitHub's read-only token kept. | 0 |
 | <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | - | A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways. | 0 |
+| <a id="sl52"></a>[SL52](SL52-The-CI-Takes-Its-Downloads-From-A-Cache.md) | S | - | The pinned GraalVM and the pinned shfmt come from the Actions cache, keyed by their digests, so a server that answers 504 for a download it already served fails no Build; only the newest entry of each is kept. | 0 |
 
 ## Estimated
 
