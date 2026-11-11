@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "SL52",
   "title": "The CI Takes Its Downloads From A Cache",
-  "state": "Analyzed",
+  "state": "Implementing",
   "size": "S",
   "priority": "Medium",
   "rank": 3,

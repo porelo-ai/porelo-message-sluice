@@ -27,7 +27,6 @@ channel.
 |---|---|---|---|---|
 | <a id="sl40"></a>[SL40](SL40-A-Workflow-Only-Change-Is-Checked-On-A-Forge.md) | S | - | A pull request changing only `.github/` is checked on a host's forge too: Forgejo ignored a job `check` for its `permissions` field, most likely the light Workflow check; measured there first, GitHub's read-only token kept. | 0 |
 | <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | - | A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways. | 0 |
-| <a id="sl52"></a>[SL52](SL52-The-CI-Takes-Its-Downloads-From-A-Cache.md) | S | - | The pinned GraalVM and the pinned shfmt come from the Actions cache, keyed by their digests, so a server that answers 504 for a download it already served fails no Build; only the newest entry of each is kept. | 0 |
 
 ## Estimated
 
@@ -50,6 +49,12 @@ channel.
 | <a id="sl45"></a>[SL45](SL45-Invisible-Characters-And-Look-Alikes-Are-Held.md) | S | - | Every kind of invisible character, a joiner outside an emoji and a mixed-script word each found by a test (PIT). |
 | <a id="sl46"></a>[SL46](SL46-The-Statistical-Detectors-Are-Held-To-Their-Rules.md) | M | - | Each rule of the token-shape, entropy and letter-distribution detectors held just inside and just outside its limit (PIT). |
 | <a id="sl48"></a>[SL48](SL48-The-Remaining-Classes-Sorted.md) | S | - | The 120 mutants left in eleven classes not sorted first, sorted the same way, `SshSignature`, `DirectoryLock` and `MessageArchive` first. |
+
+## Implementing
+
+| # | Size | Blocked by | What it covers | Open questions |
+|---|---|---|---|---|
+| <a id="sl52"></a>[SL52](SL52-The-CI-Takes-Its-Downloads-From-A-Cache.md) | S | - | The pinned GraalVM and the pinned shfmt come from the Actions cache, keyed by their digests, so a server that answers 504 for a download it already served fails no Build; only the newest entry of each is kept. | 0 |
 
 ## Review
 
