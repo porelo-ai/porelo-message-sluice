@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "SL52",
   "title": "The CI Takes Its Downloads From A Cache",
-  "state": "Implementing",
+  "state": "Review",
   "size": "S",
   "priority": "Medium",
   "rank": 3,
@@ -45,30 +45,26 @@ Steps:
    `actions/cache/restore` with the key `pinned-graalvm-<sha256>` on a cache directory, call `jdk --github --cache
    <dir>`, and `actions/cache/save` on a miss - the shape `porelo-buildtools`' `pinned-jdk` action has.
 2. The shfmt: the same with the key `pinned-shfmt-<sha256>`, the digest already written in the step.
-3. The distribution's packages: not cached where the runner already has them; on a forge whose image lacks them,
-   `apt-get` reads the distribution's signed mirrors, which a cache of `.deb` files would not make safer. Kept as it
-   is, unless *To be checked* finds the GitHub runner installing them on every run.
-4. Older entries: a key that names a digest is never written twice, and a new pin writes a new key. The older entry
-   is removed by GitHub's own eviction or, if that is not enough, by the workflow after it saved the new one (see *To
-   be checked*). The Maven repository's key changes with every `pom.xml` change and is restored from the newest
-   `maven-` entry, so it is held to the same rule.
+3. The distribution's packages are not cached. The last Build on GitHub ran the step that installs them in under a
+   second, so the runner holds every one and `apt-get` does not run there. On a forge whose image lacks them,
+   `apt-get` reads the distribution's signed mirrors, and a cache of `.deb` files would not make that safer.
+4. Older entries: a key that names a digest is never written twice, and a new pin writes a new key. The old pin's
+   entry is no longer read, and GitHub removes an entry nobody has read for seven days, so the workflows delete
+   nothing themselves and need no `actions: write`. The Maven repository's key changes with every `pom.xml` change,
+   and the same eviction removes its older entries.
 
-The test: a workflow change only, with no code that ships. `WorkflowCommitsTest` reads `build.yml` and
-`shared-rules.yml` and runs their commit-message steps; it runs unchanged, and a run on the local forge shows the
-cache hit on the second run.
+The test: a workflow change only, with no code that ships. The step *The pinned shfmt* was run verbatim for a miss, a
+hit and a corrupt cached file; `WorkflowCommitsTest` and `check-actions` ran unchanged; the Build on GitHub shows the
+cache miss on its first run and the hit on the next.
 
 ## Acceptance
 
 - A second run of the Build and of the *Shared rules check* on the same pin downloads neither the GraalVM nor shfmt:
   the log shows the cache hit and the digest check after it.
-- A cached archive whose digest does not match fails the step with both digests named.
-- After a pin moves, the cache holds the new entry, and the old one is gone or marked for removal by the rule chosen.
+- A cached file whose digest does not match fails its step and names the file.
+- After a pin moves, the new entry is written under the new digest, and the old one is no longer read.
 
 ## To be checked
 
-- Whether the GitHub runner `ubuntu-26.04` already holds `gcc`, `rpm`, `rpm2cpio`, `cpio`, `zlib1g-dev` and
-  `python3-yaml`, read from a run's log: if not, `apt-get` runs on every Build.
-- Whether GitHub's repository settings can remove a cache entry after a set time, beyond its default eviction of
-  entries not used for seven days; if not, whether deleting the older entry needs the job's token with `actions:
-  write`, which the workflows do not grant today (`contents: read`).
-- Whether the local forge's Actions offer `actions/cache` with the same behaviour, so the steps work on both forges.
+- Whether the local forge's Actions offer `actions/cache` with the same behaviour; without a cache server the cache
+  steps warn and the downloads run as before, which is to be seen in a run there.

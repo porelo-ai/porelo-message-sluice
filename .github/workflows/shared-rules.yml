@@ -30,6 +30,8 @@ jobs:
         runs-on: ubuntu-26.04
         # A guess, not yet measured on a runner: a slow runner must end, not run for GitHub's six hours.
         timeout-minutes: 10
+        env:
+            SHFMT_SHA256: d9fbb2a9c33d13f47e7618cf362a914d029d02a6df124064fff04fd688a745ea
         steps:
             # Every commit, so the scheduled run reads main's last day without a second fetch.
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -83,15 +85,38 @@ jobs:
             # As in the Build workflow: the GraalVM that compiles the tests is the one porelo-machines pins,
             # its archive checked against the pinned digest; the runner's own Java 25 only runs that step
             # and the checks.
-            - name: The pinned GraalVM
+            - name: The pinned GraalVM's digest
+              id: graalvm-pin
               env:
                   PORELO_PACKAGES_READ_TOKEN: ${{ secrets.PORELO_PACKAGES_READ_TOKEN }}
               run: |
                   export JAVA_HOME="$JAVA_HOME_25_X64"
                   ./mvnw -B -q -U -N -Pci-tools -s settings.xml dependency:build-classpath \
                       -Dmdep.outputFile="$RUNNER_TEMP/tools.classpath"
-                  "$JAVA_HOME/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \
-                      org.fuin.porelo.machines.Main jdk --github
+                  sha256=$("$JAVA_HOME/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \
+                      org.fuin.porelo.machines.Main jdk --print-sha256) \
+                      || { echo "::error::porelo-machines could not name the pinned digest (exit $?)"; exit 1; }
+                  [[ $sha256 =~ ^[0-9a-f]{64}$ ]] \
+                      || { echo "::error::porelo-machines named no pinned digest"; exit 1; }
+                  echo "sha256=$sha256" >> "$GITHUB_OUTPUT"
+
+            # Digest keys give new pins new entries; GitHub removes entries nobody has read for seven days, so old pins expire.
+            - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              id: graalvm-cache
+              with:
+                  path: ~/.cache/porelo-pinned/graalvm
+                  key: pinned-graalvm-${{ steps.graalvm-pin.outputs.sha256 }}
+
+            - name: The pinned GraalVM
+              run: |
+                  "$JAVA_HOME_25_X64/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \
+                      org.fuin.porelo.machines.Main jdk --github --cache "$HOME/.cache/porelo-pinned/graalvm"
+
+            - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              if: steps.graalvm-cache.outputs.cache-hit != 'true'
+              with:
+                  path: ~/.cache/porelo-pinned/graalvm
+                  key: pinned-graalvm-${{ steps.graalvm-pin.outputs.sha256 }}
 
             # The shared rules are copied byte for byte into every repository; an edited copy no longer
             # matches the hash its markers carry.
@@ -117,16 +142,30 @@ jobs:
             # The shfmt porelo-parent pins, which Spotless does not download: validate checks the two
             # scripts in every Maven run, the documents tests' included. Checked against the digest its
             # release names.
+            - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              id: shfmt-cache
+              with:
+                  path: ~/.cache/porelo-pinned/shfmt
+                  key: pinned-shfmt-${{ env.SHFMT_SHA256 }}
+
             - name: The pinned shfmt
               run: |
                   set -eu
                   VERSION=3.12.0
-                  mkdir -p "$RUNNER_TEMP/bin"
-                  curl -fsSL --retry 5 --retry-all-errors -o "$RUNNER_TEMP/bin/shfmt" \
-                      "https://github.com/mvdan/sh/releases/download/v$VERSION/shfmt_v${VERSION}_linux_amd64"
-                  echo "d9fbb2a9c33d13f47e7618cf362a914d029d02a6df124064fff04fd688a745ea  $RUNNER_TEMP/bin/shfmt" | sha256sum -c -
-                  chmod +x "$RUNNER_TEMP/bin/shfmt"
+                  mkdir -p "$HOME/.cache/porelo-pinned/shfmt" "$RUNNER_TEMP/bin"
+                  if [ ! -f "$HOME/.cache/porelo-pinned/shfmt/shfmt" ]; then
+                      curl -fsSL --retry 5 --retry-all-errors -o "$HOME/.cache/porelo-pinned/shfmt/shfmt" \
+                          "https://github.com/mvdan/sh/releases/download/v$VERSION/shfmt_v${VERSION}_linux_amd64"
+                  fi
+                  echo "$SHFMT_SHA256  $HOME/.cache/porelo-pinned/shfmt/shfmt" | sha256sum -c -
+                  install -m 0755 "$HOME/.cache/porelo-pinned/shfmt/shfmt" "$RUNNER_TEMP/bin/shfmt"
                   echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+            - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              if: steps.shfmt-cache.outputs.cache-hit != 'true'
+              with:
+                  path: ~/.cache/porelo-pinned/shfmt
+                  key: pinned-shfmt-${{ env.SHFMT_SHA256 }}
 
             # Every test that reads a document carries the tag documents, and the guard among them fails
             # when one does not.
