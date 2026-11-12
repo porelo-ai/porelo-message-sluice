@@ -5,16 +5,17 @@
   "$schema": "issue-1.json",
   "id": "SL50",
   "title": "The Message Check Is Proven Below The Mailbox",
-  "state": "Accepted",
+  "state": "Analyzed",
   "size": "L",
   "priority": "Medium",
   "rank": 1,
   "blockedBy": [],
-  "covers": "The test pyramid audited: 157 unit, 129 integration, 5 end-to-end runs; the envelope check, the answer and the per-file decision proven only through a real mailbox, moved to unit tests over fakes, and a watch's end tested without a clock."
+  "covers": "The test pyramid audited: 157 unit, 129 integration, 5 end-to-end runs; the envelope check, the answer and the per-file decision proven only through a real mailbox, moved to unit tests over fakes, and a watch's end tested without a clock.",
+  "openQuestions": 1
 }
 ```
 
-**Why this size.** three fixes, M, S and S, each one commit; they split into three issues if wished.
+**Why this size.** Three fixes, M, S and S, each one commit in `filter/app` alone, no contract touched.
 
 **What must be true.** The filter's tests follow the test pyramid: what a message may contain, what its answer may
 say and when a watch ends are proven by unit tests over fakes in milliseconds, and only what the real filesystem, a
@@ -91,3 +92,13 @@ documentation corpus in 10.4 s, and the unit suite stays under a minute with it.
 - The unit share, counted as above, is at least 70 %, and the unit suite stays under a minute.
 - Every flow named under *Why* has unit tests that fail when its rule is broken on purpose, seen red.
 - No test but the one real-thread watch test waits on a thread, a poll or a timeout to see a flow work.
+
+## Open questions
+
+- One issue or three: F1 (M), F2 (S) and F3 (S) can be built and handed over apart, as three issues, or together as
+  this one.
+
+## To be checked
+
+- The counts under *Why* recounted on the commit the build starts from: the Backlog issues before it add tests to
+  `MessageSluiceTest` and the detector suites, which shifts the shares.
