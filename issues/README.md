@@ -20,7 +20,6 @@ channel.
 | # | Size | Blocked by | What it covers | Open questions |
 |---|---|---|---|---|
 | <a id="sl40"></a>[SL40](SL40-A-Workflow-Only-Change-Is-Checked-On-A-Forge.md) | S | - | A pull request changing only `.github/` is checked on a host's forge too: Forgejo ignored a job `check` for its `permissions` field, most likely the light Workflow check; measured there first, GitHub's read-only token kept. | 0 |
-| <a id="sl50"></a>[SL50](SL50-The-Message-Check-Is-Proven-Below-The-Mailbox.md) | L | - | The test pyramid audited: 157 unit, 129 integration, 5 end-to-end runs; the envelope check, the answer and the per-file decision proven only through a real mailbox, moved to unit tests over fakes, and a watch's end tested without a clock. | 1 |
 | <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | - | A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways. | 0 |
 
 ## Estimated
@@ -30,6 +29,9 @@ channel.
 | <a id="sl04"></a>[SL04](SL04-An-External-Detector-Measured.md) | L | - | Somebody else's detector catalog behind the interface, measured before anything is adopted. |
 | <a id="sl23"></a>[SL23](SL23-The-Narrowed-Message-Schema-The-Filters-Side.md) | M | - | Porelo's narrowed message schema enforced in the envelope: four `metadata` keys, six kinds with their fixed data parts, one text part, one extension URI. |
 | <a id="sl08"></a>[SL08](SL08-Refuse-A-Payload-Spread-Over-Several-Messages.md) | XL | - | A payload cut into pieces and sent over several messages, caught by correlating against what the task already sent. |
+| <a id="sl53"></a>[SL53](SL53-The-Per-Message-Decision-Is-Proven-Without-The-Mailbox.md) | M | - | The part of `MessageSluice` that turns a name, the bytes and a signature into an outcome and an answer becomes a class that touches no file; the about 30 decision cases of `MessageSluiceTest` move to unit tests over stub detectors. |
+| <a id="sl54"></a>[SL54](SL54-The-Envelope-And-The-Answer-Are-Tested-On-Their-Own.md) | S | - | Unit tests of `EnvelopeCheck`, `A2aReader` and `Answers`, each built from a string with no directory: every refusal reason and limit of the envelope, and what an answer may carry. |
+| <a id="sl55"></a>[SL55](SL55-A-Watch-Ends-Under-A-Test-Without-A-Clock.md) | S | - | `watch` waits for its next event through a small injected interface, so its three ends - interrupted, a failed pass, a lost lock - are unit tests with a wait that returns at once; one real-thread test stays. |
 
 ## Backlog
 
@@ -76,6 +78,7 @@ channel.
 
 | # | Title | Why |
 |---|---|---|
+| <a id="sl50"></a>[SL50](README.md#sl50) | The Message Check Is Proven Below The Mailbox | Split into [SL53](README.md#sl53), [SL54](README.md#sl54) and [SL55](README.md#sl55), built and handed over apart. |
 | <a id="sl34"></a>[SL34](README.md#sl34) | A Dependabot Pull Request Gets The Variables | Measured harmless: an empty `MAVEN_SNAPSHOTS_URL` activates `settings.xml`'s `standard` profile as an unset one does, so Maven reads Sonatype's snapshots on GitHub and no empty URL. |
 
 **Open questions**, in *Analyzed* only, counts what waits on the operator; what this repository's
