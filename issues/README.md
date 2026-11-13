@@ -26,12 +26,12 @@ channel.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="sl04"></a>[SL04](SL04-An-External-Detector-Measured.md) | L | - | Somebody else's detector catalog behind the interface, measured before anything is adopted. |
-| <a id="sl23"></a>[SL23](SL23-The-Narrowed-Message-Schema-The-Filters-Side.md) | M | - | Porelo's narrowed message schema enforced in the envelope: four `metadata` keys, six kinds with their fixed data parts, one text part, one extension URI. |
-| <a id="sl08"></a>[SL08](SL08-Refuse-A-Payload-Spread-Over-Several-Messages.md) | XL | - | A payload cut into pieces and sent over several messages, caught by correlating against what the task already sent. |
 | <a id="sl53"></a>[SL53](SL53-The-Per-Message-Decision-Is-Proven-Without-The-Mailbox.md) | M | - | The part of `MessageSluice` that turns a name, the bytes and a signature into an outcome and an answer becomes a class that touches no file; the about 30 decision cases of `MessageSluiceTest` move to unit tests over stub detectors. |
 | <a id="sl54"></a>[SL54](SL54-The-Envelope-And-The-Answer-Are-Tested-On-Their-Own.md) | S | - | Unit tests of `EnvelopeCheck`, `A2aReader` and `Answers`, each built from a string with no directory: every refusal reason and limit of the envelope, and what an answer may carry. |
 | <a id="sl55"></a>[SL55](SL55-A-Watch-Ends-Under-A-Test-Without-A-Clock.md) | S | - | `watch` waits for its next event through a small injected interface, so its three ends - interrupted, a failed pass, a lost lock - are unit tests with a wait that returns at once; one real-thread test stays. |
+| <a id="sl04"></a>[SL04](SL04-An-External-Detector-Measured.md) | L | - | Somebody else's detector catalog behind the interface, measured before anything is adopted. |
+| <a id="sl23"></a>[SL23](SL23-The-Narrowed-Message-Schema-The-Filters-Side.md) | M | - | Porelo's narrowed message schema enforced in the envelope: four `metadata` keys, six kinds with their fixed data parts, one text part, one extension URI. |
+| <a id="sl08"></a>[SL08](SL08-Refuse-A-Payload-Spread-Over-Several-Messages.md) | XL | - | A payload cut into pieces and sent over several messages, caught by correlating against what the task already sent. |
 
 ## Backlog
 

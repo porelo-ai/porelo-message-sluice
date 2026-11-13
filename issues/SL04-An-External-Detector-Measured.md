@@ -7,7 +7,7 @@
   "title": "An external content detector, measured before it is adopted",
   "state": "Estimated",
   "size": "L",
-  "priority": "Medium",
+  "priority": "Low",
   "rank": 1,
   "blockedBy": [],
   "covers": "Somebody else's detector catalog behind the interface, measured before anything is adopted."

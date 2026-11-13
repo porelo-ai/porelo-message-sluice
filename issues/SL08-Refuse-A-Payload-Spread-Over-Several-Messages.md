@@ -7,7 +7,7 @@
   "title": "Refuse a payload spread over several messages",
   "state": "Estimated",
   "size": "XL",
-  "priority": "Medium",
+  "priority": "Low",
   "rank": 3,
   "blockedBy": [],
   "covers": "A payload cut into pieces and sent over several messages, caught by correlating against what the task already sent."

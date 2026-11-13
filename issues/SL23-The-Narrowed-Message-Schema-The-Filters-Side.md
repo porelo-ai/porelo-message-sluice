@@ -7,7 +7,7 @@
   "title": "The narrowed message schema, the filter's side",
   "state": "Estimated",
   "size": "M",
-  "priority": "Medium",
+  "priority": "Low",
   "rank": 2,
   "blockedBy": [],
   "covers": "Porelo's narrowed message schema enforced in the envelope: four `metadata` keys, six kinds with their fixed data parts, one text part, one extension URI."
