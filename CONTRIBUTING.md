@@ -10,7 +10,7 @@ rules are kept there and in the shared block of [`AGENTS.md`](AGENTS.md), not he
 for the code and its tests, and `-Pnative,dist` with a GraalVM 25 as `JAVA_HOME` for the native
 executable and its `.deb` and `.rpm`. What is particular here:
 
-- **The code style is checked on `validate`**, by Spotless from `porelo-parent`: Java and YAML, and
+- **The code style is checked on `validate`**, by Spotless from `porelo-parent`: Java in its AOSP style, and
   the two shell scripts through `shfmt`, which must be on the `PATH` at the version the Build pins.
   `./mvnw -s settings.xml spotless:apply` puts a file right.
 - **The documents tests** run with `-Pdocuments test`; they read the documentation, not the code.

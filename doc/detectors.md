@@ -37,7 +37,7 @@ that are treated as the payload they then are.
 | `builtin/entropy@1` | `ENCODING/WINDOW_ENTROPY` | `BLOCKING` | a 64-character stretch above 4.5 bits per character |
 | `builtin/english-distribution@1` | `ENCODING/LETTER_DISTRIBUTION` | `SUSPICIOUS` | 200 characters or more whose letters are not distributed like English |
 | | `ENCODING/WHITESPACE_SHARE` | `SUSPICIOUS` | the same, with under 8 % whitespace |
-| `builtin/encoding-signature@1` | `ENCODING/BASE64`, `BASE64URL`, `BASE58`, `BASE32`, `BASE85`, `HEX`, `URL_ENCODING`, `QUOTED_PRINTABLE`, `UUENCODE`, `BINARY_STRING`, `PEM`, `DATA_URI` | `BLOCKING` | the named encoding, from 32 characters on |
+| `builtin/encoding-signature@1` | `ENCODING/BASE64`, `BASE64URL`, `BASE58`, `BASE32`, `BASE85`, `HEX`, `URL_ENCODING`, `QUOTED_PRINTABLE`, `UUENCODE`, `BINARY_STRING`, `PEM`, `DATA_URI` | `BLOCKING` | the named encoding: a base-N, hex or uuencoded run from 32 characters on (`detector.signature.minLength`); a PEM header, a data URI's `;base64,` prefix, ascii85 between `<~ ~>`, a uuencode `begin` line, 16 hex bytes with separators or 32 bits of binary on their own; six URL or quoted-printable escapes, each within 16 characters of the last |
 
 **Two different `SUSPICIOUS` rules in one message refuse it**; one rule firing many times counts once.
 
@@ -132,7 +132,7 @@ porelo-message-sluice-filter --calibrate --dir <task state>/mail/sent > calibrat
 It reads a directory of messages, moves nothing, and prints a properties file for `--config`: how many
 messages blocking would refuse and by which rule, and for each statistical measure a suggested value
 between that traffic and random base64. Where the two overlap, it keeps the current value and says so.
-**The defaults block from the start**; calibration shows how a mailbox's own traffic fares, when it is
+**The default thresholds are fit for blocking from the start**; calibration shows how a mailbox's own traffic fares, when it is
 refused more often than it should be.
 
 ## How well it works

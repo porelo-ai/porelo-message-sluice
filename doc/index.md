@@ -15,12 +15,14 @@ round by the same text it is checking.
 ## What it refuses
 
 - **Encoded data** in any text or field: base64 and its relatives, hex, base32, base58, base85,
-  URL-encoding, PEM, data URIs and the like from 32 characters on, and text whose statistics are
+  URL-encoding, PEM, data URIs and the like - a run from 32 characters on, a PEM header or a
+  data URI's prefix on its own - and text whose statistics are
   not those of English. See [What it looks for](detectors.md).
 - **Content that is not text**: raw bytes, data parts, links as parts, binary file names and media
   types. See [the envelope](filter.md#the-envelope).
 - **Hidden characters**: zero-width and bidi characters, and words that mix Latin with look-alike
-  letters, are reported; enough of them refuse the message.
+  letters, are reported; eight invisible characters refuse the message, and a look-alike word refuses
+  it together with a suspicious finding of another rule.
 
 Porelo runs it **blocking**, in both directions: a refused message does not reach the peer unless a
 person reads it and delivers it. Its sender gets an answer naming each finding, with what was found

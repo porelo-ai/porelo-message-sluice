@@ -35,8 +35,9 @@ dependency on `app` only orders the reactor.
 
 ## What the build is allowed to bring in
 
-**Jackson is the only runtime dependency**, and that is a requirement rather than a preference: the
-fewer libraries parse an attacker's text before the rules see it, the smaller the surface. The chi
+**Jackson is the only library that runs at runtime**, beside JSpecify's annotations, which hold no
+code; that is a requirement rather than a preference: the fewer libraries parse an attacker's text
+before the rules see it, the smaller the surface. The chi
 squared test and every other statistic are written here rather than pulled in.
 
 Test scope is JUnit 5 and AssertJ, as in every other Porelo repository.
@@ -102,8 +103,8 @@ repositories: `porelo-dist-deb` under `pool/main/p/<package>/`, and `porelo-dist
 publishes to the `snapshots` channel, a tag to `releases`. A tag is refused unless it is `v` plus the
 version the commit carries and that version is not a snapshot, and a release already published is
 never uploaded again. The
-upload uses `jf rt upload`, with `JF_URL` as a repository variable and `JF_ACCESS_TOKEN` as a
-secret. The `.deb`'s properties are what put it into the index. Then the step *"The packages are
+upload goes over Artifactory's REST interface with `curl` alone, with `JF_URL` as a repository variable
+and `JF_ACCESS_TOKEN` as a secret, which reaches `curl` on standard input. The `.deb`'s properties are what put it into the index. Then the step *"The packages are
 indexed, not merely stored"* reads both indexes back, anonymously and with `-L`, until they name the
 very files just uploaded.
 

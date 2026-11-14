@@ -52,6 +52,7 @@ channel.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
+| <a id="sl57"></a>[SL57](SL57-The-Docs-Say-What-The-Code-Does.md) | S | - | Every sentence of the user-facing documentation that the code on `main` does not bear out is found by a reading page by page, checked in the code, and fixed in the document; a wrong code becomes a bug issue of its own. |
 | <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | M | - | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; the harm-guarding classes sorted into eight gap issues. |
 
 ## Finished

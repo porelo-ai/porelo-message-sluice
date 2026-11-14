@@ -14,7 +14,7 @@ not start when one is missing:
 
 ```
 <task state>/mail/
-├─ incoming/            messages to check, each with <name>.sig beside it
+├─ incoming/            messages to check, each signed one with <name>.sig beside it
 ├─ filter/
 │   ├─ accepted/        what passed, with its signature; Porelo sends it on from here
 │   ├─ feedback/        one answer per message
@@ -40,7 +40,7 @@ write there.
   a message's size counts for nothing.
 - **The file name** is 1 to 128 letters, digits, `.`, `_` and `-`, starts with a letter or digit and
   ends in `.json`. It travels with the message, so the detectors check it like a text.
-- **The signature** beside it must have exactly the shape Porelo writes (an OpenSSH Ed25519 signature,
+- **The signature** beside it, when there is one, must have exactly the shape Porelo writes (an OpenSSH Ed25519 signature,
   at most 1 KiB), so nothing can ride along in it. The filter checks the shape; Porelo checks the
   signature itself.
 - The JSON is parsed strictly, and **only strict UTF-8** is read.
@@ -54,7 +54,8 @@ signature are removed only together.
 
 ## The envelope
 
-A message is **A2A 1.0** in its JSON form. A2A 0.3 is refused, never converted.
+A message is an **A2A 1.0** `Message` or `Task` in its JSON form; a task's status, artifacts and history are
+checked like a message. A2A 0.3 is refused, never converted.
 
 | What | Rule | Severity |
 |---|---|---|
@@ -118,7 +119,8 @@ learns it was flagged), a **rejection** when it did not. An answer is itself an 
   read.
 
 **Nothing a rule matched appears in clear text** - not in an answer, a log line or a file name.
-`redaction.mode` is `PARTIAL` (the first four characters, then stars), `FULL` (`[REDACTED:<category>]`)
+`redaction.mode` is `PARTIAL` (the default: up to 12 stars, after the first four characters of a
+match of 16 or more, each shown only if it is an ASCII letter or digit, else `?`), `FULL` (`[REDACTED:<category>]`)
 or `HASH`. A file kept in `rejected/` or `error/` loses its name when the name itself was suspicious.
 A key of `metadata` above a finding, and a field the envelope reports, is named by its position
 (`metadata.#0`, `#3`), never in clear: a name is text its writer chose.
