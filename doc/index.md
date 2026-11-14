@@ -47,6 +47,10 @@ on it. Porelo drives it; nobody calls it by hand. Without it Porelo sends nothin
 a task's mailbox, so it carries nothing itself and knows no transport. The transport that carries
 what passed is [`porelo-message-matrix`](https://github.com/porelo-ai/porelo-message-matrix).
 
+The license and notice texts of everything compiled into the filter ship beside its own license, in
+`THIRD-PARTY-NOTICES`: in `/usr/share/doc/porelo-message-sluice-filter/` from the `.deb`, in
+`/usr/share/licenses/porelo-message-sluice-filter/` from the `.rpm`.
+
 To see what it says about one message:
 
 ```

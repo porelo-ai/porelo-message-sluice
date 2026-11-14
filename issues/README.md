@@ -46,21 +46,22 @@ channel.
 | <a id="sl45"></a>[SL45](SL45-Invisible-Characters-And-Look-Alikes-Are-Held.md) | S | - | Every kind of invisible character, a joiner outside an emoji and a mixed-script word each found by a test (PIT). |
 | <a id="sl46"></a>[SL46](SL46-The-Statistical-Detectors-Are-Held-To-Their-Rules.md) | M | - | Each rule of the token-shape, entropy and letter-distribution detectors held just inside and just outside its limit (PIT). |
 | <a id="sl48"></a>[SL48](SL48-The-Remaining-Classes-Sorted.md) | S | - | The 120 mutants left in eleven classes not sorted first, sorted the same way, `SshSignature`, `DirectoryLock` and `MessageArchive` first. |
+| <a id="sl56"></a>[SL56](SL56-The-Issue-Heads-Are-Checked-Every-Day.md) | XS | - | The Shared rules check runs `porelo-release issues check issues` once a day, so an issue head that breaks the shared shape fails a run even when no push built it. |
 
 ## Review
 
-| # | Size | Blocked by | What it covers | Open questions |
-|---|---|---|---|---|
-| <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | M | - | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; the harm-guarding classes sorted into eight gap issues. | - |
-| <a id="sl51"></a>[SL51](SL51-The-Third-Party-Notices-Ship-With-The-Filter.md) | S | - | The .deb and the .rpm carry one THIRD-PARTY-NOTICES file with the full license and notice texts of everything compiled into the native filter, made by the shared generator. | - |
-| <a id="sl36"></a>[SL36](SL36-Snapshots-Resolved-With-A-Read-Only-Token.md) | S | - | No workflow holds a token that can write to a forge's registry: snapshots resolved with a read-only token, and a Build on a forge other than GitHub without `MAVEN_SNAPSHOTS_URL` or that token fails at once. | - |
-| <a id="sl37"></a>[SL37](SL37-A-Task-Of-Another-Project-Named-As-A-Peer.md) | S | - | A peer named `task:<project>:<task>`, a task of another project by its certificate's principal, passes the envelope check; a `:` anywhere else in a peer name is still refused. | - |
-| <a id="sl52"></a>[SL52](SL52-The-CI-Takes-Its-Downloads-From-A-Cache.md) | S | - | The pinned GraalVM and the pinned shfmt come from the Actions cache, keyed by their digests, so a server that answers 504 for a download it already served fails no Build; only the newest entry of each is kept. | 0 |
+| # | Size | Blocked by | What it covers |
+|---|---|---|---|
+| <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | M | - | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; the harm-guarding classes sorted into eight gap issues. |
 
 ## Finished
 
 | # | Title | What was built |
 |---|---|---|
+| <a id="sl52"></a>[SL52](README.md#sl52) | The CI Takes Its Downloads From A Cache | The pinned GraalVM and the pinned shfmt come from the Actions cache, keyed by their digests and checked after a hit, so a download server that is down for a while fails no run that fetched them once. |
+| <a id="sl51"></a>[SL51](README.md#sl51) | The Third-Party Notices Ship With The Filter | The .deb and the .rpm carry one THIRD-PARTY-NOTICES file with the full license and notice texts of everything compiled into the native filter, made by the shared generator at build time. |
+| <a id="sl37"></a>[SL37](README.md#sl37) | A Task Of Another Project Named As A Peer | A peer named `task:<project>:<task>`, a task of another project by its certificate's principal, passes the envelope check, while a `:` anywhere else in a peer name is still refused. |
+| <a id="sl36"></a>[SL36](README.md#sl36) | Snapshots Resolved With A Read-Only Token | No workflow holds a token that can write to a forge's registry: snapshots are resolved with a read-only token, and a job on a forge other than GitHub without `MAVEN_SNAPSHOTS_URL` or that token stops before Maven runs. |
 | <a id="sl35"></a>[SL35](README.md#sl35) | The Sluice's Agent Works In A Porelo Task | The sluice's agent worked in a Porelo task on a rented host's forge and came back: the gate's push, the pull request, the Shared rules check and a Build started by hand all green there, the skills fetched in the task, and the work brought back to this checkout. |
 | <a id="sl33"></a>[SL33](README.md#sl33) | The Workflows Run On The Local Forge As On GitHub | The Build runs unchanged on the local Forgejo and on GitHub, switched only by variables: missing package tools installed, Publish switched by `PORELO_PUBLISH`, snapshots read from `MAVEN_SNAPSHOTS_URL`. |
 | <a id="sl32"></a>[SL32](README.md#sl32) | Refuse personal and financial data | Payment cards, IBANs and national ids are refused, e-mail addresses, phone numbers, IP addresses and dates of birth reported suspicious, cards and IBANs told by their checksums, matched values redacted in answers, and false positives under 1 % on clean English. |

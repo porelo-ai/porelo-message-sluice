@@ -365,6 +365,14 @@ the native build and `LinkageIT` green with it, and CI's fixture step green on t
 CI then ran it green.
 The pin moves with `porelo-machines`: a new snapshot of it brings the new JDK.
 
+**The pinned downloads come from the Actions cache.** The GraalVM and shfmt are kept in the cache under a key that
+names their digest, `pinned-graalvm-<sha256>` and `pinned-shfmt-<sha256>`, and checked against that digest after a
+hit as after a download, so a server that is down for a while fails no run that fetched them once. A key that names a
+digest is never written twice, and a new pin writes a new key; GitHub removes an entry nobody has read for seven days,
+so the workflows delete nothing themselves and need no `actions: write`. The distribution's packages are not cached:
+the runner's image holds them, and where one lacks them `apt-get` reads the distribution's signed mirrors, which a
+cache of `.deb` files would not make safer.
+
 ## The workflows run unchanged on GitHub and on the local Forgejo
 
 The same four workflows run on GitHub and on the local Forgejo. What differs between the two forges is only
