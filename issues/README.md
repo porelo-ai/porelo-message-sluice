@@ -52,13 +52,13 @@ channel.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="sl57"></a>[SL57](SL57-The-Docs-Say-What-The-Code-Does.md) | S | - | Every sentence of the user-facing documentation that the code on `main` does not bear out is found by a reading page by page, checked in the code, and fixed in the document; a wrong code becomes a bug issue of its own. |
 | <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | M | - | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; the harm-guarding classes sorted into eight gap issues. |
 
 ## Finished
 
 | # | Title | What was built |
 |---|---|---|
+| <a id="sl57"></a>[SL57](README.md#sl57) | The Docs Say What The Code Does | The user-facing documentation was read page by page against the code on `main`, and every sentence the code did not bear out was fixed in its document. |
 | <a id="sl52"></a>[SL52](README.md#sl52) | The CI Takes Its Downloads From A Cache | The pinned GraalVM and the pinned shfmt come from the Actions cache, keyed by their digests and checked after a hit, so a download server that is down for a while fails no run that fetched them once. |
 | <a id="sl51"></a>[SL51](README.md#sl51) | The Third-Party Notices Ship With The Filter | The .deb and the .rpm carry one THIRD-PARTY-NOTICES file with the full license and notice texts of everything compiled into the native filter, made by the shared generator at build time. |
 | <a id="sl37"></a>[SL37](README.md#sl37) | A Task Of Another Project Named As A Peer | A peer named `task:<project>:<task>`, a task of another project by its certificate's principal, passes the envelope check, while a `:` anywhere else in a peer name is still refused. |
