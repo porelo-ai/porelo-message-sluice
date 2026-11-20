@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "SL58",
   "title": "The Command Line Only Maps",
-  "state": "Analyzed",
+  "state": "Estimated",
   "size": "S",
   "priority": "Medium",
   "rank": 1,
