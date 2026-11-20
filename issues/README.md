@@ -13,7 +13,6 @@ channel.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
-| <a id="sl58"></a>[SL58](SL58-The-Command-Line-Only-Maps.md) | S | - | `cli/Main` only parses its arguments, calls one service method per mode and prints the answer; taking the mailbox lock, checking the directories, choosing a pass or a watch, and finding the directories a dry run and a calibration read move into the service and are tested without the command line. |
 | <a id="sl39"></a>[SL39](SL39-An-Organization-Proved-Against-Real-GitHub.md) | - | - | A short test by a person, against real GitHub: `trust-host`, `org create`, `setup` and `project open` at a `git@github.com:` address, with the read back; waits until after the next release |
 
 ## Analyzed
@@ -21,6 +20,7 @@ channel.
 | # | Size | Blocked by | What it covers | Open questions |
 |---|---|---|---|---|
 | <a id="sl40"></a>[SL40](SL40-A-Workflow-Only-Change-Is-Checked-On-A-Forge.md) | S | - | A pull request changing only `.github/` is checked on a host's forge too: Forgejo ignored a job `check` for its `permissions` field, most likely the light Workflow check; measured there first, GitHub's read-only token kept. | 0 |
+| <a id="sl58"></a>[SL58](SL58-The-Command-Line-Only-Maps.md) | S | - | `cli/Main` only parses its arguments, calls one method per mode and prints the answer. The mailbox's use case moves into `MessageSluice`: checking the directories, taking the lock, a pass or a watch tied to the lock. The directories a dry run and a calibration read move into `Settings` and `Calibration`. Each is tested without the command line. | - |
 | <a id="sl24"></a>[SL24](SL24-A-Code-Comment-The-Filters-Side.md) | L | - | A review comment as SARIF 2.1.0 passes only in the closed profile: anchors checked by shape, prose judged as prose, one bounded fix judged by detectors measured on code, any other field or claimed authority refused both ways. | 0 |
 
 ## Estimated
