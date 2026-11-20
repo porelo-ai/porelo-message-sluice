@@ -13,6 +13,7 @@ channel.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
+| <a id="sl58"></a>[SL58](SL58-The-Command-Line-Only-Maps.md) | S | - | `cli/Main` only parses its arguments, calls one service method per mode and prints the answer; taking the mailbox lock, checking the directories, choosing a pass or a watch, and finding the directories a dry run and a calibration read move into the service and are tested without the command line. |
 | <a id="sl39"></a>[SL39](SL39-An-Organization-Proved-Against-Real-GitHub.md) | - | - | A short test by a person, against real GitHub: `trust-host`, `org create`, `setup` and `project open` at a `git@github.com:` address, with the read back; waits until after the next release |
 
 ## Analyzed
