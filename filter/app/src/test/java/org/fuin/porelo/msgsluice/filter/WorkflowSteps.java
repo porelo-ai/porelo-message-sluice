@@ -82,6 +82,8 @@ final class WorkflowSteps {
                 step.key(line.substring(14), where);
             } else if (step != null && indent == 18 && step.inBlock()) {
                 step.entry(line.substring(18), where);
+            } else if (step != null && indent == 22 && step.inLiteral()) {
+                step.literal(line.substring(22));
             } else {
                 throw new AssertionError(where + ": a line this reading does not know: " + line);
             }
@@ -103,11 +105,13 @@ final class WorkflowSteps {
         private final Map<String, String> with = new LinkedHashMap<>();
         private final Map<String, String> env = new LinkedHashMap<>();
         private Map<String, String> block;
+        private String literalKey;
         private StringBuilder script;
         private String run = "";
 
         void key(final String entry, final String where) {
             block = null;
+            literalKey = null;
             switch (entry) {
                 case "with:" -> block = with;
                 case "env:" -> block = env;
@@ -130,10 +134,22 @@ final class WorkflowSteps {
 
         void entry(final String entry, final String where) {
             put(block, entry, where);
+            // A value given as a literal block, such as cache restore keys, takes the lines below
+            // it.
+            literalKey = entry.endsWith(": |") ? entry.substring(0, entry.indexOf(": ")) : null;
         }
 
         boolean inBlock() {
             return block != null;
+        }
+
+        boolean inLiteral() {
+            return block != null && literalKey != null;
+        }
+
+        void literal(final String line) {
+            final String before = block.get(literalKey);
+            block.put(literalKey, "|".equals(before) ? line : before + "\n" + line);
         }
 
         boolean inScript() {

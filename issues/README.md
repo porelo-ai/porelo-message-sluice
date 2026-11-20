@@ -49,16 +49,11 @@ channel.
 | <a id="sl48"></a>[SL48](SL48-The-Remaining-Classes-Sorted.md) | S | - | The 120 mutants left in eleven classes not sorted first, sorted the same way, `SshSignature`, `DirectoryLock` and `MessageArchive` first. |
 | <a id="sl56"></a>[SL56](SL56-The-Issue-Heads-Are-Checked-Every-Day.md) | XS | - | The Shared rules check runs `porelo-release issues check issues` once a day, so an issue head that breaks the shared shape fails a run even when no push built it. |
 
-## Implementing
-
-| # | Size | Blocked by | What it covers |
-|---|---|---|---|
-| <a id="sl59"></a>[SL59](SL59-The-Maven-Cache-Follows-What-Was-Resolved.md) | S | - | The Build and the Shared rules check save the Maven repository whenever its content changed. Today their key hashes only this repository's poms, and an exact hit is never saved over, so what the parent snapshot and its BOMs move to is fetched from Maven Central on every run. |
-
 ## Review
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
+| <a id="sl59"></a>[SL59](SL59-The-Maven-Cache-Follows-What-Was-Resolved.md) | XS | - | The Build and the Shared rules check restore the Maven repository under a key of their run's own and save it at the job's end only when the job fetched a jar or pom. Before, the key hashed only this repository's poms, and an exact hit was never saved over. |
 | <a id="sl38"></a>[SL38](SL38-Mutation-Testing-With-PIT.md) | M | - | A `pit` profile run by hand, with no threshold and pinned tools, and a report sorting the survivors into real gaps and harmless ones; the harm-guarding classes sorted into eight gap issues. |
 
 ## Finished
