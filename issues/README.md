@@ -38,6 +38,7 @@ channel.
 
 | # | Size | Blocked by | What it covers |
 |---|---|---|---|
+| <a id="sl59"></a>[SL59](SL59-The-Maven-Cache-Follows-What-Was-Resolved.md) | S | - | The Build and the Shared rules check save the Maven repository whenever its content changed. Today their key hashes only this repository's poms, and an exact hit is never saved over, so what the parent snapshot and its BOMs move to is fetched from Maven Central on every run. |
 | <a id="sl41"></a>[SL41](SL41-A-Refusal-Never-Shows-What-It-Matched.md) | S | - | A finding's explanation that quotes its match is refused, and keys are hidden when the detectors did not run: both held by no test today (PIT). |
 | <a id="sl49"></a>[SL49](SL49-A-Credential-Context-Is-Read-On-Both-Sides.md) | XS | - | A credential whose context word follows it is refused under a test; PIT shows the window after the match held by none. |
 | <a id="sl42"></a>[SL42](SL42-Every-Part-Of-A-Task-Is-Walked.md) | S | - | A task's artifacts, their parts, metadata and extensions, a part's URL and a nested A2A 0.3 shape each reach the detectors and limits under a test; today no test fails without them (PIT). |
