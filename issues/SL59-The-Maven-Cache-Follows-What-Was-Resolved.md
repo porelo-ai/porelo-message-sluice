@@ -5,7 +5,7 @@
   "$schema": "issue-1.json",
   "id": "SL59",
   "title": "The Maven Cache Follows What Was Resolved",
-  "state": "Backlog",
+  "state": "Implementing",
   "size": "S",
   "priority": "High",
   "rank": 1,
