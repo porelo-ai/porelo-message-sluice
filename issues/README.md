@@ -87,8 +87,8 @@ channel.
 **Open questions**, in *Analyzed* only, counts what waits on the operator; what this repository's
 agent finds out itself stands under each issue's *To be checked* and is not counted.
 
-**Size** is how big it is, read in the code: XS under an hour, S a few hours, M about a day, L several
-days, XL too big to build as one, split in its plan.
+**Size** is how big it is, read in the code and stated in the wall time `velocity.csv` measures: XS minutes, S
+under an hour, M one to two hours, L two hours or more, XL too big to build as one, split in its plan.
 
 **Blocked by** names what an issue waits for: an issue here by its number, a Porelo requirement as
 `Porelo B<n>`.

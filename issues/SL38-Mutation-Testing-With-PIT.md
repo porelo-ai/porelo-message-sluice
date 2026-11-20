@@ -15,7 +15,7 @@
 ```
 
 **Why this size.** the profile is a few lines in the root pom, but sorting about 340 mutants that no test kills, across 21
-classes, is about a day.
+classes, is most of the work.
 
 **What must be true.** Whoever works on the filter can run PIT by hand and read which checks no test holds: a `pit`
 profile, not in CI and with no threshold, with PIT and its JUnit 5 plugin pinned, run on a VM where the tests call real
