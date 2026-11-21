@@ -72,7 +72,9 @@ into a shared skill or this block, one that concerns only this machine into `.AG
 
 ## Work in this repository
 
-- **Issue prefix `SL`.** An issue's design stands in its own file, under *Design*, marked as a proposal until
+- **Issues are in the repository's GitHub Issues**, each named by its reference there
+  (`porelo-ai/porelo-message-sluice#<number>`); one carried over from the Markdown files keeps its old id (`SL`)
+  as a fixed alias. An issue's design stands in its own text, under *Design*, marked as a proposal until
   something is measured.
 
 ## The skills this repository uses

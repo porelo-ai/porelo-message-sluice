@@ -135,9 +135,9 @@ jobs:
                   "$JAVA_HOME_25_X64/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \
                       org.fuin.porelo.release.Main check-shared AGENTS.md .editorconfig
 
-            # An issue's file is deleted when it is finished, so nothing links to it and nothing outside
-            # issues/ cites its number; every page is in the site's navigation once, and no link leaves doc/;
-            # every module has a README that links its submodules.
+            # An issue in GitHub Issues closes when it is finished, so nothing cites its number; every page is in
+            # the site's navigation once, and no link leaves doc/; every module has a README that links its
+            # submodules.
             - name: The documents cite no issue, the site holds every page, every module says what it is
               run: |
                   "$JAVA_HOME_25_X64/bin/java" -cp "$(cat "$RUNNER_TEMP/tools.classpath")" \

@@ -17,9 +17,9 @@ import org.junit.jupiter.api.Test;
  * A change to documents runs only the tests tagged {@code documents} ({@code -Pdocuments}), so a
  * test that reads a document without the tag would be skipped exactly when it matters. A test reads
  * a document when its source names one as a path: a string literal that is a Markdown file name,
- * the Markdown suffix, the documentation directory, the issues or the site's navigation. A page
- * quoted inside a longer text is test data, not a read. Tagged itself, so the profile runs the
- * guard even where no test reads a document.
+ * the Markdown suffix, the documentation directory or the site's navigation. A page quoted inside a
+ * longer text is test data, not a read. Tagged itself, so the profile runs the guard even where no
+ * test reads a document.
  */
 @Tag("documents")
 class DocumentTestsTaggedTest {
@@ -27,7 +27,7 @@ class DocumentTestsTaggedTest {
     private static final Path SOURCES = Path.of("src", "test", "java");
 
     private static final Pattern DOCUMENT_PATH =
-            Pattern.compile("\"([\\w.-]*\\.md|doc|issues|mkdocs\\.yml|(?:doc|issues)/[\\w./-]*)\"");
+            Pattern.compile("\"([\\w.-]*\\.md|doc|mkdocs\\.yml|doc/[\\w./-]*)\"");
 
     @Test
     void everyTestThatReadsADocumentIsTaggedDocuments() throws IOException {
@@ -57,7 +57,6 @@ class DocumentTestsTaggedTest {
                         "Path.of(\"doc\", \"filter.md\")",
                         "f.endsWith(\".md\")",
                         "Path.of(\"..\", \"..\", \"README.md\")",
-                        "Path.of(\"issues\")",
                         "root.resolve(\"doc/filter.md\")",
                         "root.resolve(\"mkdocs.yml\")")) {
             assertThat(DOCUMENT_PATH.matcher(read).find()).as(read).isTrue();

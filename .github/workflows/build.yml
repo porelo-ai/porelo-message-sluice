@@ -12,10 +12,10 @@ on:
         branches: [main]
         # A release: v<version>, built and published to the 'releases' channel. Paths are not filtered for a tag.
         tags: ['v*']
-        paths: ['**', '!**/*.md', '!doc/**', '!issues/**', '!mkdocs.yml', '!porelo.yml', '!.github/**']
+        paths: ['**', '!**/*.md', '!doc/**', '!mkdocs.yml', '!porelo.yml', '!.github/**']
     pull_request:
         branches: ['**']
-        paths: ['**', '!**/*.md', '!doc/**', '!issues/**', '!mkdocs.yml', '!porelo.yml', '!.github/**']
+        paths: ['**', '!**/*.md', '!doc/**', '!mkdocs.yml', '!porelo.yml', '!.github/**']
     workflow_dispatch:
 
 # The job's token only reads the repository; the packages are published with the JFrog token, not with it.
