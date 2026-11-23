@@ -75,6 +75,18 @@ class SettingsTest {
     }
 
     @Test
+    void anEmptyLimitsLineGivenIsRefusedWhileNoneGivenIsTheDefaults() throws Exception {
+        final Path file = tmp.resolve("sluice.properties");
+        Files.writeString(file, "mail=/m\nlimits=\n");
+
+        assertThatThrownBy(() -> Settings.load(file, Map.of()))
+                .isInstanceOf(ConfigException.class)
+                .hasMessageContaining("an empty line names no factor");
+        assertThat(Settings.load(null, Map.of("mail", "/m")).config().stabilityDelay())
+                .isEqualTo(Duration.ofMillis(200));
+    }
+
+    @Test
     void theDefaultsWorkAndReportRatherThanBlock() throws Exception {
         final Settings settings = Settings.load(null, Map.of("mail", "/m"));
         assertThat(settings.config().blocking()).isFalse();

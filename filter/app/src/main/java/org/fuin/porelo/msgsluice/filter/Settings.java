@@ -68,7 +68,8 @@ public final class Settings {
         DEFAULTS.put("receiptOnApproval", "true");
         DEFAULTS.put("stabilityDelayMillis", "200");
         DEFAULTS.put("watchIntervalMillis", "2000");
-        // Porelo's limits line; empty is all four factors at 1.0. Only polling has a use here.
+        // Porelo's limits line; left unset, all four factors are 1.0, and an empty line given is
+        // refused. Only polling has a use here.
         DEFAULTS.put("limits", "");
         final CheckConfig check = CheckConfig.defaults();
         DEFAULTS.put(
@@ -446,6 +447,9 @@ public final class Settings {
     }
 
     private LimitFactors limits() throws ConfigException {
+        if ("default".equals(sources.get("limits"))) {
+            return LimitFactors.NONE;
+        }
         try {
             return LimitFactors.parse(valueIn(values, "limits"));
         } catch (final ConfigException ex) {

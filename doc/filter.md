@@ -153,8 +153,9 @@ with where its value came from. The detectors' keys are in [`detectors.md`](dete
 or as the key `limits` in the properties file. Only `polling` has a use here: `stabilityDelayMillis` (200) and
 `watchIntervalMillis` (2000) take effect times it, rounded up to a whole millisecond, so `polling=2` looks half as
 often. The other three are read and checked but change nothing, since the filter calls no outside service, starts
-no program and retries nothing. A name left out is 1.0; an unknown or repeated name, or a value that is not a
-decimal from 0.1 to 100 with at most two digits after the dot, stops the start: given with `--limits`, with exit 64
+no program and retries nothing. Without a line all four are 1.0, and a name left out of a line is 1.0; an empty
+line, an unknown or repeated name, or a value that is not a decimal from 0.1 to 100 with at most two digits after
+the dot, stops the start: given with `--limits`, with exit 64
 and `--limits: <what is wrong>`, in the properties file with exit 2.
 
 ## What the operator has to guarantee

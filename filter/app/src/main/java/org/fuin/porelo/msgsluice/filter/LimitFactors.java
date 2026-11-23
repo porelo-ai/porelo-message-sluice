@@ -38,36 +38,39 @@ public record LimitFactors(
     private static final BigDecimal HIGHEST = new BigDecimal("100");
 
     /**
-     * Reads a limits line; an empty one is all four at 1.0.
+     * Reads a limits line. A line that is given is never taken as the defaults: only no line at all
+     * is, as {@link #NONE}.
      *
-     * @throws ConfigException naming what is wrong: an unknown name, a name given twice, a value
-     *     that is no decimal with at most two digits after the dot, or one outside 0.1 to 100
+     * @throws ConfigException naming what is wrong: an empty line, an unknown name, a name given
+     *     twice, a value that is no decimal with at most two digits after the dot, or one outside
+     *     0.1 to 100
      */
     public static LimitFactors parse(final String line) throws ConfigException {
+        if (line.isEmpty()) {
+            throw new ConfigException("an empty line names no factor");
+        }
         final Map<String, BigDecimal> given = new HashMap<>();
-        if (!line.isEmpty()) {
-            for (final String pair : line.split(",", -1)) {
-                final int eq = pair.indexOf('=');
-                if (eq < 1) {
-                    throw new ConfigException("'" + pair + "' is no name=value");
-                }
-                final String name = pair.substring(0, eq);
-                if (!NAMES.contains(name)) {
-                    throw new ConfigException("'" + name + "' is no limit");
-                }
-                if (given.containsKey(name)) {
-                    throw new ConfigException(name + " is given twice");
-                }
-                final String text = pair.substring(eq + 1);
-                if (!VALUE.matcher(text).matches()) {
-                    throw new ConfigException(name + " '" + text + "' is no decimal");
-                }
-                final BigDecimal value = new BigDecimal(text);
-                if (value.compareTo(LOWEST) < 0 || value.compareTo(HIGHEST) > 0) {
-                    throw new ConfigException(name + " " + text + " lies outside 0.1 to 100");
-                }
-                given.put(name, value);
+        for (final String pair : line.split(",", -1)) {
+            final int eq = pair.indexOf('=');
+            if (eq < 1) {
+                throw new ConfigException("'" + pair + "' is no name=value");
             }
+            final String name = pair.substring(0, eq);
+            if (!NAMES.contains(name)) {
+                throw new ConfigException("'" + name + "' is no limit");
+            }
+            if (given.containsKey(name)) {
+                throw new ConfigException(name + " is given twice");
+            }
+            final String text = pair.substring(eq + 1);
+            if (!VALUE.matcher(text).matches()) {
+                throw new ConfigException(name + " '" + text + "' is no decimal");
+            }
+            final BigDecimal value = new BigDecimal(text);
+            if (value.compareTo(LOWEST) < 0 || value.compareTo(HIGHEST) > 0) {
+                throw new ConfigException(name + " " + text + " lies outside 0.1 to 100");
+            }
+            given.put(name, value);
         }
         return new LimitFactors(
                 given.getOrDefault("services", BigDecimal.ONE),
