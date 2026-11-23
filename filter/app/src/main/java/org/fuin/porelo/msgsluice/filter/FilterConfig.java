@@ -24,8 +24,10 @@ import org.fuin.porelo.msgsluice.filter.decision.Redactor;
  * @param blocking {@code false} until this directory has been calibrated: it then reports rather
  *     than refuses
  * @param receiptOnApproval whether an accepted message gets a receipt
- * @param stabilityDelay how long a file's size must stay unchanged before it is read
- * @param watchInterval how often watch mode looks even when no change was signalled
+ * @param stabilityDelay how long a file's size must stay unchanged before it is read, already times
+ *     the polling factor
+ * @param watchInterval how often watch mode looks even when no change was signalled, already times
+ *     the polling factor
  */
 public record FilterConfig(
         Path incoming,

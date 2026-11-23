@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The filter takes Porelo's limit factors, as `--limits <line>` or the key `limits`: its polling factor scales
+  `stabilityDelayMillis` and `watchIntervalMillis`, so a slow machine is met by one setting. A line that cannot be
+  read stops the start, given with `--limits` with exit 64.
 - Both packages carry `THIRD-PARTY-NOTICES`, the full licenses and notices of the code compiled into the
   filter and of the runtime it is built with: in the `.deb` beside its copyright, which names it, in the
   `.rpm` as a license file.

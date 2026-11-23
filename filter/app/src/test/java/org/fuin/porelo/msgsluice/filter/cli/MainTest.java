@@ -129,6 +129,59 @@ class MainTest {
     }
 
     @Test
+    void aBadLimitsLineIsRefusedWith64BeforeAnythingIsDone() throws Exception {
+        deliver("a.json", "All good here.");
+
+        assertThat(
+                        run(
+                                "--mail",
+                                mail.toString(),
+                                "--limits",
+                                "polling=0",
+                                "--stabilityDelayMillis",
+                                "0"))
+                .isEqualTo(64);
+
+        assertThat(err.toString(StandardCharsets.UTF_8)).contains("--limits: ").contains("polling");
+        assertThat(mail.resolve("incoming/a.json")).exists();
+    }
+
+    @Test
+    void aGoodLimitsLineIsTakenAndLoggedAtStart() throws Exception {
+        deliver("a.json", "All good here.");
+
+        assertThat(
+                        run(
+                                "--mail",
+                                mail.toString(),
+                                "--limits",
+                                "services=1.0,machines=1.0,polling=0.5,retries=1.0",
+                                "--stabilityDelayMillis",
+                                "0"))
+                .isZero();
+
+        assertThat(err.toString(StandardCharsets.UTF_8))
+                .contains(
+                        "limits=services=1.0,machines=1.0,polling=0.5,retries=1.0  (command line)")
+                .contains("in force: stabilityDelay=0 ms, watchInterval=1000 ms");
+    }
+
+    @Test
+    void aBadLimitsLineIsRefusedWith64WhateverComesBeforeIt() {
+        assertThat(
+                        run(
+                                "stray",
+                                "--limits",
+                                "polling=2",
+                                "--limits",
+                                "polling=1000",
+                                "--mail",
+                                mail.toString()))
+                .isEqualTo(64);
+        assertThat(err.toString(StandardCharsets.UTF_8)).contains("--limits: polling '1000'");
+    }
+
+    @Test
     void aSecondInstanceRefusesAndNamesTheFirst() throws Exception {
         deliver("a.json", "All good here.");
         try (DirectoryLock held = DirectoryLock.acquire(mail.resolve("filter/.lock"))) {

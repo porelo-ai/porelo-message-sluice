@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Map;
 import org.fuin.porelo.msgsluice.filter.detect.LongTokenDetector;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,32 @@ class SettingsTest {
         assertThat(settings.config().rejected()).isEqualTo(Path.of("/elsewhere"));
         assertThat(settings.describe())
                 .anySatisfy(l -> assertThat(l).startsWith("check.maxParts=30"));
+    }
+
+    @Test
+    void thePollingFactorScalesBothIntervalsAsConfigured() throws Exception {
+        final Path file = tmp.resolve("sluice.properties");
+        Files.writeString(file, "mail=/m\nlimits=polling=2.5,retries=4\n");
+
+        final FilterConfig config =
+                Settings.load(file, Map.of("watchIntervalMillis", "1000")).config();
+
+        assertThat(config.stabilityDelay()).isEqualTo(Duration.ofMillis(500));
+        assertThat(config.watchInterval()).isEqualTo(Duration.ofMillis(2500));
+        assertThat(Settings.load(null, Map.of("mail", "/m")).config().watchInterval())
+                .as("no limits line: the configured value")
+                .isEqualTo(Duration.ofMillis(2000));
+    }
+
+    @Test
+    void aBadLimitsLineInTheFileAbortsTheStartNamingTheKey() throws Exception {
+        final Path file = tmp.resolve("sluice.properties");
+        Files.writeString(file, "mail=/m\nlimits=polling=0\n");
+
+        assertThatThrownBy(() -> Settings.load(file, Map.of()))
+                .isInstanceOf(ConfigException.class)
+                .hasMessageContaining("'limits'")
+                .hasMessageContaining("polling");
     }
 
     @Test

@@ -14,6 +14,7 @@ import java.util.Set;
 import org.fuin.porelo.msgsluice.filter.AgentCard;
 import org.fuin.porelo.msgsluice.filter.Calibration;
 import org.fuin.porelo.msgsluice.filter.ConfigException;
+import org.fuin.porelo.msgsluice.filter.LimitFactors;
 import org.fuin.porelo.msgsluice.filter.MessageSluice;
 import org.fuin.porelo.msgsluice.filter.Settings;
 import org.fuin.porelo.msgsluice.filter.io.DirectoryLock;
@@ -23,14 +24,14 @@ import org.jspecify.annotations.Nullable;
  * The command line.
  *
  * <pre>
- * porelo-message-sluice --mail &lt;task state&gt;/mail [--blocking] [--watch] [--config file] [--&lt;key&gt; value ...]
+ * porelo-message-sluice --mail &lt;task state&gt;/mail [--blocking] [--watch] [--config file] [--limits line] [--&lt;key&gt; value ...]
  * porelo-message-sluice --dry-run --file msg.json [--&lt;key&gt; value ...]
  * porelo-message-sluice --calibrate [--dir &lt;messages&gt;] [--&lt;key&gt; value ...]   prints a properties file
  * porelo-message-sluice --agent-card --mail &lt;dir&gt;                                  prints its A2A agent card
  * </pre>
  *
  * Exit codes: 0 everything accepted, 1 something refused, 2 a technical error or a configuration
- * that cannot be used.
+ * that cannot be used, 64 a limits line given with {@code --limits} that cannot be read.
  */
 public final class Main {
 
@@ -61,6 +62,17 @@ public final class Main {
         Path dryRunFile = null;
         final Set<String> modes = new LinkedHashSet<>();
         Path calibrateDir = null;
+        // Porelo's contract: a bad limits line is refused with 64 before anything else is read.
+        for (int i = 0; i + 1 < args.length; i++) {
+            if ("--limits".equals(args[i])) {
+                try {
+                    LimitFactors.parse(args[i + 1]);
+                } catch (final ConfigException ex) {
+                    err.println("porelo-message-sluice-filter: --limits: " + ex.getMessage());
+                    return 64;
+                }
+            }
+        }
         try {
             for (int i = 0; i < args.length; i++) {
                 final String arg = args[i];
@@ -71,6 +83,7 @@ public final class Main {
                     case "--no-receipt" -> cli.put("receiptOnApproval", "false");
                     case "--config" -> configFile = Path.of(value(args, ++i, arg));
                     case "--file" -> dryRunFile = Path.of(value(args, ++i, arg));
+                    case "--limits" -> cli.put("limits", value(args, ++i, arg));
                     case "--category" -> {
                         final String[] kv = value(args, ++i, arg).split("=", 2);
                         if (kv.length != 2) {
@@ -225,6 +238,7 @@ public final class Main {
                 "--no-receipt",
                 "--config",
                 "--file",
-                "--category");
+                "--category",
+                "--limits");
     }
 }

@@ -149,6 +149,14 @@ and passed:** a file that met a technical error is not judged, nothing of it is 
 off. **An unknown key stops the start**, and the configuration in force is logged at start, each key
 with where its value came from. The detectors' keys are in [`detectors.md`](detectors.md).
 
+**Porelo's limit factors** come as its limits line, `--limits services=1.0,machines=1.0,polling=1.0,retries=1.0`,
+or as the key `limits` in the properties file. Only `polling` has a use here: `stabilityDelayMillis` (200) and
+`watchIntervalMillis` (2000) take effect times it, rounded up to a whole millisecond, so `polling=2` looks half as
+often. The other three are read and checked but change nothing, since the filter calls no outside service, starts
+no program and retries nothing. A name left out is 1.0; an unknown or repeated name, or a value that is not a
+decimal from 0.1 to 100 with at most two digits after the dot, stops the start: given with `--limits`, with exit 64
+and `--limits: <what is wrong>`, in the properties file with exit 2.
+
 ## What the operator has to guarantee
 
 1. **The agent has no other way out.** A filter the agent can send around checks only part of what

@@ -68,6 +68,8 @@ public final class Settings {
         DEFAULTS.put("receiptOnApproval", "true");
         DEFAULTS.put("stabilityDelayMillis", "200");
         DEFAULTS.put("watchIntervalMillis", "2000");
+        // Porelo's limits line; empty is all four factors at 1.0. Only polling has a use here.
+        DEFAULTS.put("limits", "");
         final CheckConfig check = CheckConfig.defaults();
         DEFAULTS.put(
                 "check.allowedRoles",
@@ -254,17 +256,27 @@ public final class Settings {
      * The effective configuration, one line per key with where it came from, for the startup log.
      */
     public List<String> describe() {
-        return new TreeMap<>(values)
-                .entrySet().stream()
-                        .map(
-                                e ->
-                                        e.getKey()
-                                                + "="
-                                                + e.getValue()
-                                                + "  ("
-                                                + sources.get(e.getKey())
-                                                + ")")
-                        .toList();
+        final List<String> lines =
+                new ArrayList<>(
+                        new TreeMap<>(values)
+                                .entrySet().stream()
+                                        .map(
+                                                e ->
+                                                        e.getKey()
+                                                                + "="
+                                                                + e.getValue()
+                                                                + "  ("
+                                                                + sources.get(e.getKey())
+                                                                + ")")
+                                        .toList());
+        // The two keys above are as configured; what runs is them times the polling factor.
+        lines.add(
+                "in force: stabilityDelay="
+                        + config.stabilityDelay().toMillis()
+                        + " ms, watchInterval="
+                        + config.watchInterval().toMillis()
+                        + " ms  (times the limits' polling)");
+        return lines;
     }
 
     private List<ContentDetector> buildDetectors() throws ConfigException {
@@ -312,6 +324,7 @@ public final class Settings {
     }
 
     private FilterConfig buildConfig() throws ConfigException {
+        final LimitFactors limits = limits();
         final CheckConfig check;
         try {
             check =
@@ -428,8 +441,16 @@ public final class Settings {
                 enumValue(Redactor.Mode.class, "redaction.mode"),
                 bool("blocking"),
                 bool("receiptOnApproval"),
-                Duration.ofMillis(nonNegativeLong("stabilityDelayMillis")),
-                Duration.ofMillis(positiveLong("watchIntervalMillis")));
+                limits.poll(Duration.ofMillis(nonNegativeLong("stabilityDelayMillis"))),
+                limits.poll(Duration.ofMillis(positiveLong("watchIntervalMillis"))));
+    }
+
+    private LimitFactors limits() throws ConfigException {
+        try {
+            return LimitFactors.parse(valueIn(values, "limits"));
+        } catch (final ConfigException ex) {
+            throw new ConfigException("'limits': " + ex.getMessage());
+        }
     }
 
     private Path path(final String key) throws ConfigException {
