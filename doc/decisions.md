@@ -403,6 +403,15 @@ counts a pull request from the same repository on a forge other than GitHub as f
 reports no `author_association` and only write access pushes a branch of the same repository. It is green on a
 host's forge, on a pull request from a task's branch.
 
+Every workflow keeps its `permissions` block, which on GitHub holds each job's token to reading. Forgejo does not
+support the field: it runs the job and ignores only the field, and the run page warns, naming the job, that the
+field is not supported and will be ignored. No job is left out: a pull request that changes only `.github/` runs the
+*Workflow check* to its end on Forgejo, with that warning on its run.
+The exposure is that a job on Forgejo holds the forge's automatic token, whatever the block says, which the forge
+narrows only through its own settings. It stays because the block is what guards the token on GitHub, and a second
+form of the workflow for Forgejo is what this decision rules out; a Forgejo that honors the field, or a host that
+narrows the token itself, would change it.
+
 **What would change the answer**: a setting no variable can reach. That is raised before anything is built
 around it.
 
