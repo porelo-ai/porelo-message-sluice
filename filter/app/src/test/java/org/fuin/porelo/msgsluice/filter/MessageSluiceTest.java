@@ -703,6 +703,30 @@ class MessageSluiceTest {
         assertThat(mail.accepted().resolve("m.json")).exists();
     }
 
+    /**
+     * A task's reply to a review thread, in the shape Porelo sends it: an ordinary message to
+     * {@code review} with its thread's UUID in the metadata. Refused, every such reply would stop
+     * at the filter.
+     */
+    @Test
+    void aReplyToAReviewThreadPassesCleanly() throws Exception {
+        final Mailbox mail = new Mailbox(tmp);
+        mail.deliver(
+                "m.json",
+                """
+                {"messageId":"0b1c7a52-5d0e-4c43-9a55-3f0d2f6f1e11","role":"ROLE_AGENT",
+                 "parts":[{"text":%s}],
+                 "metadata":{"to":"review","kind":"comment","thread":"6f1a2b3c-4d5e-4f60-8a1b-2c3d4e5f6a7b"}}"""
+                        .formatted(Mailbox.quote(PROSE)));
+
+        final MessageSluice.RunSummary summary = mail.sluice("blocking", "true").runOnce();
+
+        assertThat(summary.results())
+                .singleElement()
+                .satisfies(r -> assertThat(r.findings()).isEmpty());
+        assertThat(mail.accepted().resolve("m.json")).exists();
+    }
+
     @Test
     void referenceTaskIdsAreCounted() throws Exception {
         final Mailbox mail = new Mailbox(tmp);
