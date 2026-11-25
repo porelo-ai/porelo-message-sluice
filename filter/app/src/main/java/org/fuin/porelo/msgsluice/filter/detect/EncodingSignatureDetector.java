@@ -47,6 +47,8 @@ public final class EncodingSignatureDetector implements ContentDetector {
 
     public static final String BINARY = "ENCODING/BINARY_STRING";
 
+    public static final String DECIMAL_BYTES = "ENCODING/DECIMAL_BYTES";
+
     private static final Pattern PEM_HEADER = Pattern.compile("-----BEGIN [A-Z0-9 ]{1,40}-----");
 
     /*
@@ -64,6 +66,29 @@ public final class EncodingSignatureDetector implements ContentDetector {
             Pattern.compile(
                     "(?<![0-9A-Fa-f])(?:(?:0x)?[0-9A-Fa-f]{2}[ :,-]{1,2}(?=(?:0x)?[0-9A-Fa-f]{2}(?![0-9A-Fa-f])))"
                             + "{15,}+(?:0x)?[0-9A-Fa-f]{2}(?![0-9A-Fa-f])");
+
+    /**
+     * One number a byte can hold, -128 to 255, perhaps cast and perhaps a long, ending where the
+     * number ends.
+     */
+    private static final String BYTE_VALUE =
+            "(?:\\((?:byte|short|int|long|char)\\)\\s*+)?+"
+                    + "(?:-(?:12[0-8]|1[01][0-9]|[1-9]?[0-9])|25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])"
+                    + "[lL]?+(?![\\w.])";
+
+    /**
+     * Sixteen or more such numbers in a list separated by commas: in code, the bytes of a payload
+     * written as an array. Each comma must be followed by a value, so a run ends cleanly before a
+     * trailing comma or a value no byte holds, and a long run is read once.
+     */
+    private static final Pattern DECIMAL_BYTES_RUN =
+            Pattern.compile(
+                    "(?<![\\w.])(?:"
+                            + BYTE_VALUE
+                            + "\\s*+,\\s*+(?="
+                            + BYTE_VALUE
+                            + ")){15,}+"
+                            + BYTE_VALUE);
 
     private static final Pattern PERCENT = Pattern.compile("%[0-9A-Fa-f]{2}");
 
@@ -134,25 +159,31 @@ public final class EncodingSignatureDetector implements ContentDetector {
 
     private final double uuMaxMeanLetterRun;
 
+    private final boolean code;
+
     /** The detector for prose, naming a base-N run from {@code minLength} characters on. */
     public EncodingSignatureDetector(final int minLength) {
-        this(minLength, UU_MIN_LETTER_SHARE, UU_MAX_MEAN_LETTER_RUN);
+        this(minLength, UU_MIN_LETTER_SHARE, UU_MAX_MEAN_LETTER_RUN, false);
     }
 
     /** The detector for source code, naming a base-N run from {@code minLength} characters on. */
     public static EncodingSignatureDetector forCode(final int minLength) {
         return new EncodingSignatureDetector(
-                minLength, UU_MIN_LETTER_SHARE_IN_CODE, UU_MAX_MEAN_LETTER_RUN_IN_CODE);
+                minLength, UU_MIN_LETTER_SHARE_IN_CODE, UU_MAX_MEAN_LETTER_RUN_IN_CODE, true);
     }
 
     private EncodingSignatureDetector(
-            final int minLength, final double uuMinLetterShare, final double uuMaxMeanLetterRun) {
+            final int minLength,
+            final double uuMinLetterShare,
+            final double uuMaxMeanLetterRun,
+            final boolean code) {
         if (minLength < 16) {
             throw new IllegalArgumentException("minLength must be at least 16: " + minLength);
         }
         this.minLength = minLength;
         this.uuMinLetterShare = uuMinLetterShare;
         this.uuMaxMeanLetterRun = uuMaxMeanLetterRun;
+        this.code = code;
     }
 
     @Override
@@ -174,7 +205,8 @@ public final class EncodingSignatureDetector implements ContentDetector {
                 URL_ENCODING,
                 QUOTED_PRINTABLE,
                 UUENCODE,
-                BINARY);
+                BINARY,
+                DECIMAL_BYTES);
     }
 
     @Override
@@ -201,6 +233,13 @@ public final class EncodingSignatureDetector implements ContentDetector {
                                 Math.min(text.length(), m.end() + 16),
                                 "a data URI with inline base64"));
         each(HEX_BYTES, text, m -> add(out, masked, HEX, m.start(), m.end(), "hex bytes"));
+        if (code) {
+            // Prose lists line numbers and versions; only code writes bytes as an array.
+            each(
+                    DECIMAL_BYTES_RUN,
+                    text,
+                    m -> add(out, masked, DECIMAL_BYTES, m.start(), m.end(), "bytes in decimal"));
+        }
         each(
                 BINARY_RUN,
                 text,

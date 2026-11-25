@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- In code, 16 or more numbers a byte holds (-128 to 255) in a list separated by commas, as an array of a payload's bytes is
+  written, are refused as `ENCODING/DECIMAL_BYTES`, as hex bytes already are.
 - A review document's repository and pull request URLs pass only in profile 2's forge-neutral shape, and their
   host, each path segment and the whole path are judged by the code detectors, which URL masking no longer hides
   them from; what still passes within that shape is written down with the detectors.

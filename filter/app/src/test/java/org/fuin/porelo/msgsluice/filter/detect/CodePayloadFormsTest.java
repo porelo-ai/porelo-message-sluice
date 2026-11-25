@@ -184,17 +184,6 @@ class CodePayloadFormsTest {
                             Map.entry("data-uri", new int[] {497, 458, 394}),
                             Map.entry("binary", new int[] {500, 499, 498}),
                             Map.entry("ciphertext", new int[] {405, 249, 190})),
-                    "int-array",
-                    Map.ofEntries(
-                            Map.entry("base64", new int[] {494, 492, 497}),
-                            Map.entry("base64url", new int[] {498, 495, 492}),
-                            Map.entry("base58", new int[] {497, 496, 496}),
-                            Map.entry("base85", new int[] {442, 410, 382}),
-                            Map.entry("hex", new int[] {431, 379, 332}),
-                            Map.entry("url-encoding", new int[] {55, 18, 7}),
-                            Map.entry("quoted-printable", new int[] {86, 23, 12}),
-                            Map.entry("data-uri", new int[] {500, 500, 498}),
-                            Map.entry("ciphertext", new int[] {499, 498, 494})),
                     "unicode-escapes-joined",
                     Map.ofEntries(
                             Map.entry("base64", new int[] {476, 479, 480}),

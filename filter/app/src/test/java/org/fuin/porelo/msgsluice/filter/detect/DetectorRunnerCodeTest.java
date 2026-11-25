@@ -11,6 +11,8 @@ import org.fuin.porelo.msgsluice.filter.Settings;
 import org.fuin.porelo.msgsluice.filter.decision.Finding;
 import org.fuin.porelo.msgsluice.filter.decision.Redactor;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * A text of source code is judged by the code detectors alone: the checks that ask whether a text
@@ -127,6 +129,107 @@ class DetectorRunnerCodeTest {
                                     .as("reason")
                                     .doesNotContain(token.substring(4, 16));
                         });
+    }
+
+    /** A payload's bytes written as a decimal array are found, and never shown in a finding. */
+    @Test
+    void sixteenBytesInDecimalInCodeAreRefusedAndNotRepeated() {
+        final String values =
+                "104, 117, 110, 116, 101, 114, 50, 45, 115, 101, 99, 114, 101, 116, 33, 33";
+        final String code = "final int[] data = {" + values + "};";
+
+        final List<Finding> findings =
+                CodeRatesTest.RUNNER.run(List.of(TextUnderCheck.code("parts[0].text", 0, code)));
+
+        assertThat(ruleIds(findings))
+                .as("rules found")
+                .contains(EncodingSignatureDetector.DECIMAL_BYTES);
+        assertThat(findings)
+                .as("no finding's excerpt or reason repeats the values")
+                .allSatisfy(
+                        f -> {
+                            assertThat(String.valueOf(f.redactedExcerpt()))
+                                    .as("excerpt")
+                                    .doesNotContainPattern("\\d+\\s*,\\s*\\d+");
+                            assertThat(f.reason())
+                                    .as("reason")
+                                    .doesNotContainPattern("\\d+\\s*,\\s*\\d+");
+                        });
+    }
+
+    /** Bytes in decimal are found also cast, negative and over lines, as Java writes them. */
+    @Test
+    void castNegativeAndWrappedDecimalBytesAreRefused() {
+        final StringBuilder values = new StringBuilder();
+        for (int i = 0; i < 16; i++) {
+            values.append(i == 0 ? "" : i % 4 == 0 ? ",\n        " : ", ")
+                    .append("(byte) ")
+                    .append(i % 2 == 0 ? -100 - i : 200 + i);
+        }
+        final String code = "final byte[] data = {\n        " + values + "\n};";
+
+        assertThat(ruleIds(CodeRatesTest.RUNNER.run(List.of(TextUnderCheck.code("t", 0, code)))))
+                .as("rules found in %s", code)
+                .contains(EncodingSignatureDetector.DECIMAL_BYTES);
+    }
+
+    /** Sixteen bytes in decimal are found before a trailing comma or a value no byte holds. */
+    @ParameterizedTest
+    @ValueSource(strings = {",", ", 256", ", x", ", 0x1f", ", 1.5", ",\n}", "L, 70000L"})
+    void decimalBytesAreFoundWhateverFollowsThem(final String tail) {
+        final String code =
+                "final long[] data = {104, 117, 110, 116, 101, 114, 50, 45, 115, 101, 99, 114, 101,"
+                        + " 116, 33, -128"
+                        + tail
+                        + "};";
+
+        assertThat(ruleIds(CodeRatesTest.RUNNER.run(List.of(TextUnderCheck.code("t", 0, code)))))
+                .as("rules found in %s", code)
+                .contains(EncodingSignatureDetector.DECIMAL_BYTES);
+    }
+
+    /** A list of 64 KB of small numbers ending in something else is read in linear time. */
+    @Test
+    void aLongListOfSmallNumbersIsReadQuickly() {
+        final String code = "int[] a = {" + "1, ".repeat(64 * 1024 / 3) + "x};";
+        final long start = System.nanoTime();
+
+        final List<Finding> findings =
+                CodeRatesTest.RUNNER.run(List.of(TextUnderCheck.code("t", 0, code)));
+
+        assertThat((System.nanoTime() - start) / 1_000_000)
+                .as("milliseconds to judge 64 KB of numbers")
+                .isLessThan(5_000);
+        assertThat(ruleIds(findings))
+                .as("the list is found as bytes")
+                .contains(EncodingSignatureDetector.DECIMAL_BYTES);
+    }
+
+    /**
+     * Fifteen values, a value a byte cannot hold, and the same list in prose are no decimal bytes.
+     */
+    @Test
+    void fewerValuesALargerValueOrProseAreNoDecimalBytes() {
+        final String fifteen =
+                "final int[] a = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};";
+        final String large =
+                "final int[] a = {1, 2, 3, 4, 5, 6, 7, 8, -129, 10, 11, 12, 13, 14, 15, 16, 17};";
+        final String sixteen = "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16";
+
+        assertThat(ruleIds(CodeRatesTest.RUNNER.run(List.of(TextUnderCheck.code("t", 0, fifteen)))))
+                .as("fifteen values")
+                .doesNotContain(EncodingSignatureDetector.DECIMAL_BYTES);
+        assertThat(ruleIds(CodeRatesTest.RUNNER.run(List.of(TextUnderCheck.code("t", 0, large)))))
+                .as("-129 splits the list into runs of 8 and 8")
+                .doesNotContain(EncodingSignatureDetector.DECIMAL_BYTES);
+        assertThat(
+                        ruleIds(
+                                CodeRatesTest.RUNNER.run(
+                                        List.of(
+                                                new TextUnderCheck(
+                                                        "t", 0, "See lines " + sixteen + ".")))))
+                .as("line numbers in prose")
+                .doesNotContain(EncodingSignatureDetector.DECIMAL_BYTES);
     }
 
     @Test

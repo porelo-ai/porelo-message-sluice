@@ -37,7 +37,7 @@ that are treated as the payload they then are.
 | `builtin/entropy@1` | `ENCODING/WINDOW_ENTROPY` | `BLOCKING` | a 64-character stretch above 4.5 bits per character |
 | `builtin/english-distribution@1` | `ENCODING/LETTER_DISTRIBUTION` | `SUSPICIOUS` | 200 characters or more whose letters are not distributed like English |
 | | `ENCODING/WHITESPACE_SHARE` | `SUSPICIOUS` | the same, with under 8 % whitespace |
-| `builtin/encoding-signature@1` | `ENCODING/BASE64`, `BASE64URL`, `BASE58`, `BASE32`, `BASE85`, `HEX`, `URL_ENCODING`, `QUOTED_PRINTABLE`, `UUENCODE`, `BINARY_STRING`, `PEM`, `DATA_URI` | `BLOCKING` | the named encoding: a base-N, hex or uuencoded run from 32 characters on (`detector.signature.minLength`); a PEM header, a data URI's `;base64,` prefix, ascii85 between `<~ ~>`, a uuencode `begin` line, 16 hex bytes with separators or 32 bits of binary on their own; six URL or quoted-printable escapes, each within 16 characters of the last |
+| `builtin/encoding-signature@1` | `ENCODING/BASE64`, `BASE64URL`, `BASE58`, `BASE32`, `BASE85`, `HEX`, `URL_ENCODING`, `QUOTED_PRINTABLE`, `UUENCODE`, `BINARY_STRING`, `PEM`, `DATA_URI`, `DECIMAL_BYTES` | `BLOCKING` | the named encoding: a base-N, hex or uuencoded run from 32 characters on (`detector.signature.minLength`); a PEM header, a data URI's `;base64,` prefix, ascii85 between `<~ ~>`, a uuencode `begin` line, 16 hex bytes with separators or 32 bits of binary on their own; in code, 16 numbers a byte holds (-128 to 255, perhaps cast or written as a long) in a list separated by commas; six URL or quoted-printable escapes, each within 16 characters of the last |
 
 **Two different `SUSPICIOUS` rules in one message refuse it**; one rule firing many times counts once.
 
@@ -198,12 +198,11 @@ With the defaults:
   | 2 to 4 literals of at most 31 characters joined by `+` on one line | 3 % (URL escapes) to 100 % (data URI, binary) missed | 0.2 % (URL and quoted-printable escapes) to 99.8 % (binary) | under 2 % for base64, base64url, base32, base58, ciphertext, uuencode, URL and quoted-printable escapes; 41 to 59 % for hex, base85, PEM, data URI; 99.6 % for binary |
   | the same literals, one per line | 22 % (URL escapes) to 100 % (binary) | 1 % (URL escapes) to 99.8 % (binary) | none for URL escapes, 1 % for quoted-printable; 25 to 99.6 % for every other |
   | a `byte` array of the characters in hex (`0x41, 0x42`) | none | none | none |
-  | an `int` array of the characters in decimal (`65, 66`) | none for base32, uuencode, PEM, binary; 11 % (URL escapes) to 100 % (data URI) for the rest | none for those four; 3.6 % to 100 % | none for those four; 1.4 % URL and 2.4 % quoted-printable escapes; 66 % hex, 76 % base85, 98 % or more for the rest |
+  | an `int` array of the characters in decimal (`65, 66`) | none | none | none |
   | `\uXXXX` escapes in one literal | none | none | none |
   | `\uXXXX` escapes in literals of at most 12 characters each, one per line | 93 to 99 % | 95 to 99.6 % | 94 to 99 % |
 
-  A byte array is caught as hex bytes with separators; an int array only when every value has two
-  digits, which reads the same way; escapes in one literal only by the long-token check, as one token
+  A byte array is caught as hex bytes with separators, an int array as decimal bytes; escapes in one literal only by the long-token check, as one token
   over 80 characters.
 - **The thresholds:** English windows reach at most 4.56 bits per character, base64 has a median of
   4.75; English letters reach at most 1.64 chi-squared per letter, base64 at least 2.69; English has at
@@ -226,9 +225,8 @@ With the defaults:
 - **A payload in code as `\uXXXX` escapes cut into short literals**, one per line: 93 to 99.6 % of every
   encoding and length passes, since no literal reaches the long-token check and the escapes read as
   neither hex nor an encoding.
-- **A payload in code as an array of decimal numbers** with a value of three digits in it: base64,
-  base64url, base58, ciphertext and data URIs pass 98 % of the time or more, hex 66 to 86 % and base85
-  76 to 88 %.
+- **Fewer than 16 bytes in a decimal array**, or one whose runs a value no byte holds, a hex or binary
+  value, a character literal or a comment cuts below 16; or numbers separated by anything but commas.
 - **A payload in a URL path** of short segments, up to 256 characters; the query is checked.
 - **Up to four UUIDs and eight short hashes per text**, which pass as ids: about 64 bytes per message.
 - **A review document's URLs, within their shape**: the port and the pull request's number (up to 100
@@ -240,6 +238,7 @@ With the defaults:
   their shape alone: up to 64 bytes a task chooses. Whether they name real commits is the host's to
   check.
 - **Anything that is not English prose**, which the letter test may refuse.
-- **Code quoted at length** may be refused: long identifiers, shell commands, fingerprints, and in
+- **Code quoted at length** may be refused: long identifiers, shell commands, fingerprints, a table of
+  16 or more small numbers, and in
   workflows, playbooks and scripts the commit ids and digests that pin what they download.
   Calibration shows how often that happens in a mailbox's own traffic.
