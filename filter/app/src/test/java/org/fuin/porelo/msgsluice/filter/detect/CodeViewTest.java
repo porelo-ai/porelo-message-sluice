@@ -82,6 +82,112 @@ class CodeViewTest {
                 .isEqualTo(code);
     }
 
+    /** Escapes that write a character read as that character, each pointing at its escape. */
+    @Test
+    void escapesReadAsTheCharactersTheyWrite() {
+        final String code = "s = \"\\u0041\\u{1F600}\\x42\\\\u0043\";";
+        final Normalizer.Normalized view = CodeView.of(Normalizer.normalize(code));
+
+        assertThat(view.text())
+                .as("the decoded view, an escaped backslash left as it is")
+                .isEqualTo("s = \"A\uD83D\uDE00B\\\\u0043\";");
+        assertThat(view.toOriginal(5, 6)).as("where the A was written").containsExactly(5, 11);
+        assertThat(view.toOriginal(6, 8)).as("where the emoji was written").containsExactly(11, 20);
+    }
+
+    /**
+     * A backslash escapes exactly the next character: an odd run before {@code u0041} writes A, an
+     * even one leaves it as written.
+     */
+    @Test
+    void anEscapeIsReadOnlyAfterAnOddRunOfBackslashes() {
+        for (int n = 1; n <= 4; n++) {
+            final String code = "s = \"" + "\\".repeat(n) + "u0041\";";
+            final String view = CodeView.of(Normalizer.normalize(code)).text();
+
+            assertThat(view.contains("A"))
+                    .as("%d backslashes before u0041: %s", n, view)
+                    .isEqualTo(n % 2 == 1);
+        }
+    }
+
+    /** Java's repeated u, a long escape, and an escape at the end of the text are read. */
+    @Test
+    void longFormsAndAnEscapeAtTheEndAreRead() {
+        final String code = "s = \"\\uuuu0041\\U00000042\\x43\" + \"\\x44";
+
+        assertThat(CodeView.of(Normalizer.normalize(code)).text())
+                .as("the decoded view")
+                .isEqualTo("s = \"ABCD");
+    }
+
+    /**
+     * An escape for an invisible character, a lone surrogate or NUL writes nothing, and one with no
+     * character behind its number stays as written.
+     */
+    @Test
+    void invisibleCharactersVanishAndImpossibleNumbersStay() {
+        final String code = "s = \"A\\u200BB\\uD83DC\\u0000D\\u{110000}\";";
+
+        assertThat(CodeView.of(Normalizer.normalize(code)).text())
+                .as("the decoded view")
+                .isEqualTo("s = \"ABCD\\u{110000}\";");
+    }
+
+    /** Code whose escapes are all of other kinds has no view of its own. */
+    @Test
+    void escapesThatWriteNoNumberLeaveNoView() {
+        final Normalizer.Normalized normalized =
+                Normalizer.normalize("s = \"line\\n\\t\\\\ end\";");
+
+        assertThat(CodeView.views(normalized))
+                .as("views of code with only other escapes")
+                .isEmpty();
+    }
+
+    /** 64 KB of escapes is judged quickly. */
+    @Test
+    void sixtyFourKilobytesOfEscapesAreJudgedQuickly() {
+        final String code = "s = \"" + "\\u0041".repeat(64 * 1024 / 6) + "\";";
+        final long start = System.nanoTime();
+
+        judge(code);
+
+        assertThat((System.nanoTime() - start) / 1_000_000)
+                .as("milliseconds to judge 64 KB of escapes")
+                .isLessThan(5_000);
+    }
+
+    /** A payload written as escapes in short literals, one per line, is refused and not shown. */
+    @Test
+    void aPayloadOfEscapesInShortLiteralsIsRefusedAndNotRepeated() {
+        final StringBuilder code = new StringBuilder("final String data =\n");
+        for (int i = 0; i < 5; i++) {
+            code.append(i == 0 ? "        \"" : "        + \"");
+            for (final char c : BASE64.substring(i * 12, i * 12 + 12).toCharArray()) {
+                code.append(String.format(java.util.Locale.ROOT, "\\u%04x", (int) c));
+            }
+            code.append("\"\n");
+        }
+        code.append(";");
+
+        final List<Finding> findings = judge(code.toString());
+
+        assertThat(findings).as("rules found").anyMatch(f -> f.ruleId().startsWith("ENCODING/"));
+        assertThat(findings)
+                .as("no excerpt or reason repeats the payload or its escapes")
+                .allSatisfy(
+                        f -> {
+                            assertThat(String.valueOf(f.redactedExcerpt()))
+                                    .as("excerpt")
+                                    .doesNotContain(BASE64.substring(2, 10))
+                                    .doesNotContainPattern("(\\\\u[0-9a-f]{4}){2}");
+                            assertThat(f.reason())
+                                    .as("reason")
+                                    .doesNotContain(BASE64.substring(2, 10));
+                        });
+    }
+
     /** Comments and parentheses between two literals, and backticks, still join them. */
     @Test
     void commentsParenthesesAndBackticksBetweenLiteralsStillJoin() {

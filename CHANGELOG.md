@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - In code, string literals joined by `+` or written side by side, on one line or over lines, are judged as the
   one string they make, so a payload cut into short literals is found.
+- In code, the escapes `\uXXXX`, `\u{X}`, `\UXXXXXXXX` and `\xXX` are read as the characters they write, so a payload written
+  as escapes is judged as itself.
 - In code, 16 or more numbers a byte holds (-128 to 255) in a list separated by commas, as an array of a payload's bytes is
   written, are refused as `ENCODING/DECIMAL_BYTES`, as hex bytes already are.
 - A review document's repository and pull request URLs pass only in profile 2's forge-neutral shape, and their

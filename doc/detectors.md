@@ -204,7 +204,9 @@ With the defaults:
 
   Literals joined by `+` or side by side are judged as the one string they make, besides the code as
   written. A byte array is caught as hex bytes with separators, an int array as decimal bytes;
-  escapes only by the long-token check, as one token over 80 characters once their literals are joined.
+  escapes `\uXXXX` (also `\uuuuXXXX`), `\u{X}`, `\UXXXXXXXX` and `\xXX` are read as the characters
+  they write, an invisible one as nothing, and held as one long
+  token as well once their literals are joined.
 - **The thresholds:** English windows reach at most 4.56 bits per character, base64 has a median of
   4.75; English letters reach at most 1.64 chi-squared per letter, base64 at least 2.69; English has at
   least 8.7 % whitespace, base64 none.
@@ -225,6 +227,8 @@ With the defaults:
   closing quote. Literals joined by `+` or side by side, with whitespace, comments or one pair of
   parentheses between them, are read as one.
   Of those read as one, at 32 characters up to 2.6 % of uuencode and base85 still pass.
+- **Characters written in code by other escapes**: octal (`\101`), HTML or XML entities, or a call
+  such as `fromCharCode` or `chr`; only `\uXXXX`, `\u{X}`, `\UXXXXXXXX` and `\xXX` are read.
 - **Fewer than 16 bytes in a decimal array**, or one whose runs a value no byte holds, a hex or binary
   value, a character literal or a comment cuts below 16; or numbers separated by anything but commas.
 - **A payload in a URL path** of short segments, up to 256 characters; the query is checked.

@@ -85,11 +85,12 @@ public final class DetectorRunner {
             final List<Finding> own = judge(original, normalized);
             findings.addAll(own);
             if (original.kind() == TextKind.CODE) {
-                final Normalizer.Normalized view = CodeView.of(normalized);
-                if (view != normalized) {
+                final List<Finding> seen = new ArrayList<>(own);
+                for (final Normalizer.Normalized view : CodeView.views(normalized)) {
                     for (final Finding f : judge(original, view)) {
-                        if (own.stream().noneMatch(o -> sameMatch(o, f))) {
+                        if (seen.stream().noneMatch(o -> sameMatch(o, f))) {
                             findings.add(f);
+                            seen.add(f);
                         }
                     }
                 }
