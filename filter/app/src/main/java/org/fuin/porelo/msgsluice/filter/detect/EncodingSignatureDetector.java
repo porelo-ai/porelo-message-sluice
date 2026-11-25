@@ -110,13 +110,49 @@ public final class EncodingSignatureDetector implements ContentDetector {
      */
     private static final double RUN_ENTROPY = 4.1;
 
+    /**
+     * A uuencoded run in prose: at least this share of letters, and letter runs this short on
+     * average, or it is punctuation or words in capitals.
+     */
+    private static final double UU_MIN_LETTER_SHARE = 0.2;
+
+    private static final double UU_MAX_MEAN_LETTER_RUN = 3.2;
+
+    /**
+     * The same in code, where a string literal's quotes, an assignment and a semicolon join the run
+     * and thin out its letters: measured in {@code CodeRatesTest}, the prose bounds missed 11 of
+     * 500 uuencoded payloads of 32 characters in a line of Java, these none, and neither refused
+     * one snippet more of the code corpus.
+     */
+    private static final double UU_MIN_LETTER_SHARE_IN_CODE = 0.15;
+
+    private static final double UU_MAX_MEAN_LETTER_RUN_IN_CODE = 3.6;
+
     private final int minLength;
 
+    private final double uuMinLetterShare;
+
+    private final double uuMaxMeanLetterRun;
+
+    /** The detector for prose, naming a base-N run from {@code minLength} characters on. */
     public EncodingSignatureDetector(final int minLength) {
+        this(minLength, UU_MIN_LETTER_SHARE, UU_MAX_MEAN_LETTER_RUN);
+    }
+
+    /** The detector for source code, naming a base-N run from {@code minLength} characters on. */
+    public static EncodingSignatureDetector forCode(final int minLength) {
+        return new EncodingSignatureDetector(
+                minLength, UU_MIN_LETTER_SHARE_IN_CODE, UU_MAX_MEAN_LETTER_RUN_IN_CODE);
+    }
+
+    private EncodingSignatureDetector(
+            final int minLength, final double uuMinLetterShare, final double uuMaxMeanLetterRun) {
         if (minLength < 16) {
             throw new IllegalArgumentException("minLength must be at least 16: " + minLength);
         }
         this.minLength = minLength;
+        this.uuMinLetterShare = uuMinLetterShare;
+        this.uuMaxMeanLetterRun = uuMaxMeanLetterRun;
     }
 
     @Override
@@ -200,8 +236,8 @@ public final class EncodingSignatureDetector implements ContentDetector {
                             && punctuationShare(run) >= 0.2
                             && distinctPunctuation(run) >= 4
                             && spaceShare(run) < 0.1
-                            && meanLetterRun(run) < 3.2
-                            && letterShare(run) >= 0.2
+                            && meanLetterRun(run) < uuMaxMeanLetterRun
+                            && letterShare(run) >= uuMinLetterShare
                             && EntropyDetector.entropy(run, 0, run.length()) >= RUN_ENTROPY) {
                         add(out, masked, UUENCODE, m.start(), m.end(), "uuencoded bytes");
                     }

@@ -52,7 +52,10 @@ public final class Calibration {
         final A2aReader reader = new A2aReader();
         final EnvelopeCheck envelope = new EnvelopeCheck(config.check());
         final DetectorRunner runner =
-                new DetectorRunner(settings.detectors(), new Redactor(config.redaction()));
+                new DetectorRunner(
+                        settings.detectors(),
+                        settings.codeDetectors(),
+                        new Redactor(config.redaction()));
         final DecisionModel model = new DecisionModel(config.decision());
 
         final int window = settings.intValue("detector.entropy.windowSize");

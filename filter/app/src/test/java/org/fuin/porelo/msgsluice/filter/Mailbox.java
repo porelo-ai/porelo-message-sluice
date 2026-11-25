@@ -88,7 +88,12 @@ final class Mailbox {
 
     MessageSluice sluice(final String... keyValues) throws ConfigException {
         final Settings settings = settings(keyValues);
-        return new MessageSluice(settings.config(), settings.detectors(), clock(), log::add);
+        return new MessageSluice(
+                settings.config(),
+                settings.detectors(),
+                settings.codeDetectors(),
+                clock(),
+                log::add);
     }
 
     MessageSluice sluice(final List<ContentDetector> detectors, final String... keyValues)

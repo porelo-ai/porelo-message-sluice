@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.fuin.porelo.msgsluice.filter.a2a.A2aReader;
 import org.fuin.porelo.msgsluice.filter.a2a.EnvelopeCheck;
 import org.fuin.porelo.msgsluice.filter.a2a.EnvelopeResult;
@@ -104,12 +105,26 @@ public final class MessageSluice {
      */
     private final Map<Path, List<Object>> directories = new HashMap<>();
 
+    /** Judges prose and source code with the same detectors. */
     public MessageSluice(
             final FilterConfig config,
             final List<ContentDetector> detectors,
             final Clock clock,
             final Consumer<String> log) {
-        this(config, detectors, clock, log, Thread::sleep);
+        this(config, detectors, detectors, clock, log, Thread::sleep);
+    }
+
+    /**
+     * @param detectors those that judge prose
+     * @param codeDetectors those that judge source code
+     */
+    public MessageSluice(
+            final FilterConfig config,
+            final List<ContentDetector> detectors,
+            final List<ContentDetector> codeDetectors,
+            final Clock clock,
+            final Consumer<String> log) {
+        this(config, detectors, codeDetectors, clock, log, Thread::sleep);
     }
 
     MessageSluice(
@@ -118,15 +133,29 @@ public final class MessageSluice {
             final Clock clock,
             final Consumer<String> log,
             final Pause pause) {
+        this(config, detectors, detectors, clock, log, pause);
+    }
+
+    MessageSluice(
+            final FilterConfig config,
+            final List<ContentDetector> detectors,
+            final List<ContentDetector> codeDetectors,
+            final Clock clock,
+            final Consumer<String> log,
+            final Pause pause) {
         this.config = Objects.requireNonNull(config, "config");
         this.envelope = new EnvelopeCheck(config.check());
-        this.detectors = new DetectorRunner(detectors, new Redactor(config.redaction()));
+        this.detectors =
+                new DetectorRunner(detectors, codeDetectors, new Redactor(config.redaction()));
         this.decisionModel = new DecisionModel(config.decision());
         this.answers =
                 new Answers(
                         reader.mapper(),
                         version(),
-                        detectors.stream().map(ContentDetector::id).toList());
+                        Stream.concat(detectors.stream(), codeDetectors.stream())
+                                .map(ContentDetector::id)
+                                .distinct()
+                                .toList());
         this.clock = Objects.requireNonNull(clock, "clock");
         this.log = Objects.requireNonNull(log, "log");
         this.pause = Objects.requireNonNull(pause, "pause");

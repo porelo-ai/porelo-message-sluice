@@ -22,30 +22,48 @@ import org.jspecify.annotations.Nullable;
  */
 public final class EnvelopeCheck {
 
+    /** A comment whose parts are neither exactly one text part nor exactly one data part. */
+    static final String COMMENT_SHAPE = "ENVELOPE/COMMENT_PARTS_MIXED";
+
+    /** A comment a task sends to anyone but the review. */
+    static final String COMMENT_ADDRESSEE = "ENVELOPE/COMMENT_NOT_TO_REVIEW";
+
+    /** The one kind of message that carries a data part: a review comment. */
+    private static final String COMMENT = "comment";
+
+    /** The only addressee of a comment a task sends. */
+    private static final String REVIEW = "review";
+
     /**
      * Every rule id stage A can report; a configuration naming one of these weighs it but cannot
      * disable it.
      */
     public static final Set<String> RULE_IDS =
-            Set.of(
-                    "ENVELOPE/UNEXPECTED_ROLE",
-                    "ENVELOPE/TOO_MANY_PARTS",
-                    "ENVELOPE/AMBIGUOUS_PART",
-                    "ENVELOPE/EMPTY_PART",
-                    "ENVELOPE/RAW_PART_NOT_ALLOWED",
-                    "ENVELOPE/URL_PART_NOT_ALLOWED",
-                    "ENVELOPE/DATA_PART_NOT_ALLOWED",
-                    "ENVELOPE/TEXT_TOO_LONG",
-                    "ENVELOPE/FILENAME_ON_TEXT_PART",
-                    "ENVELOPE/UNEXPECTED_MEDIA_TYPE",
-                    "ENVELOPE/PEER_NAME_MALFORMED",
-                    "ENVELOPE/METADATA_TOO_DEEP",
-                    "ENVELOPE/METADATA_TOO_LARGE",
-                    "ENVELOPE/EXTENSION_MALFORMED",
-                    "ENVELOPE/UNKNOWN_FIELD",
-                    "ENVELOPE/ID_MALFORMED",
-                    "ENVELOPE/DUPLICATE_MESSAGE_ID",
-                    "ENVELOPE/TOO_MANY_REFERENCES");
+            java.util.stream.Stream.concat(
+                            Set.of(
+                                    "ENVELOPE/UNEXPECTED_ROLE",
+                                    "ENVELOPE/TOO_MANY_PARTS",
+                                    "ENVELOPE/AMBIGUOUS_PART",
+                                    "ENVELOPE/EMPTY_PART",
+                                    "ENVELOPE/RAW_PART_NOT_ALLOWED",
+                                    "ENVELOPE/URL_PART_NOT_ALLOWED",
+                                    "ENVELOPE/DATA_PART_NOT_ALLOWED",
+                                    "ENVELOPE/TEXT_TOO_LONG",
+                                    "ENVELOPE/FILENAME_ON_TEXT_PART",
+                                    "ENVELOPE/UNEXPECTED_MEDIA_TYPE",
+                                    "ENVELOPE/PEER_NAME_MALFORMED",
+                                    "ENVELOPE/METADATA_TOO_DEEP",
+                                    "ENVELOPE/METADATA_TOO_LARGE",
+                                    "ENVELOPE/EXTENSION_MALFORMED",
+                                    "ENVELOPE/UNKNOWN_FIELD",
+                                    "ENVELOPE/ID_MALFORMED",
+                                    "ENVELOPE/DUPLICATE_MESSAGE_ID",
+                                    "ENVELOPE/TOO_MANY_REFERENCES",
+                                    COMMENT_SHAPE,
+                                    COMMENT_ADDRESSEE)
+                                    .stream(),
+                            ReviewProfileCheck.RULE_IDS.stream())
+                    .collect(java.util.stream.Collectors.toUnmodifiableSet());
 
     private static final Set<String> MESSAGE_FIELDS =
             Set.of(
@@ -104,8 +122,11 @@ public final class EnvelopeCheck {
 
     private final CheckConfig config;
 
+    private final ReviewProfileCheck profile;
+
     public EnvelopeCheck(final CheckConfig config) {
         this.config = Objects.requireNonNull(config, "config");
+        this.profile = new ReviewProfileCheck(config.inbound());
     }
 
     /**
@@ -226,7 +247,11 @@ public final class EnvelopeCheck {
                 unexpectedRole();
             }
 
-            parts(msg.get("parts"), path + "parts", true);
+            final boolean comment = outer && isComment(msg.get("metadata"));
+            parts(msg.get("parts"), path + "parts", true, comment);
+            if (comment) {
+                comment(msg);
+            }
             metadata(msg.get("metadata"), path + "metadata");
             extensions(msg.get("extensions"), path + "extensions");
             final JsonNode refs = msg.get("referenceTaskIds");
@@ -254,6 +279,49 @@ public final class EnvelopeCheck {
                 }
             }
             return new MessageFacts(messageId, contextId, taskId);
+        }
+
+        /**
+         * A comment is a reply in prose, exactly one text part, or a review document, exactly one
+         * data part whose every profile rule refuses; any other mix is refused.
+         */
+        private void comment(final JsonNode msg) {
+            final JsonNode parts = msg.get("parts");
+            final JsonNode only = parts.path(0);
+            final boolean oneText = parts.size() == 1 && onlyContent(only, "text");
+            final boolean oneDataPart = parts.size() == 1 && onlyContent(only, "data");
+            if (!config.inbound()) {
+                final JsonNode to = msg.get("metadata").get("to");
+                if (to == null || !to.isTextual() || !REVIEW.equals(to.asText())) {
+                    findings.add(
+                            Finding.envelope(
+                                    COMMENT_ADDRESSEE,
+                                    Severity.BLOCKING,
+                                    "metadata.to",
+                                    -1,
+                                    "A comment a task sends goes to the review, so metadata.to must be '"
+                                            + REVIEW
+                                            + "'."));
+                }
+            }
+            if (oneText) {
+                return;
+            }
+            if (!oneDataPart) {
+                findings.add(
+                        Finding.envelope(
+                                COMMENT_SHAPE,
+                                Severity.BLOCKING,
+                                "parts",
+                                -1,
+                                "A comment carries exactly one part: a text part for a reply, or a"
+                                        + " data part holding one review profile document."));
+                return;
+            }
+            final ReviewProfileCheck.Result result =
+                    profile.check(only.path("data"), "parts[0].data", 0);
+            findings.addAll(result.findings());
+            texts.addAll(result.texts());
         }
 
         private void unexpectedRole() {
@@ -333,13 +401,16 @@ public final class EnvelopeCheck {
                     text(value, path + field, -1);
                 }
             }
-            parts(artifact.get("parts"), path + "parts", true);
+            parts(artifact.get("parts"), path + "parts", true, false);
             metadata(artifact.get("metadata"), path + "metadata");
             extensions(artifact.get("extensions"), path + "extensions");
         }
 
         private void parts(
-                final @Nullable JsonNode parts, final String path, final boolean required)
+                final @Nullable JsonNode parts,
+                final String path,
+                final boolean required,
+                final boolean comment)
                 throws Unprocessable {
             if (parts == null) {
                 if (required) {
@@ -364,11 +435,16 @@ public final class EnvelopeCheck {
                                         + " are allowed."));
             }
             for (int i = 0; i < parts.size(); i++) {
-                part(parts.get(i), path + "[" + i + "]", i);
+                part(parts.get(i), path + "[" + i + "]", i, comment);
             }
         }
 
-        private void part(final JsonNode part, final String path, final int index)
+        /**
+         * @param comment whether the part belongs to a comment, whose data part the profile check
+         *     judges instead of this one
+         */
+        private void part(
+                final JsonNode part, final String path, final int index, final boolean comment)
                 throws Unprocessable {
             if (!part.isObject()) {
                 throw schema(path, "is not an object");
@@ -420,7 +496,7 @@ public final class EnvelopeCheck {
                                 "The part is a reference to external content. Only plain English text may be sent."));
                 text(part.get("url"), path + ".url", index);
             }
-            if (content.contains("data")) {
+            if (content.contains("data") && !comment) {
                 findings.add(
                         Finding.envelope(
                                 "ENVELOPE/DATA_PART_NOT_ALLOWED",
@@ -713,6 +789,22 @@ public final class EnvelopeCheck {
      */
     static String printable(final String name, final int index) {
         return PRINTABLE_NAME.matcher(name).matches() ? name : "#" + index;
+    }
+
+    /** Whether a part carries the one content field named and no other. */
+    private static boolean onlyContent(final JsonNode part, final String field) {
+        return part.isObject()
+                && CONTENT_FIELDS.stream()
+                        .allMatch(f -> f.equals(field) == (part.has(f) && !part.get(f).isNull()));
+    }
+
+    /** Whether the outer message's metadata names it a comment. */
+    private static boolean isComment(final @Nullable JsonNode metadata) {
+        if (metadata == null || !metadata.isObject()) {
+            return false;
+        }
+        final JsonNode kind = metadata.get("kind");
+        return kind != null && kind.isTextual() && COMMENT.equals(kind.asText());
     }
 
     private static String where(final String path, final String fallback) {

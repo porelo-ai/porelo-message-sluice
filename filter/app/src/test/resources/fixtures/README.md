@@ -24,3 +24,7 @@ Three files exercise the Unicode normalization, so a native build runs it too: f
 suspicious, so accepted in both modes) and twelve zero-width spaces between words
 (`UNICODE/INVISIBLE_CHARACTER`, blocking from eight on - and, once they are removed, one long token). None of these
 files is signed: sign them on the host as a message from a task would be.
+Four files are review comments, each one review profile 2 document in its one data part (see
+`review/README.md`): Porelo's submitted comment and reply pass, and a submission naming its producer
+and a forge's page sent as a task's message are refused. A forge's page passes only with `--inbound`,
+so it lies apart, in `inbound/`, which the packaged binaries run with that flag.

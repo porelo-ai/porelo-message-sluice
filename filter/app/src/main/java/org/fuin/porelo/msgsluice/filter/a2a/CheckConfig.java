@@ -19,6 +19,9 @@ import org.fuin.porelo.msgsluice.filter.decision.Severity;
  * @param maxMetadataDepth nesting depth of a metadata object
  * @param maxMetadataChars characters of keys and values in one metadata object, all levels together
  * @param maxReferenceTaskIds entries in one message's {@code referenceTaskIds}
+ * @param inbound whether the message comes from a peer the host does not vouch for, such as a
+ *     forge; only the host knows, so it names the direction on the command line, and the default is
+ *     the stricter outbound direction
  */
 public record CheckConfig(
         Set<String> allowedRoles,
@@ -29,7 +32,8 @@ public record CheckConfig(
         int maxIdLength,
         int maxMetadataDepth,
         int maxMetadataChars,
-        int maxReferenceTaskIds) {
+        int maxReferenceTaskIds,
+        boolean inbound) {
 
     public CheckConfig {
         allowedRoles = Set.copyOf(allowedRoles);
@@ -57,7 +61,8 @@ public record CheckConfig(
                 128,
                 8,
                 16 * 1024,
-                32);
+                32,
+                false);
     }
 
     private static void positive(final String name, final long value) {

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- A review comment may carry one review profile 2 document in one data part. The filter walks it as a
+  closed tree within strict parser budgets and refuses any field, value, producer or hidden character
+  the profile does not allow, each by a `PROFILE/` rule that refuses also while it only reports. A
+  task's comment must be a submission to `review`; `--inbound` names messages from a forge, whose
+  comment must be a page. A suggested replacement is judged by detectors measured on code.
+
 - The filter takes Porelo's limit factors, as `--limits <line>` or the key `limits`: its polling factor scales
   `stabilityDelayMillis` and `watchIntervalMillis`, so a slow machine is met by one setting. A line that cannot be
   read stops the start, given with `--limits` with exit 64.

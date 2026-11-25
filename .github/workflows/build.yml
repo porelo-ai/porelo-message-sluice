@@ -324,6 +324,13 @@ jobs:
                     ls "$S"/filter/error | grep -qx 'old.json'
                     grep -rlF 'UNPROCESSABLE/SIGNATURE_UNUSABLE' "$S"/filter/feedback | grep -q .
                     test -z "$(ls "$S"/incoming)"
+                    # A forge's review page passes only when the host names the message inbound.
+                    I="$RUNNER_TEMP/inbound-$format"
+                    mkdir -p "$I"/{incoming,sent} "$I"/filter/{accepted,feedback}
+                    mkdir -m 700 "$I"/filter/{rejected,error}
+                    cp filter/app/src/test/resources/inbound/accept-forge-page.json "$I/incoming/"
+                    env -i PATH=/usr/bin:/bin "$FILTER" --mail "$I" --blocking --inbound --stabilityDelayMillis 0
+                    cmp "$I/filter/accepted/accept-forge-page.json" filter/app/src/test/resources/inbound/accept-forge-page.json
                   done
 
             # Only main and a release tag publish, and only where PORELO_PUBLISH says so. A tag publishes a release, everything else a snapshot; a release

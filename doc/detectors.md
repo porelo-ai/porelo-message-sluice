@@ -103,6 +103,15 @@ write to, a number to call - is `SUSPICIOUS`, and a project with a strict data-p
 numbers payment documentation uses as examples, and the public resolvers `1.1.1.1`, `8.8.8.8` and
 `9.9.9.9`.
 
+## Code
+
+A review comment may suggest a few lines of code to replace the lines it is anchored to. Code is not
+prose, so **a suggested replacement, a file's path and an https URL in a review document are judged as
+code**: by the long-token check, the encoding signatures and the entropy window, each with thresholds of
+its own measured on code, and by the credential and personal data detectors as they are. The letter
+shape and distribution tests, which hold English to English, do not see code. A detector's
+`enabled` switches its code twin too.
+
 ## Configuration
 
 Every threshold is a key, `detector.<name>.<parameter>`, and every detector can be switched off with
@@ -120,6 +129,10 @@ Every threshold is a key, `detector.<name>.<parameter>`, and every detector can 
 | `detector.distribution.maxChiSquarePerLetter` | 2.0 | measured, below |
 | `detector.distribution.minWhitespaceShare` | 0.08 | measured, below |
 | `detector.signature.minLength` | 32 | the shortest payload that must not pass |
+| `detector.longToken.code.maxTokenLength` | 80 | measured on code: test method names reach about 71 |
+| `detector.entropy.code.threshold` | 4.3 | measured on code, below |
+| `detector.entropy.code.windowSize` / `step` / `minLength` | 64 / 16 / 64 | as for prose; 32 and 48 measured no better |
+| `detector.signature.code.minLength` | 32 | the shortest payload that must not pass |
 | `detector.credentials.dummyValues` | AWS's two documented example keys, `hunter2` | values known to be no secret, compared exactly |
 | `detector.personalData.dummyValues` | the documented example card and IBANs, the public resolvers | values known to be nobody's, compared without spaces, dots and dashes |
 
@@ -153,6 +166,16 @@ With the defaults:
   or IBAN is none (a test keeps it so). In 27250 paragraphs agents wrote to each other, 14 more are
   refused than without it, each for a suspicious address beside another suspicious rule: an e-mail
   address in a package's maintainer field, or the public address of a rented machine.
+- **Code that must pass:** 1245 snippets of 1 to 12 lines frozen from this repository's own Java
+  sources, the size of a suggested replacement, with the test payloads left out: 8 refused (0.64 %; a
+  test keeps it under 1 %): a PEM header, a SHA-256 test value, three test lines that read as base85, a
+  long test method name with digits, a random test key and a Cyrillic string literal. Judged by the
+  prose detectors instead, 83 are refused.
+- **Encodings in code that must not pass:** 500 random samples of each encoding at 32, 48 and 64
+  characters, each as a string literal in a line of Java: at 32 characters 1 base58 and 2 base85
+  missed, none else (a test keeps every one under 1 %). Uuencode needs letter bounds of its own in code
+  (a letter share of 0.15 and a mean letter run of 3.6, against 0.2 and 3.2 in prose), since a
+  literal's quotes and `;` thin out its letters.
 - **The thresholds:** English windows reach at most 4.56 bits per character, base64 has a median of
   4.75; English letters reach at most 1.64 chi-squared per letter, base64 at least 2.69; English has at
   least 8.7 % whitespace, base64 none.
@@ -169,6 +192,11 @@ With the defaults:
 - **Fewer than 32 characters of an encoding** that nothing else gives away.
 - **A payload in a URL path** of short segments, up to 256 characters; the query is checked.
 - **Up to four UUIDs and eight short hashes per text**, which pass as ids: about 64 bytes per message.
+- **The two full commit ids of a review document** (`revisionId`, `porelo/baseRevisionId`), held to
+  their shape alone: up to 64 bytes a task chooses. Whether they name real commits is the host's to
+  check.
+- **A review document's https URLs** are code to the detectors, so they pass as a prose URL does: a
+  payload in path segments of up to 48 characters, up to 256 characters per URL.
 - **Anything that is not English prose**, which the letter test may refuse.
 - **Code quoted at length** may be refused: long identifiers, shell commands, fingerprints.
   Calibration shows how often that happens in a mailbox's own traffic.

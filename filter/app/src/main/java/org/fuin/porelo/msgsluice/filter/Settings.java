@@ -50,6 +50,9 @@ public final class Settings {
 
     private static final String SEVERITY = "decision.severity.";
 
+    /** The direction of the messages checked, set by {@code --inbound}. */
+    public static final String INBOUND = "inbound";
+
     /**
      * Every plain key and its default; an empty default means none. In the order they are logged.
      */
@@ -65,6 +68,7 @@ public final class Settings {
         DEFAULTS.put("error", "");
         DEFAULTS.put("lock", "");
         DEFAULTS.put("blocking", "false");
+        DEFAULTS.put(INBOUND, "false");
         DEFAULTS.put("receiptOnApproval", "true");
         DEFAULTS.put("stabilityDelayMillis", "200");
         DEFAULTS.put("watchIntervalMillis", "2000");
@@ -96,6 +100,8 @@ public final class Settings {
         DEFAULTS.put(
                 "detector.longToken.maxTokenLength",
                 String.valueOf(LongTokenDetector.DEFAULT_MAX_TOKEN_LENGTH));
+        // The code twins' defaults were measured on code - see CodeRatesTest.
+        DEFAULTS.put("detector.longToken.code.maxTokenLength", "80");
         // Every default here was measured - see doc/detectors.md.
         DEFAULTS.put("detector.tokenShape.enabled", "true");
         DEFAULTS.put("detector.tokenShape.maxDigitUpperShare", "0.5");
@@ -106,12 +112,17 @@ public final class Settings {
         DEFAULTS.put("detector.entropy.windowSize", "64");
         DEFAULTS.put("detector.entropy.step", "16");
         DEFAULTS.put("detector.entropy.minLength", "64");
+        DEFAULTS.put("detector.entropy.code.threshold", "4.3");
+        DEFAULTS.put("detector.entropy.code.windowSize", "64");
+        DEFAULTS.put("detector.entropy.code.step", "16");
+        DEFAULTS.put("detector.entropy.code.minLength", "64");
         DEFAULTS.put("detector.distribution.enabled", "true");
         DEFAULTS.put("detector.distribution.minLength", "200");
         DEFAULTS.put("detector.distribution.maxChiSquarePerLetter", "2.0");
         DEFAULTS.put("detector.distribution.minWhitespaceShare", "0.08");
         DEFAULTS.put("detector.signature.enabled", "true");
         DEFAULTS.put("detector.signature.minLength", "32");
+        DEFAULTS.put("detector.signature.code.minLength", "32");
         DEFAULTS.put("detector.credentials.enabled", "true");
         // Values known to be no secret: the providers' documented examples, and the password every
         // example quotes.
@@ -151,6 +162,8 @@ public final class Settings {
 
     private final List<ContentDetector> detectors;
 
+    private final List<ContentDetector> codeDetectors;
+
     private final FilterConfig config;
 
     private Settings(final Map<String, String> values, final Map<String, String> sources)
@@ -158,6 +171,7 @@ public final class Settings {
         this.values = values;
         this.sources = sources;
         this.detectors = buildDetectors();
+        this.codeDetectors = buildCodeDetectors();
         this.config = buildConfig();
     }
 
@@ -209,6 +223,14 @@ public final class Settings {
         if (!DEFAULTS.containsKey(key) && !key.startsWith(WEIGHT) && !key.startsWith(SEVERITY)) {
             throw new ConfigException("Unknown configuration key '" + key + "' (" + source + ")");
         }
+        if (key.equals(INBOUND) && !source.equals("command line")) {
+            // A configuration file serves every direction; one naming inbound would pass forge
+            // pages in the outbound check too.
+            throw new ConfigException(
+                    "The direction is named on the command line only, with --inbound ("
+                            + source
+                            + ")");
+        }
         values.put(key, value.strip());
         sources.put(key, source);
     }
@@ -235,8 +257,18 @@ public final class Settings {
         return config;
     }
 
+    /** The detectors that judge prose, in the order they run. */
     public List<ContentDetector> detectors() {
         return detectors;
+    }
+
+    /**
+     * The detectors that judge source code: the encoded-data checks with their {@code code.*}
+     * thresholds, and the credential and personal-data checks. The checks that ask whether a text
+     * reads like English have no twin, since code never does.
+     */
+    public List<ContentDetector> codeDetectors() {
+        return codeDetectors;
     }
 
     /** The effective value of a key, as configured. */
@@ -324,6 +356,40 @@ public final class Settings {
         return List.copyOf(list);
     }
 
+    /** A prose detector's {@code enabled} switches its code twin too. */
+    private List<ContentDetector> buildCodeDetectors() throws ConfigException {
+        final List<ContentDetector> list = new ArrayList<>();
+        try {
+            if (bool("detector.longToken.enabled")) {
+                list.add(
+                        new LongTokenDetector(
+                                positiveInt("detector.longToken.code.maxTokenLength")));
+            }
+            if (bool("detector.entropy.enabled")) {
+                list.add(
+                        new EntropyDetector(
+                                nonNegativeDouble("detector.entropy.code.threshold"),
+                                positiveInt("detector.entropy.code.windowSize"),
+                                positiveInt("detector.entropy.code.step"),
+                                positiveInt("detector.entropy.code.minLength")));
+            }
+            if (bool("detector.signature.enabled")) {
+                list.add(
+                        EncodingSignatureDetector.forCode(
+                                positiveInt("detector.signature.code.minLength")));
+            }
+            if (bool("detector.credentials.enabled")) {
+                list.add(new CredentialDetector(list("detector.credentials.dummyValues")));
+            }
+            if (bool("detector.personalData.enabled")) {
+                list.add(new PersonalDataDetector(list("detector.personalData.dummyValues")));
+            }
+        } catch (final IllegalArgumentException ex) {
+            throw new ConfigException(reason(ex));
+        }
+        return List.copyOf(list);
+    }
+
     private FilterConfig buildConfig() throws ConfigException {
         final LimitFactors limits = limits();
         final CheckConfig check;
@@ -338,7 +404,8 @@ public final class Settings {
                             positiveInt("check.maxIdLength"),
                             positiveInt("check.maxMetadataDepth"),
                             positiveInt("check.maxMetadataChars"),
-                            positiveInt("check.maxReferenceTaskIds"));
+                            positiveInt("check.maxReferenceTaskIds"),
+                            bool(INBOUND));
         } catch (final IllegalArgumentException ex) {
             throw new ConfigException(reason(ex));
         }

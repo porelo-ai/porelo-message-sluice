@@ -10,9 +10,9 @@ import org.fuin.porelo.msgsluice.filter.decision.Redactor;
 import org.fuin.porelo.msgsluice.filter.decision.Stage;
 
 /**
- * Runs every detector over every text and turns what they report into findings that may leave the
- * house. Fails closed: a detector that throws, or answers outside its contract, produces a finding
- * that refuses.
+ * Runs the detectors for each text's kind over it - those for prose or those for code - and turns
+ * what they report into findings that may leave the house. Fails closed: a detector that throws, or
+ * answers outside its contract, produces a finding that refuses.
  */
 public final class DetectorRunner {
 
@@ -27,17 +27,42 @@ public final class DetectorRunner {
 
     private final List<ContentDetector> detectors;
 
+    private final List<ContentDetector> codeDetectors;
+
     private final Redactor redactor;
 
+    /**
+     * Judges prose and code alike with the same detectors: stricter for code than {@link
+     * #DetectorRunner(List, List, Redactor)}, never more lenient.
+     */
     public DetectorRunner(final List<ContentDetector> detectors, final Redactor redactor) {
+        this(detectors, detectors, redactor);
+    }
+
+    /**
+     * @param detectors those that judge a {@link TextKind#PROSE} text
+     * @param codeDetectors those that judge a {@link TextKind#CODE} text
+     */
+    public DetectorRunner(
+            final List<ContentDetector> detectors,
+            final List<ContentDetector> codeDetectors,
+            final Redactor redactor) {
         this.detectors = List.copyOf(detectors);
+        this.codeDetectors = List.copyOf(codeDetectors);
         this.redactor = Objects.requireNonNull(redactor, "redactor");
     }
 
+    /** The detectors that judge prose. */
     public List<ContentDetector> detectors() {
         return detectors;
     }
 
+    /** The detectors that judge source code. */
+    public List<ContentDetector> codeDetectors() {
+        return codeDetectors;
+    }
+
+    /** Normalizes each text and runs the detectors for its kind over it. */
     public List<Finding> run(final List<TextUnderCheck> texts) {
         final List<Finding> findings = new ArrayList<>();
         for (final TextUnderCheck original : texts) {
@@ -59,8 +84,12 @@ public final class DetectorRunner {
             }
             final TextUnderCheck text =
                     new TextUnderCheck(
-                            original.location(), original.partIndex(), normalized.text());
-            for (final ContentDetector detector : detectors) {
+                            original.location(),
+                            original.partIndex(),
+                            normalized.text(),
+                            original.kind());
+            for (final ContentDetector detector :
+                    text.kind() == TextKind.CODE ? codeDetectors : detectors) {
                 final List<DetectorFinding> reported;
                 try {
                     reported = detector.inspect(text);

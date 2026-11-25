@@ -98,6 +98,45 @@ class SettingsTest {
     }
 
     @Test
+    void aProseDetectorsSwitchTurnsItsCodeTwinOffToo() throws Exception {
+        final Settings settings =
+                Settings.load(
+                        null,
+                        Map.of(
+                                "mail",
+                                "/m",
+                                "detector.signature.enabled",
+                                "false",
+                                "detector.entropy.enabled",
+                                "false"));
+
+        assertThat(settings.codeDetectors())
+                .as("code detectors with the signature and entropy checks switched off")
+                .extracting(d -> d.getClass().getSimpleName())
+                .containsExactly("LongTokenDetector", "CredentialDetector", "PersonalDataDetector");
+    }
+
+    @Test
+    void aCodeThresholdIsValidatedLikeItsProseSiblingAndACodeSwitchIsUnknown() {
+        for (final Map.Entry<String, String> bad :
+                Map.of(
+                                "detector.longToken.code.maxTokenLength", "0",
+                                "detector.signature.code.minLength", "8",
+                                "detector.entropy.code.windowSize", "8",
+                                "detector.entropy.code.threshold", "-1",
+                                "detector.longToken.code.enabled", "false")
+                        .entrySet()) {
+            assertThatThrownBy(
+                            () ->
+                                    Settings.load(
+                                            null,
+                                            Map.of("mail", "/m", bad.getKey(), bad.getValue())))
+                    .as("%s=%s", bad.getKey(), bad.getValue())
+                    .isInstanceOf(ConfigException.class);
+        }
+    }
+
+    @Test
     void theEnvelopeCannotBeDisabledOrRegraded() {
         assertThatThrownBy(
                         () ->

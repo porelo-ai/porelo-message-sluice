@@ -61,7 +61,9 @@ checked like a message. A2A 0.3 is refused, never converted.
 |---|---|---|
 | a part with `raw` | `ENVELOPE/RAW_PART_NOT_ALLOWED` | `BLOCKING` |
 | a part with `url` | `ENVELOPE/URL_PART_NOT_ALLOWED` | `BLOCKING`, or `SUSPICIOUS` by `check.urlPartSeverity` |
-| a part with `data` | `ENVELOPE/DATA_PART_NOT_ALLOWED` | `BLOCKING` |
+| a part with `data`, but in a review comment | `ENVELOPE/DATA_PART_NOT_ALLOWED` | `BLOCKING` |
+| a review comment of other parts than one text part or one data part | `ENVELOPE/COMMENT_PARTS_MIXED` | `BLOCKING` |
+| a review comment a task sends to anyone but `review` | `ENVELOPE/COMMENT_NOT_TO_REVIEW` | `BLOCKING` |
 | a part with two content fields | `ENVELOPE/AMBIGUOUS_PART` | `BLOCKING` |
 | a part with none | `ENVELOPE/EMPTY_PART` | `SUSPICIOUS` |
 | a role that is not allowed | `ENVELOPE/UNEXPECTED_ROLE` | `BLOCKING` |
@@ -76,6 +78,10 @@ checked like a message. A2A 0.3 is refused, never converted.
 | a field A2A 1.0 does not have | `ENVELOPE/UNKNOWN_FIELD` | `SUSPICIOUS` |
 | a message id seen before | `ENVELOPE/DUPLICATE_MESSAGE_ID` | `BLOCKING` |
 
+**A review comment** (`metadata.kind` `comment` on the outer message) is either a reply in prose, one
+text part, or one review document in one `data` part. The document is checked as the next section
+says; every other message's data part is refused.
+
 **Every string goes to the detectors**, not only the text parts: file names, media types, every key
 and value of `metadata`, extensions, unknown fields and the ids. A UUID passes as an id; a long hex
 string does not, whatever field it is in.
@@ -87,6 +93,42 @@ alike. That a person really wrote it is Porelo's to check, not the filter's.
 gets an answer, so a broken file is never a way to make a message vanish. What `error/` keeps is the
 bytes that were read, never the file they came from; a file changed since stays for the next pass. A
 link or a special file is not read, so it is moved as it is, a link as a link, never followed.
+
+## A review document
+
+A comment's data part is one review profile 2 document, as Porelo's `doc/review-profile.md` and its
+schema `review-profile-2.schema.json` write it. The filter walks it as a closed tree, with no data
+binding and no SARIF library, and refuses what the profile does not list. **Every rule here is
+`BLOCKING` and an envelope rule**, so it refuses also when the host runs the check reporting only;
+what a detector finds in the document's texts is weighed like any other text.
+
+**The direction is the host's to name**, on the command line: without `--inbound` the message is what
+a task sends, and its document must be a submission (`porelo/documentKind` `submission`) addressed to
+`review` that names no producer; with `--inbound` it comes from a forge, and its document must be a
+page whose every result names the forge account that wrote it (`porelo/sourceKind` `forge-account`,
+`porelo/forgeAccountId`, `porelo/forgeAccountName`). A host that forgets the flag refuses a forge's
+page rather than passing it outbound. A configuration file cannot name the direction.
+**Either way the document is a pull request's**: its run names `porelo/pullRequest` and the forge's
+repository URL, never a push of Porelo's.
+
+| What | Rule |
+|---|---|
+| a document over a parser budget: 1 MiB, 32 KiB per result, 100 results, nesting 24, 100000 tokens, strings of 16384 characters, names of 128, numbers of 20 digits | `PROFILE/BUDGET_EXCEEDED` |
+| a field profile 2 does not list | `PROFILE/UNKNOWN_FIELD` |
+| a field it requires, missing | `PROFILE/MISSING_FIELD` |
+| a value of the wrong type, word or grammar | `PROFILE/VALUE_MALFORMED` |
+| a format character, variation selector, line or paragraph separator, lone surrogate or control character other than line feed and tab, anywhere | `PROFILE/FORBIDDEN_CHARACTER` |
+| a submission sent inbound, or a page sent outbound | `PROFILE/WRONG_DIRECTION` |
+| a producer, guid, thread or thread state in a submission; a page's result by anyone but a forge account, without its account's id and name, or naming a task | `PROFILE/PRODUCER_NOT_ALLOWED` |
+| a region of more than 100 lines | `PROFILE/REGION_TOO_LARGE` |
+| a replacement outside its comment's lines, or more than 10 lines longer | `PROFILE/REPLACEMENT_OUTSIDE_ANCHOR` |
+| a text over 8192 bytes, a replacement over 8 KiB, a replaced line over 400 characters | `PROFILE/TEXT_TOO_LONG` |
+
+**What the detectors see of it:** `message.text` as prose; the suggested replacement, each file's
+path, the https URLs, the thread ids and the forge account's id and name as code (see [the
+detectors](detectors.md)). The guid and the two commit ids are held to their grammar alone, since a
+full commit id trips the encoding rules by design. **A field name is never shown**: a finding names an
+unknown field by its position, `#3`, as its writer chose the name.
 
 ## The verdict
 
@@ -128,11 +170,14 @@ A key of `metadata` above a finding, and a field the envelope reports, is named 
 ## The command line
 
 ```
-porelo-message-sluice-filter --mail <dir> [--blocking] [--watch] [--config <file>] [--<key> <value> ...]
-porelo-message-sluice-filter --dry-run --file <message> [--blocking]   # checks one file, moves nothing
+porelo-message-sluice-filter --mail <dir> [--blocking] [--inbound] [--watch] [--config <file>] [--<key> <value> ...]
+porelo-message-sluice-filter --dry-run --file <message> [--blocking] [--inbound]   # checks one file, moves nothing
 porelo-message-sluice-filter --calibrate [--dir <messages>]            # prints a configuration
 porelo-message-sluice-filter --agent-card --mail <dir>                 # prints its A2A agent card
 ```
+
+**`--inbound`** says the messages come from a peer the host does not vouch for, such as a forge;
+without it they are what a task sends. It decides only which review document a comment may carry.
 
 **`--agent-card`, `--calibrate`, `--dry-run` and `--watch` exclude each other:** a command line asking
 for two of them, or for `--file` or `--dir` without its mode, runs nothing and exits with 2.

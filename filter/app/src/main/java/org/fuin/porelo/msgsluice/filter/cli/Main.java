@@ -24,13 +24,16 @@ import org.jspecify.annotations.Nullable;
  * The command line.
  *
  * <pre>
- * porelo-message-sluice --mail &lt;task state&gt;/mail [--blocking] [--watch] [--config file] [--limits line] [--&lt;key&gt; value ...]
- * porelo-message-sluice --dry-run --file msg.json [--&lt;key&gt; value ...]
+ * porelo-message-sluice --mail &lt;task state&gt;/mail [--blocking] [--inbound] [--watch] [--config file] [--limits line] [--&lt;key&gt; value ...]
+ * porelo-message-sluice --dry-run --file msg.json [--inbound] [--&lt;key&gt; value ...]
  * porelo-message-sluice --calibrate [--dir &lt;messages&gt;] [--&lt;key&gt; value ...]   prints a properties file
  * porelo-message-sluice --agent-card --mail &lt;dir&gt;                                  prints its A2A agent card
  * </pre>
  *
- * Exit codes: 0 everything accepted, 1 something refused, 2 a technical error or a configuration
+ * {@code --inbound} says the messages come from a peer the host does not vouch for, such as a
+ * forge; without it they are what a task sends.
+ *
+ * <p>Exit codes: 0 everything accepted, 1 something refused, 2 a technical error or a configuration
  * that cannot be used, 64 a limits line given with {@code --limits} that cannot be read.
  */
 public final class Main {
@@ -80,6 +83,7 @@ public final class Main {
                     case "--watch", "--dry-run", "--calibrate", "--agent-card" -> modes.add(arg);
                     case "--dir" -> calibrateDir = Path.of(value(args, ++i, arg));
                     case "--blocking" -> cli.put("blocking", "true");
+                    case "--inbound" -> cli.put(Settings.INBOUND, "true");
                     case "--no-receipt" -> cli.put("receiptOnApproval", "false");
                     case "--config" -> configFile = Path.of(value(args, ++i, arg));
                     case "--file" -> dryRunFile = Path.of(value(args, ++i, arg));
@@ -138,6 +142,7 @@ public final class Main {
                     new MessageSluice(
                             settings.config(),
                             settings.detectors(),
+                            settings.codeDetectors(),
                             Clock.systemUTC(),
                             err::println);
             sluice.checkDirectories();
@@ -185,7 +190,11 @@ public final class Main {
         final Settings settings = Settings.load(configFile, withDummies);
         final MessageSluice sluice =
                 new MessageSluice(
-                        settings.config(), settings.detectors(), Clock.systemUTC(), line -> {});
+                        settings.config(),
+                        settings.detectors(),
+                        settings.codeDetectors(),
+                        Clock.systemUTC(),
+                        line -> {});
         final MessageSluice.FileResult result = sluice.dryRun(file);
         out.println(result.describe());
         return switch (result.outcome()) {
@@ -235,6 +244,7 @@ public final class Main {
                 "--agent-card",
                 "--dir",
                 "--blocking",
+                "--inbound",
                 "--no-receipt",
                 "--config",
                 "--file",
