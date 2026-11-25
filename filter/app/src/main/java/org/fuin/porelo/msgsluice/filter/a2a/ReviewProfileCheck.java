@@ -3,6 +3,9 @@ package org.fuin.porelo.msgsluice.filter.a2a;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import java.nio.charset.StandardCharsets;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -136,7 +139,12 @@ public final class ReviewProfileCheck {
                     "porelo/sourceKind",
                     "porelo/taskId",
                     "porelo/forgeAccountId",
-                    "porelo/forgeAccountName");
+                    "porelo/forgeAccountName",
+                    "porelo/createdAt");
+
+    /** An instant in UTC as RFC 3339 writes it, in whole seconds. */
+    private static final Pattern CREATED_AT =
+            Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z");
 
     private final boolean inbound;
 
@@ -178,6 +186,26 @@ public final class ReviewProfileCheck {
         walk.characters(document, path);
         walk.root(document, path);
         return walk.result();
+    }
+
+    /**
+     * Whether the text is the profile's instant: whole seconds, UTC, a real calendar date, no hour
+     * 24 and no second 60.
+     */
+    static boolean instant(final String text) {
+        // java.time reads hour 24 as the next day and second 60 as a leap second; the
+        // profile admits neither.
+        if (!CREATED_AT.matcher(text).matches()
+                || text.startsWith("24", 11)
+                || text.startsWith("60", 17)) {
+            return false;
+        }
+        try {
+            DateTimeFormatter.ISO_INSTANT.withResolverStyle(ResolverStyle.STRICT).parse(text);
+            return true;
+        } catch (final DateTimeParseException e) {
+            return false;
+        }
     }
 
     /** One walk over one document. */
@@ -465,7 +493,8 @@ public final class ReviewProfileCheck {
                         refuse(
                                 PRODUCER,
                                 at + "." + name,
-                                "A submission names no producer, thread or thread state: the"
+                                "A submission names no producer, thread, thread state or time of"
+                                        + " writing: the"
                                         + " channel it comes through stamps them.");
                     }
                 }
@@ -509,6 +538,26 @@ public final class ReviewProfileCheck {
             }
             opaque(f, "porelo/forgeAccountId", at);
             name(f, "porelo/forgeAccountName", 256, at);
+            createdAt(f, at);
+        }
+
+        /** When the forge says its account wrote the result: a real instant, in UTC. */
+        void createdAt(final Fields f, final String at) {
+            final JsonNode node = f.get("porelo/createdAt");
+            if (node.isMissingNode()) {
+                refuse(
+                        MISSING_FIELD,
+                        at + ".porelo/createdAt",
+                        "Each result of a forge's page says when it was written.");
+                return;
+            }
+            if (!node.isTextual() || !instant(node.asText())) {
+                refuse(
+                        MALFORMED,
+                        at + ".porelo/createdAt",
+                        "The field must be an instant in UTC in whole seconds,"
+                                + " YYYY-MM-DDTHH:MM:SSZ.");
+            }
         }
 
         @Nullable Region locations(final JsonNode locations, final String at) {

@@ -392,6 +392,23 @@ class ReviewFixturesTest {
         assertThat(result.outcome()).isEqualTo(Outcome.ACCEPTED);
     }
 
+    /** A forge page's time of writing passes at the edges of a real calendar. */
+    @ParameterizedTest
+    @ValueSource(strings = {"2024-02-29T23:59:59Z", "2026-01-01T00:00:00Z", "1970-01-01T00:00:00Z"})
+    void aTimeOfWritingAtTheCalendarsEdgeIsAdmitted(final String instant) throws Exception {
+        final String page = read(REVIEW.resolve("forge-page.sarif.json"));
+        final String withInstant =
+                page.replaceFirst(
+                        "\"porelo/createdAt\": \"[^\"]*\"",
+                        "\"porelo/createdAt\": \"" + instant + "\"");
+        assertThat(withInstant).as("the page names a time of writing").isNotEqualTo(page);
+
+        final FileResult result = run("instant", withInstant, true, true);
+
+        assertThat(envelopeRules(result)).as(instant + " is a real instant").isEmpty();
+        assertThat(result.outcome()).isEqualTo(Outcome.ACCEPTED);
+    }
+
     static String withUrls(final String repository, final String pullRequest) throws Exception {
         final String document = read(REVIEW.resolve("submitted-comment.sarif.json"));
         assertThat(document)

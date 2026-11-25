@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   closed tree within strict parser budgets and refuses any field, value, producer or hidden character
   the profile does not allow, each by a `PROFILE/` rule that refuses also while it only reports. A
   task's comment must be a submission to `review`; `--inbound` names messages from a forge, whose
-  comment must be a page. A suggested replacement is judged by detectors measured on code.
+  comment must be a page, each of whose results says when the forge account wrote it. A suggested
+  replacement is judged by detectors measured on code.
 
 - The filter takes Porelo's limit factors, as `--limits <line>` or the key `limits`: its polling factor scales
   `stabilityDelayMillis` and `watchIntervalMillis`, so a slow machine is met by one setting. A line that cannot be
