@@ -60,6 +60,9 @@ class CodeRatesTest {
     /** The frozen corpus's size: a different count means the reference set itself changed. */
     static final int CORPUS_SNIPPETS = 1245;
 
+    /** The corpus's snippets refused with the default thresholds, measured. */
+    static final int REFUSED_MEASURED = 8;
+
     /** The code, frozen as a test resource, snippets separated by one blank line. */
     static List<String> codeCorpus() throws Exception {
         final String text;
@@ -100,7 +103,7 @@ class CodeRatesTest {
         System.out.printf("code: %d snippets, %d refused%n", code.size(), refused.size());
         assertThat(refused.size())
                 .as("false positives, %s", refused)
-                .isLessThan(code.size() / 100 + 1);
+                .isLessThanOrEqualTo(REFUSED_MEASURED + 2);
 
         final Random random = new Random(42);
         for (final int length : new int[] {32, 48, 64}) {

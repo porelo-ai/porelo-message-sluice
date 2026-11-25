@@ -170,14 +170,41 @@ With the defaults:
   address in a package's maintainer field, or the public address of a rented machine.
 - **Code that must pass:** 1245 snippets of 1 to 12 lines frozen from this repository's own Java
   sources, the size of a suggested replacement, with the test payloads left out: 8 refused (0.64 %; a
-  test keeps it under 1 %): a PEM header, a SHA-256 test value, three test lines that read as base85, a
-  long test method name with digits, a random test key and a Cyrillic string literal. Judged by the
+  test keeps it at 10 at most): a PEM header, a SHA-256 test value, three test lines that read as
+  base85, a long test method name with digits, a random test key and a Cyrillic string literal. Judged by the
   prose detectors instead, 83 are refused.
+- **Code the thresholds were not set on:** snippets cut the same way from other Porelo repositories,
+  with the test files that hold keys, tokens, hashes or commit ids left out (a test holds each language's
+  count; Java and Dart stay under 1 %, YAML and shell do not):
+
+  | Language | Snippets | Refused | Refused for |
+  |---|---|---|---|
+  | Java | 791 | 2 (0.25 %) | a PEM header named in a comment, method calls that read as base85 |
+  | Dart | 445 | 1 (0.22 %) | a made-up commit id in mock data |
+  | YAML | 299 | 10 (3.3 %) | actions pinned by commit id, image and download digests |
+  | Shell | 277 | 3 (1.1 %) | download digests, a Python program in a string, a long run of messages |
+
+- **A lockfile's checksums:** every `sha256` line of a `pubspec.lock`, 109, is refused as hex.
 - **Encodings in code that must not pass:** 500 random samples of each encoding at 32, 48 and 64
   characters, each as a string literal in a line of Java: at 32 characters 1 base58 and 2 base85
   missed, none else (a test keeps every one under 1 %). Uuencode needs letter bounds of its own in code
   (a letter share of 0.15 and a mean letter run of 3.6, against 0.2 and 3.2 in prose), since a
   literal's quotes and `;` thin out its letters.
+- **Encodings hidden in code:** the same payloads, 500 samples of each with a seed of their own, in a
+  snippet the detectors accept alone, written as an agent would hide them (a test holds each count):
+
+  | Form | 32 characters | 48 characters | 64 characters |
+  |---|---|---|---|
+  | 2 to 4 literals of at most 31 characters joined by `+` on one line | 3 % (URL escapes) to 100 % (data URI, binary) missed | 0.2 % (URL and quoted-printable escapes) to 99.8 % (binary) | under 2 % for base64, base64url, base32, base58, ciphertext, uuencode, URL and quoted-printable escapes; 41 to 59 % for hex, base85, PEM, data URI; 99.6 % for binary |
+  | the same literals, one per line | 22 % (URL escapes) to 100 % (binary) | 1 % (URL escapes) to 99.8 % (binary) | none for URL escapes, 1 % for quoted-printable; 25 to 99.6 % for every other |
+  | a `byte` array of the characters in hex (`0x41, 0x42`) | none | none | none |
+  | an `int` array of the characters in decimal (`65, 66`) | none for base32, uuencode, PEM, binary; 11 % (URL escapes) to 100 % (data URI) for the rest | none for those four; 3.6 % to 100 % | none for those four; 1.4 % URL and 2.4 % quoted-printable escapes; 66 % hex, 76 % base85, 98 % or more for the rest |
+  | `\uXXXX` escapes in one literal | none | none | none |
+  | `\uXXXX` escapes in literals of at most 12 characters each, one per line | 93 to 99 % | 95 to 99.6 % | 94 to 99 % |
+
+  A byte array is caught as hex bytes with separators; an int array only when every value has two
+  digits, which reads the same way; escapes in one literal only by the long-token check, as one token
+  over 80 characters.
 - **The thresholds:** English windows reach at most 4.56 bits per character, base64 has a median of
   4.75; English letters reach at most 1.64 chi-squared per letter, base64 at least 2.69; English has at
   least 8.7 % whitespace, base64 none.
@@ -192,6 +219,16 @@ With the defaults:
   word naming it.
 
 - **Fewer than 32 characters of an encoding** that nothing else gives away.
+- **A payload in code cut into string literals** of at most 31 characters each, joined by `+` on one
+  line or spread over lines: at 64 characters base64 is missed 1.6 % on one line and 40 % over lines,
+  hex, base85, PEM and data URIs 41 to 79 % either way, binary nearly always; at 32 characters most of
+  every encoding but URL and quoted-printable escapes passes.
+- **A payload in code as `\uXXXX` escapes cut into short literals**, one per line: 93 to 99.6 % of every
+  encoding and length passes, since no literal reaches the long-token check and the escapes read as
+  neither hex nor an encoding.
+- **A payload in code as an array of decimal numbers** with a value of three digits in it: base64,
+  base64url, base58, ciphertext and data URIs pass 98 % of the time or more, hex 66 to 86 % and base85
+  76 to 88 %.
 - **A payload in a URL path** of short segments, up to 256 characters; the query is checked.
 - **Up to four UUIDs and eight short hashes per text**, which pass as ids: about 64 bytes per message.
 - **A review document's URLs, within their shape**: the port and the pull request's number (up to 100
@@ -203,5 +240,6 @@ With the defaults:
   their shape alone: up to 64 bytes a task chooses. Whether they name real commits is the host's to
   check.
 - **Anything that is not English prose**, which the letter test may refuse.
-- **Code quoted at length** may be refused: long identifiers, shell commands, fingerprints.
+- **Code quoted at length** may be refused: long identifiers, shell commands, fingerprints, and in
+  workflows, playbooks and scripts the commit ids and digests that pin what they download.
   Calibration shows how often that happens in a mailbox's own traffic.
