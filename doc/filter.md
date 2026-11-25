@@ -109,7 +109,11 @@ page whose every result names the forge account that wrote it (`porelo/sourceKin
 `porelo/forgeAccountId`, `porelo/forgeAccountName`). A host that forgets the flag refuses a forge's
 page rather than passing it outbound. A configuration file cannot name the direction.
 **Either way the document is a pull request's**: its run names `porelo/pullRequest` and the forge's
-repository URL, never a push of Porelo's.
+repository URL, never a push of Porelo's. Both URLs keep profile 2's forge-neutral shape: a pull request
+run's `repositoryUri` is `https://<host>[:<port>]` and 2 to 8 path segments, and its `porelo/pullRequest` that
+URL and 1 to 3 more segments, the last all digits (`pull/42`, `pulls/42`, `-/merge_requests/42`); each segment
+1 to 100 of `A-Z`, `a-z`, `0-9`, `.`, `_`, `~` and `-`, neither `.` nor `..`, so no percent-encoding, no empty
+segment and no trailing slash. The filter also holds the host to DNS labels and the port to 1 to 65535.
 
 | What | Rule |
 |---|---|
@@ -125,9 +129,10 @@ repository URL, never a push of Porelo's.
 | a text over 8192 bytes, a replacement over 8 KiB, a replaced line over 400 characters | `PROFILE/TEXT_TOO_LONG` |
 
 **What the detectors see of it:** `message.text` as prose; the suggested replacement, each file's
-path, the https URLs, the thread ids and the forge account's id and name as code (see [the
+path, each URL's host, its path segments one by one and its whole path once more, the thread ids and the forge account's id and name as code (see [the
 detectors](detectors.md)). The guid and the two commit ids are held to their grammar alone, since a
-full commit id trips the encoding rules by design. **A field name is never shown**: a finding names an
+full commit id trips the encoding rules by design, and so are a URL's port and the pull request's
+number. **A field name is never shown**: a finding names an
 unknown field by its position, `#3`, as its writer chose the name.
 
 ## The verdict

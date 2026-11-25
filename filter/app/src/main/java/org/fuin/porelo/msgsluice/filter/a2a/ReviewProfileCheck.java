@@ -9,8 +9,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.fuin.porelo.msgsluice.filter.decision.Finding;
 import org.fuin.porelo.msgsluice.filter.decision.Severity;
@@ -95,10 +97,23 @@ public final class ReviewProfileCheck {
 
     private static final String PAGE = "page";
 
-    /** The profile's https URL: no user, no query, no fragment. */
-    private static final Pattern HTTPS =
+    /**
+     * A forge's repository, as profile 2 bounds it without naming a forge: a host of DNS labels, a
+     * port, and 2 to 8 plain path segments.
+     */
+    private static final Pattern REPOSITORY =
             Pattern.compile(
-                    "https://[A-Za-z0-9.-]+(:[0-9]{1,5})?(/[A-Za-z0-9._~!$&'()*+,;=:@%/-]*)?");
+                    "https://([A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?"
+                            + "(?:\\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*)"
+                            + "(?::([1-9][0-9]{0,4}))?((?:/[A-Za-z0-9._~-]{1,100}){2,8})");
+
+    private static final int MAX_HOST = 253;
+
+    private static final int MAX_PORT = 65535;
+
+    /** A pull request below its repository: 1 to 3 segments, the last its number. */
+    private static final Pattern PULL_REQUEST =
+            Pattern.compile("((?:/[A-Za-z0-9._~-]{1,100}){0,2})/[0-9]{1,100}");
 
     private static final Pattern COMMIT = Pattern.compile("[0-9a-f]{40}|[0-9a-f]{64}");
 
@@ -265,6 +280,8 @@ public final class ReviewProfileCheck {
             final String pat = at + ".properties";
             // A comment's document is a pull request's, in either direction: a forge has no push
             // of Porelo's, and a task submits only to a pull request's review.
+            final @Nullable String repository =
+                    provenance(f.get("versionControlProvenance"), at + ".versionControlProvenance");
             final @Nullable Fields props =
                     object(
                             f.get("properties"),
@@ -272,7 +289,8 @@ public final class ReviewProfileCheck {
                             Set.of("porelo/pullRequest"),
                             Set.of("porelo/baseRevisionId", "porelo/completeness"));
             if (props != null) {
-                url(props, "porelo/pullRequest", pat);
+                pullRequest(
+                        props.get("porelo/pullRequest"), pat + ".porelo/pullRequest", repository);
                 grammar(props, "porelo/baseRevisionId", COMMIT, pat, "a full commit id");
                 if (submission && props.containsKey("porelo/completeness")) {
                     refuse(
@@ -291,7 +309,6 @@ public final class ReviewProfileCheck {
                         Set.of("complete", "partial", "failed", "unknown"),
                         pat);
             }
-            provenance(f.get("versionControlProvenance"), at + ".versionControlProvenance");
             final JsonNode results = f.get("results");
             if (!results.isArray()) {
                 refuse(MALFORMED, at + ".results", "The results are a list.");
@@ -305,19 +322,84 @@ public final class ReviewProfileCheck {
             }
         }
 
-        void provenance(final JsonNode vcp, final String at) {
+        /** The repository's URL, when it has the profile's shape. */
+        @Nullable String provenance(final JsonNode vcp, final String at) {
             if (!vcp.isArray() || vcp.size() != 1) {
                 refuse(MALFORMED, at, "A review document names exactly one repository.");
-                return;
+                return null;
             }
             final String vat = at + "[0]";
             final @Nullable Fields v =
                     object(vcp.get(0), vat, Set.of("repositoryUri", "revisionId"), Set.of());
             if (v == null) {
-                return;
+                return null;
             }
             grammar(v, "revisionId", COMMIT, vat, "a full commit id");
-            url(v, "repositoryUri", vat);
+            final JsonNode uri = v.get("repositoryUri");
+            final String uat = vat + ".repositoryUri";
+            final Matcher m = REPOSITORY.matcher(uri.asText(""));
+            final boolean shaped = uri.isTextual() && m.matches();
+            final String host = shaped ? Objects.requireNonNullElse(m.group(1), "") : "";
+            final String path = shaped ? Objects.requireNonNullElse(m.group(3), "") : "";
+            if (!shaped || host.length() > MAX_HOST || !port(m.group(2)) || !segments(path, uat)) {
+                refuse(
+                        MALFORMED,
+                        uat,
+                        "A repository is https://<host>[:<port>] and 2 to 8 path segments of 1 to"
+                                + " 100 letters, digits, '.', '_', '~' or '-', none '.' or '..'.");
+                return null;
+            }
+            code(host, uat + "(host)");
+            code(host + path, uat + "(host and path)");
+            return uri.asText();
+        }
+
+        /** A port, when there is one, is 1 to 65535; the pattern already refuses a leading zero. */
+        static boolean port(final @Nullable String digits) {
+            return digits == null || Integer.parseInt(digits) <= MAX_PORT;
+        }
+
+        /**
+         * The pull request: its repository's URL exactly, then 1 to 3 segments ending in its
+         * number.
+         */
+        void pullRequest(final JsonNode node, final String at, final @Nullable String repository) {
+            if (repository == null) {
+                // Its repository was refused already, so there is nothing to hold it under.
+                return;
+            }
+            final String url = node.asText("");
+            final String tail =
+                    url.startsWith(repository) ? url.substring(repository.length()) : "";
+            final Matcher m = PULL_REQUEST.matcher(tail);
+            if (!node.isTextual()
+                    || !m.matches()
+                    || !segments(Objects.requireNonNullElse(m.group(1), ""), at)) {
+                refuse(
+                        MALFORMED,
+                        at,
+                        "A pull request is its repository's URL, then 1 to 3 path segments, the"
+                                + " last its number, none '.' or '..'.");
+                return;
+            }
+            code(tail, at + "(path)");
+        }
+
+        /**
+         * Path segments, none of which a reader would resolve elsewhere, each judged as code on its
+         * own: the URL masking the detectors apply would hide them.
+         */
+        boolean segments(final String path, final String at) {
+            final String[] parts = path.split("/", -1);
+            for (int i = 1; i < parts.length; i++) {
+                if (parts[i].equals(".") || parts[i].equals("..")) {
+                    return false;
+                }
+            }
+            for (int i = 1; i < parts.length; i++) {
+                code(parts[i], at + "(segment " + i + ")");
+            }
+            return true;
         }
 
         void result(final JsonNode r, final String at, final boolean submission) {
@@ -742,16 +824,14 @@ public final class ReviewProfileCheck {
             code(node, at + "." + name);
         }
 
-        /** An https URL by its grammar, and judged as code, since its path is free text. */
-        void url(final Fields f, final String name, final String at) {
-            grammar(f, name, HTTPS, at, "an https URL without user, query or fragment");
-            code(f.get(name), at + "." + name);
-        }
-
         void code(final @Nullable JsonNode node, final String at) {
             if (node != null && node.isTextual()) {
-                texts.add(TextUnderCheck.code(at, partIndex, node.asText()));
+                code(node.asText(), at);
             }
+        }
+
+        void code(final String text, final String at) {
+            texts.add(TextUnderCheck.code(at, partIndex, text));
         }
 
         /**

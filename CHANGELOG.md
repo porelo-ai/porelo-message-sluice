@@ -33,6 +33,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- A review document's repository and pull request URLs pass only in profile 2's forge-neutral shape, and their
+  host, each path segment and the whole path are judged by the code detectors, which URL masking no longer hides
+  them from; what still passes within that shape is written down with the detectors.
 - A peer may be named as a task of another project, `task:<project>:<task>`, as Porelo names one; a `:`
   anywhere else in a peer name is still refused as `ENVELOPE/PEER_NAME_MALFORMED`.
 - The build takes `porelo-parent` 0.2.2-SNAPSHOT and `porelo-buildtools` 0.5.2-SNAPSHOT. `validate` checks

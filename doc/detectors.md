@@ -106,11 +106,13 @@ numbers payment documentation uses as examples, and the public resolvers `1.1.1.
 ## Code
 
 A review comment may suggest a few lines of code to replace the lines it is anchored to. Code is not
-prose, so **a suggested replacement, a file's path and an https URL in a review document are judged as
-code**: by the long-token check, the encoding signatures and the entropy window, each with thresholds of
-its own measured on code, and by the credential and personal data detectors as they are. The letter
-shape and distribution tests, which hold English to English, do not see code. A detector's
-`enabled` switches its code twin too.
+prose, so **a suggested replacement, a file's path, and a URL's host, each of its path segments and its
+whole path in a review document are judged as code**, segments on their own and together, so no URL
+masking hides one: by the
+long-token check, the encoding signatures and the entropy window, each with thresholds of its own
+measured on code, and by the credential and personal data detectors as they are. The letter shape and
+distribution tests, which hold English to English, do not see code. A detector's `enabled` switches
+its code twin too.
 
 ## Configuration
 
@@ -192,11 +194,14 @@ With the defaults:
 - **Fewer than 32 characters of an encoding** that nothing else gives away.
 - **A payload in a URL path** of short segments, up to 256 characters; the query is checked.
 - **Up to four UUIDs and eight short hashes per text**, which pass as ids: about 64 bytes per message.
+- **A review document's URLs, within their shape**: the port and the pull request's number (up to 100
+  digits) are held to their grammar alone; a host and path of fewer than 64 characters, the entropy
+  window's length, passes when no run of an encoding in it reaches 32 characters (cut by `.` or `~`,
+  which no encoding uses), as do the shapes the detectors take for ids, a UUID or a short hash, inside a
+  segment.
 - **The two full commit ids of a review document** (`revisionId`, `porelo/baseRevisionId`), held to
   their shape alone: up to 64 bytes a task chooses. Whether they name real commits is the host's to
   check.
-- **A review document's https URLs** are code to the detectors, so they pass as a prose URL does: a
-  payload in path segments of up to 48 characters, up to 256 characters per URL.
 - **Anything that is not English prose**, which the letter test may refuse.
 - **Code quoted at length** may be refused: long identifiers, shell commands, fingerprints.
   Calibration shows how often that happens in a mailbox's own traffic.
