@@ -82,58 +82,94 @@ public final class DetectorRunner {
                                 found.end(),
                                 original.text()));
             }
-            final TextUnderCheck text =
-                    new TextUnderCheck(
-                            original.location(),
-                            original.partIndex(),
-                            normalized.text(),
-                            original.kind());
-            for (final ContentDetector detector :
-                    text.kind() == TextKind.CODE ? codeDetectors : detectors) {
-                final List<DetectorFinding> reported;
-                try {
-                    reported = detector.inspect(text);
-                } catch (final RuntimeException | StackOverflowError | OutOfMemoryError ex) {
-                    // The exception's message may quote the text, so only its type is named.
-                    findings.add(
-                            Finding.frame(
-                                    DETECTOR_FAILED,
-                                    text.location(),
-                                    text.partIndex(),
-                                    "The check could not be completed ("
-                                            + ex.getClass().getSimpleName()
-                                            + "), so the message is not accepted.",
-                                    detector.id()));
-                    continue;
-                }
-                if (reported == null) {
-                    findings.add(
-                            Finding.frame(
-                                    DETECTOR_FAILED,
-                                    text.location(),
-                                    text.partIndex(),
-                                    "The check answered outside its contract, so the message is not accepted.",
-                                    detector.id()));
-                    continue;
-                }
-                for (final DetectorFinding found : reported) {
-                    final int[] span = normalized.toOriginal(found.start(), found.end());
-                    findings.add(
-                            toFinding(
-                                    detector.id(),
-                                    detector.ruleIds(),
-                                    detector.categories(),
-                                    original,
-                                    found,
-                                    span[0],
-                                    span[1],
-                                    found.start(),
-                                    found.end(),
-                                    normalized.text()));
+            final List<Finding> own = judge(original, normalized);
+            findings.addAll(own);
+            if (original.kind() == TextKind.CODE) {
+                final Normalizer.Normalized view = CodeView.of(normalized);
+                if (view != normalized) {
+                    for (final Finding f : judge(original, view)) {
+                        if (own.stream().noneMatch(o -> sameMatch(o, f))) {
+                            findings.add(f);
+                        }
+                    }
                 }
             }
         }
         return findings;
+    }
+
+    /**
+     * The detectors for the text's kind over one reading of it, each finding mapped back into the
+     * original.
+     */
+    private List<Finding> judge(
+            final TextUnderCheck original, final Normalizer.Normalized normalized) {
+        final List<Finding> findings = new ArrayList<>();
+        final TextUnderCheck text =
+                new TextUnderCheck(
+                        original.location(),
+                        original.partIndex(),
+                        normalized.text(),
+                        original.kind());
+        for (final ContentDetector detector :
+                text.kind() == TextKind.CODE ? codeDetectors : detectors) {
+            final List<DetectorFinding> reported;
+            try {
+                reported = detector.inspect(text);
+            } catch (final RuntimeException | StackOverflowError | OutOfMemoryError ex) {
+                // The exception's message may quote the text, so only its type is named.
+                findings.add(
+                        Finding.frame(
+                                DETECTOR_FAILED,
+                                text.location(),
+                                text.partIndex(),
+                                "The check could not be completed ("
+                                        + ex.getClass().getSimpleName()
+                                        + "), so the message is not accepted.",
+                                detector.id()));
+                continue;
+            }
+            if (reported == null) {
+                findings.add(
+                        Finding.frame(
+                                DETECTOR_FAILED,
+                                text.location(),
+                                text.partIndex(),
+                                "The check answered outside its contract, so the message is not accepted.",
+                                detector.id()));
+                continue;
+            }
+            for (final DetectorFinding found : reported) {
+                final int[] span = normalized.toOriginal(found.start(), found.end());
+                findings.add(
+                        toFinding(
+                                detector.id(),
+                                detector.ruleIds(),
+                                detector.categories(),
+                                original,
+                                found,
+                                span[0],
+                                span[1],
+                                found.start(),
+                                found.end(),
+                                normalized.text()));
+            }
+        }
+        return findings;
+    }
+
+    /**
+     * Whether the text's own finding already says what the view's does: the same rule over a span
+     * that holds the view's, or the same failure of the same detector.
+     */
+    private static boolean sameMatch(final Finding own, final Finding view) {
+        if (!own.ruleId().equals(view.ruleId())) {
+            return false;
+        }
+        if (view.start() < 0) {
+            return own.detector().equals(view.detector());
+        }
+        return own.start() <= view.start() && view.end() <= own.end();
     }
 
     /**

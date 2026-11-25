@@ -195,15 +195,16 @@ With the defaults:
 
   | Form | 32 characters | 48 characters | 64 characters |
   |---|---|---|---|
-  | 2 to 4 literals of at most 31 characters joined by `+` on one line | 3 % (URL escapes) to 100 % (data URI, binary) missed | 0.2 % (URL and quoted-printable escapes) to 99.8 % (binary) | under 2 % for base64, base64url, base32, base58, ciphertext, uuencode, URL and quoted-printable escapes; 41 to 59 % for hex, base85, PEM, data URI; 99.6 % for binary |
-  | the same literals, one per line | 22 % (URL escapes) to 100 % (binary) | 1 % (URL escapes) to 99.8 % (binary) | none for URL escapes, 1 % for quoted-printable; 25 to 99.6 % for every other |
+  | 2 to 4 literals of at most 31 characters joined by `+` on one line | 1.8 % base85, 0.4 % uuencode, 0.2 % base64url and quoted-printable missed, none else | 1 % base85, none else | none |
+  | the same literals, one per line | 2.6 % uuencode, 2 % base85, 0.2 % base64url and base58, none else | 0.8 % uuencode, 0.4 % base85, none else | none |
   | a `byte` array of the characters in hex (`0x41, 0x42`) | none | none | none |
   | an `int` array of the characters in decimal (`65, 66`) | none | none | none |
   | `\uXXXX` escapes in one literal | none | none | none |
-  | `\uXXXX` escapes in literals of at most 12 characters each, one per line | 93 to 99 % | 95 to 99.6 % | 94 to 99 % |
+  | `\uXXXX` escapes in literals of at most 12 characters each, one per line | none | none | none |
 
-  A byte array is caught as hex bytes with separators, an int array as decimal bytes; escapes in one literal only by the long-token check, as one token
-  over 80 characters.
+  Literals joined by `+` or side by side are judged as the one string they make, besides the code as
+  written. A byte array is caught as hex bytes with separators, an int array as decimal bytes;
+  escapes only by the long-token check, as one token over 80 characters once their literals are joined.
 - **The thresholds:** English windows reach at most 4.56 bits per character, base64 has a median of
   4.75; English letters reach at most 1.64 chi-squared per letter, base64 at least 2.69; English has at
   least 8.7 % whitespace, base64 none.
@@ -218,13 +219,12 @@ With the defaults:
   word naming it.
 
 - **Fewer than 32 characters of an encoding** that nothing else gives away.
-- **A payload in code cut into string literals** of at most 31 characters each, joined by `+` on one
-  line or spread over lines: at 64 characters base64 is missed 1.6 % on one line and 40 % over lines,
-  hex, base85, PEM and data URIs 41 to 79 % either way, binary nearly always; at 32 characters most of
-  every encoding but URL and quoted-printable escapes passes.
-- **A payload in code as `\uXXXX` escapes cut into short literals**, one per line: 93 to 99.6 % of every
-  encoding and length passes, since no literal reaches the long-token check and the escapes read as
-  neither hex nor an encoding.
+- **A payload in code cut into string literals that are not joined in the code**: passed as separate
+  arguments, joined through a variable, `+=`, `concat`, `plus`, `String.join` or another call, put
+  together at run time, or literals with a prefix (`f"…"`, `r"…"`, `R"(…)"`) or with a `\` before the
+  closing quote. Literals joined by `+` or side by side, with whitespace, comments or one pair of
+  parentheses between them, are read as one.
+  Of those read as one, at 32 characters up to 2.6 % of uuencode and base85 still pass.
 - **Fewer than 16 bytes in a decimal array**, or one whose runs a value no byte holds, a hex or binary
   value, a character literal or a comment cuts below 16; or numbers separated by anything but commas.
 - **A payload in a URL path** of short segments, up to 256 characters; the query is checked.
