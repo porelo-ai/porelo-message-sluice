@@ -327,4 +327,67 @@ class MainTest {
                 .contains("ENCODING/LONG_TOKEN")
                 .doesNotContain("QUJDQUJD");
     }
+
+    /** A fixture's message, copied into the mailbox for a dry run. */
+    String fixture(final String resource) throws Exception {
+        final Path file = mail.resolve("incoming").resolve(Path.of(resource).getFileName());
+        Files.copy(Path.of("src/test/resources").resolve(resource), file);
+        return file.toString();
+    }
+
+    @Test
+    void aForgePagePassesOnlyWhenTheCommandLineNamesItInbound() throws Exception {
+        final String page = fixture("inbound/accept-forge-page.json");
+
+        assertThat(run("--dry-run", "--file", page, "--inbound"))
+                .as("a forge's page, named inbound")
+                .isZero();
+        out.reset();
+        assertThat(run("--dry-run", "--file", page))
+                .as("the same page, as if a task had sent it")
+                .isEqualTo(1);
+        assertThat(out.toString(StandardCharsets.UTF_8))
+                .as("refused for its direction")
+                .contains("PROFILE/WRONG_DIRECTION");
+    }
+
+    @Test
+    void aSubmissionPassesOnlyWithoutInbound() throws Exception {
+        final String submission = fixture("fixtures/accept-comment-submitted.json");
+
+        assertThat(run("--dry-run", "--file", submission)).as("a task's submission").isZero();
+        out.reset();
+        assertThat(run("--dry-run", "--file", submission, "--inbound"))
+                .as("the same submission, named inbound")
+                .isEqualTo(1);
+        assertThat(out.toString(StandardCharsets.UTF_8))
+                .as("refused for its direction")
+                .contains("PROFILE/WRONG_DIRECTION");
+    }
+
+    @Test
+    void theDirectionSwitchTakesNoValue() throws Exception {
+        final String page = fixture("inbound/accept-forge-page.json");
+
+        assertThat(run("--dry-run", "--file", page, "--inbound", "true"))
+                .as("one form of the switch only")
+                .isEqualTo(2);
+        assertThat(err.toString(StandardCharsets.UTF_8))
+                .as("the value is named as unexpected")
+                .contains("Unexpected argument 'true'");
+    }
+
+    @Test
+    void aConfigurationFileCannotNameTheDirection() throws Exception {
+        final String page = fixture("inbound/accept-forge-page.json");
+        final Path config = mail.resolve("filter.properties");
+        Files.writeString(config, "inbound=true\n");
+
+        assertThat(run("--dry-run", "--file", page, "--config", config.toString()))
+                .as("a configuration file serves every direction")
+                .isEqualTo(2);
+        assertThat(err.toString(StandardCharsets.UTF_8))
+                .as("the start names the switch that does")
+                .contains("--inbound");
+    }
 }
