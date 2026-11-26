@@ -38,10 +38,13 @@ class HeldOutCodeRatesTest {
 
     /** Refusals measured per language, asserted exactly, so the document's table stays true. */
     static final Map<String, Integer> REFUSED_MEASURED =
-            Map.of("java", 2, "dart", 1, "yaml", 10, "shell", 3);
+            Map.of("java", 2, "dart", 1, "yaml", 2, "shell", 3);
 
-    /** The lockfile lines refused, measured: they hold hex or base64 checksums. */
-    static final int LOCKFILE_REFUSED_MEASURED = 109;
+    /**
+     * The lockfile lines refused, measured: a checksum after {@code sha256:} is a pin and passes;
+     * one holds 13 digits that pass a card network's checksum.
+     */
+    static final int LOCKFILE_REFUSED_MEASURED = 1;
 
     /** The held-out corpus, its groups in file order, each snippet stripped. */
     static Map<String, List<String>> groups() throws Exception {
@@ -86,15 +89,15 @@ class HeldOutCodeRatesTest {
         }
     }
 
-    /** Every checksum line of a lockfile is refused, as hex or base64. */
+    /** A lockfile's checksum lines are pins and pass, but for the one measured. */
     @Test
-    void aLockfilesChecksumLinesAreRefusedAsEncodedData() throws Exception {
+    void aLockfilesChecksumLinesPassAsPins() throws Exception {
         final List<String> lines = groups().get("pubspec.lock");
-        final long refused = lines.stream().filter(t -> !CodeRatesTest.judge(t).accepted()).count();
-        System.out.printf("pubspec.lock %d lines, %d refused%n", lines.size(), refused);
-        assertThat(refused)
-                .as("checksum lines refused of %d", lines.size())
-                .isEqualTo(lines.size())
+        final List<String> refused =
+                lines.stream().filter(t -> !CodeRatesTest.judge(t).accepted()).toList();
+        System.out.printf("pubspec.lock %d lines, %d refused%n", lines.size(), refused.size());
+        assertThat(refused.size())
+                .as("checksum lines refused of %d, %s", lines.size(), refused)
                 .isEqualTo(LOCKFILE_REFUSED_MEASURED);
     }
 }

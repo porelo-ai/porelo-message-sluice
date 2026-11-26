@@ -10,17 +10,23 @@ import org.jspecify.annotations.Nullable;
 /**
  * A text with its known-legitimate shapes taken out, for the checks that ask whether text looks
  * like English: URLs without their query, up to four isolated UUIDs, an IPv4 address, numbers,
- * dates, times and compact ISO timestamps, currency amounts, acronyms of up to six capitals, and a
- * few short commit hashes. Each masked span becomes one space, so it separates tokens without
- * adding statistics of its own.
+ * dates, times and compact ISO timestamps, currency amounts, acronyms of up to six capitals, a few
+ * short commit hashes, and every full commit id or digest where a pin stands. Each masked span
+ * becomes one space, so it separates tokens without adding statistics of its own.
+ *
+ * <p>A pin is exactly 40 or 64 lowercase hex characters right after {@code @} in a {@code uses:}
+ * line, or right after {@code sha256:} (bare or quoted, an image reference's {@code @sha256:}
+ * included), ending the token; the prefix stands as a word of its own. Only the hash is masked, and
+ * any number of pins are: a workflow or a lockfile holds dozens. Each pin can carry up to 32 bytes
+ * its writer chose, unchecked, as a review document's commit ids can.
  *
  * <p>Deliberately not masked: a URL's query and fragment, where a payload would sit; a URL path
  * with a segment longer than {@value #MAX_PATH_SEGMENT} characters, or one that makes the URL
  * longer than {@value #MAX_MASKED_URL}; any part of a URL whose host no DNS name could be, and a
  * host label of {@value #LONG_LABEL} characters or more; a UUID next to another UUID, since a chain
  * of them is hex; every UUID of a text that carries more than {@value #MAX_UUIDS}, however they are
- * separated; and hashes, keys and e-mail addresses. A credential check must never see a masked
- * text.
+ * separated; a hash of any other length, or after any other prefix, or followed by more hex; and
+ * keys and e-mail addresses. A credential check must never see a masked text.
  */
 public final class Masked {
 
@@ -73,6 +79,17 @@ public final class Masked {
     private static final Pattern BASIC_TIMESTAMP =
             Pattern.compile("(?<![0-9])\\d{8}T\\d{4}(?:\\d{2}(?:\\d{1,9})?)?Z?(?![0-9])");
 
+    /**
+     * The hash of a pin, group 1, after the place that makes it one. A prefix starts the text or
+     * follows a space, a quote or a bracket; the path is bounded, so a text of prefixes that never
+     * reach an {@code @} is read in linear time.
+     */
+    private static final Pattern PIN =
+            Pattern.compile(
+                    "(?:(?<![^\\s\"'`(\\[{])uses:[ \\t]*[\"']?[^\\s\"'@]{1,256}+@"
+                            + "|(?<![^\\s@\"'`(\\[{])sha256:[ \\t]*[\"']?)"
+                            + "([0-9a-f]{64}|[0-9a-f]{40})(?![^\\s#\"'`)])");
+
     private static final Pattern IPV4 =
             Pattern.compile(
                     "(?<![\\w.])(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)){3}(?![\\w.])");
@@ -121,6 +138,10 @@ public final class Masked {
         final Matcher url = URL.matcher(source);
         while (url.find()) {
             urlSpan(source, url.start(), url.end(), spans);
+        }
+        final Matcher pin = PIN.matcher(source);
+        while (pin.find()) {
+            spans.add(new int[] {pin.start(1), pin.end(1)});
         }
         // An address or a timestamp is not an encoding. A credential check sees them, since it
         // never masks.

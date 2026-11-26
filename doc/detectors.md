@@ -181,10 +181,17 @@ With the defaults:
   |---|---|---|---|
   | Java | 791 | 2 (0.25 %) | a PEM header named in a comment, method calls that read as base85 |
   | Dart | 445 | 1 (0.22 %) | a made-up commit id in mock data |
-  | YAML | 299 | 10 (3.3 %) | actions pinned by commit id, image and download digests |
+  | YAML | 299 | 2 (0.67 %) | download digests passed to a command |
   | Shell | 277 | 3 (1.1 %) | download digests, a Python program in a string, a long run of messages |
 
-- **A lockfile's checksums:** every `sha256` line of a `pubspec.lock`, 109, is refused as hex.
+- **Pins:** a full commit id or digest, exactly 40 or 64 lowercase hex characters, passes in code and
+  in prose where a pin stands: right after `@` in a `uses:` line, and right after `sha256:`, bare or
+  quoted, an image reference's `@sha256:` included; any number of them, only when the hash ends the
+  token and the prefix stands as a word of its own (`musl-sha256:` or `x.uses:` is no pin). The same
+  hash anywhere else, a run of another length, more hex after it or a second run beside it is judged
+  as before (a test holds each place and each of these).
+- **A lockfile's checksums:** of the 109 `sha256` lines of a `pubspec.lock`, 1 is refused: its hash
+  holds 13 digits that pass a card network's checksum.
 - **Encodings in code that must not pass:** 500 random samples of each encoding at 32, 48 and 64
   characters, each as a string literal in a line of Java: at 32 characters 1 base58 and 2 base85
   missed, none else (a test keeps every one under 1 %). Uuencode needs letter bounds of its own in code
@@ -238,11 +245,14 @@ With the defaults:
   window's length, passes when no run of an encoding in it reaches 32 characters (cut by `.` or `~`,
   which no encoding uses), as do the shapes the detectors take for ids, a UUID or a short hash, inside a
   segment.
+- **Pins:** each carries up to 32 bytes its writer chose, unchecked, a raw 32-byte key included, in
+  any number of pins: a message of 64 KB holds about 900, some 29 KB. Whether a pin names a real
+  commit or a real digest is not checked.
 - **The two full commit ids of a review document** (`revisionId`, `porelo/baseRevisionId`), held to
   their shape alone: up to 64 bytes a task chooses. Whether they name real commits is the host's to
   check.
 - **Anything that is not English prose**, which the letter test may refuse.
 - **Code quoted at length** may be refused: long identifiers, shell commands, fingerprints, a table of
-  16 or more small numbers, and in
-  workflows, playbooks and scripts the commit ids and digests that pin what they download.
+  16 or more small numbers, and in workflows, playbooks and scripts a download digest written
+  anywhere but after `sha256:`.
   Calibration shows how often that happens in a mailbox's own traffic.
