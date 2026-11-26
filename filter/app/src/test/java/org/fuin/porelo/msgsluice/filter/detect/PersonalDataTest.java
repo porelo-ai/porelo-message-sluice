@@ -246,6 +246,62 @@ class PersonalDataTest {
         }
     }
 
+    /** The personal-data rules a text breaks, read as prose and as code. */
+    private static List<String> personalFindings(final String text) throws Exception {
+        return Stream.concat(
+                        CredentialsTest.judge(text, Map.of()).findings().stream(),
+                        CodeRatesTest.RUNNER
+                                .run(List.of(TextUnderCheck.code("t", 0, text)))
+                                .stream())
+                .map(Finding::ruleId)
+                .filter(r -> r.startsWith("PERSONAL/"))
+                .toList();
+    }
+
+    /** A hash whose digits pass a checksum by chance is no card number where it stands as a pin. */
+    @Test
+    void aChecksumInsideAPinsHashIsNoPersonalData() throws Exception {
+        final String visa = luhn("453914880343646");
+        final String ahvPlain = ahv("123456789").replace(".", "");
+        for (final String hash :
+                List.of(
+                        "a" + visa + "f".repeat(47),
+                        "a" + visa + "e".repeat(23),
+                        "c" + ahvPlain + "f".repeat(50))) {
+            for (final String text :
+                    List.of(
+                            "sha256: \"" + hash + "\"",
+                            "- uses: actions/checkout@" + hash + " # v7.0.1",
+                            "image: forgejo@sha256:" + hash)) {
+                assertThat(personalFindings(text)).as("personal data in: %s", text).isEmpty();
+            }
+        }
+    }
+
+    /** The exemption is the pin's alone: the same digits anywhere else are still found. */
+    @Test
+    void aChecksumOutsideAPinIsStillFound() throws Exception {
+        final String visa = luhn("453914880343646");
+        final String ahvPlain = ahv("123456789").replace(".", "");
+        for (final String text :
+                List.of(
+                        "Card a" + visa + " on file.",
+                        "Card " + visa + "x on file.",
+                        "sha256: " + visa,
+                        "echo a" + visa + "f".repeat(47),
+                        "checksum: a" + visa + "f".repeat(47),
+                        "sha256: "
+                                + "f".repeat(56)
+                                + visa.substring(0, 8)
+                                + " "
+                                + visa.substring(8),
+                        "sha256: a" + visa + "f".repeat(46),
+                        "sha256: a" + visa + "f".repeat(48),
+                        "Her number c" + ahvPlain + "f is noted.")) {
+            assertThat(personalFindings(text)).as("personal data in: %s", text).isNotEmpty();
+        }
+    }
+
     /** Text an adversary shapes so that a rule takes seconds or overflows the stack. */
     static Stream<Arguments> shapedToBeSlow() {
         return Stream.of(

@@ -21,7 +21,9 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>One rule per category, {@code PERSONAL/<category>}, switched off and re-graded as every rule
  * is. Every pattern is bounded, and those that start inside a run are anchored by a look-behind, so
- * text shaped to make one slow is read in linear time.
+ * text shaped to make one slow is read in linear time. A match lying wholly inside a pin's hash,
+ * the shape {@link Masked} lets pass, is none: elsewhere the same digits are found, glued to
+ * letters or not.
  */
 public final class PersonalDataDetector implements ContentDetector {
 
@@ -210,11 +212,14 @@ public final class PersonalDataDetector implements ContentDetector {
     @Override
     public List<DetectorFinding> inspect(final TextUnderCheck under) {
         final String text = under.text();
+        // A pin's hash is a channel already granted; digits in it pass a checksum by chance.
+        final List<int[]> pins = Masked.pinSpans(text);
         final List<DetectorFinding> findings = new ArrayList<>();
         for (final Rule rule : RULES) {
             final Matcher m = rule.pattern().matcher(text);
             while (m.find()) {
-                if (!rule.valid().test(m)
+                if (insideAny(pins, m.start(), m.end())
+                        || !rule.valid().test(m)
                         || !contextBefore(rule, text, m.start())
                         || notBefore(rule, text, m.start())) {
                     continue;
@@ -277,6 +282,24 @@ public final class PersonalDataDetector implements ContentDetector {
             sum += d;
         }
         return sum % 10 == 0;
+    }
+
+    /** Whether {@code [start, end)} lies wholly inside one of {@code spans}, sorted and apart. */
+    private static boolean insideAny(final List<int[]> spans, final int start, final int end) {
+        int low = 0;
+        int high = spans.size() - 1;
+        while (low <= high) {
+            final int mid = (low + high) >>> 1;
+            final int[] span = spans.get(mid);
+            if (span[1] <= start) {
+                low = mid + 1;
+            } else if (span[0] > start) {
+                high = mid - 1;
+            } else {
+                return end <= span[1];
+            }
+        }
+        return false;
     }
 
     /** The Luhn checksum and the prefix and length of a card network that issues such numbers. */

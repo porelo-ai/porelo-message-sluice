@@ -139,10 +139,7 @@ public final class Masked {
         while (url.find()) {
             urlSpan(source, url.start(), url.end(), spans);
         }
-        final Matcher pin = PIN.matcher(source);
-        while (pin.find()) {
-            spans.add(new int[] {pin.start(1), pin.end(1)});
-        }
+        spans.addAll(pinSpans(source));
         // An address or a timestamp is not an encoding. A credential check sees them, since it
         // never masks.
         for (final Pattern always : List.of(IPV4, BASIC_TIMESTAMP)) {
@@ -216,6 +213,16 @@ public final class Masked {
                 out.toString(),
                 from.stream().mapToInt(Integer::intValue).toArray(),
                 to.stream().mapToInt(Integer::intValue).toArray());
+    }
+
+    /** The span of every pin's hash in {@code source}: what {@link #of} masks as a pin. */
+    static List<int[]> pinSpans(final String source) {
+        final List<int[]> spans = new ArrayList<>();
+        final Matcher pin = PIN.matcher(source);
+        while (pin.find()) {
+            spans.add(new int[] {pin.start(1), pin.end(1)});
+        }
+        return spans;
     }
 
     /**

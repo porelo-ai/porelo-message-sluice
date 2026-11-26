@@ -190,8 +190,9 @@ With the defaults:
   token and the prefix stands as a word of its own (`musl-sha256:` or `x.uses:` is no pin). The same
   hash anywhere else, a run of another length, more hex after it or a second run beside it is judged
   as before (a test holds each place and each of these).
-- **A lockfile's checksums:** of the 109 `sha256` lines of a `pubspec.lock`, 1 is refused: its hash
-  holds 13 digits that pass a card network's checksum.
+- **A lockfile's checksums:** all 109 `sha256` lines of a `pubspec.lock` pass as pins, one of them
+  holding 13 digits that pass a card network's checksum: inside a pin's hash, digits are no card or
+  social insurance number (a test holds the same digits found anywhere else).
 - **Encodings in code that must not pass:** 500 random samples of each encoding at 32, 48 and 64
   characters, each as a string literal in a line of Java: at 32 characters 1 base58 and 2 base85
   missed, none else (a test keeps every one under 1 %). Uuencode needs letter bounds of its own in code

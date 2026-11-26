@@ -41,10 +41,9 @@ class HeldOutCodeRatesTest {
             Map.of("java", 2, "dart", 1, "yaml", 2, "shell", 3);
 
     /**
-     * The lockfile lines refused, measured: a checksum after {@code sha256:} is a pin and passes;
-     * one holds 13 digits that pass a card network's checksum.
+     * The lockfile lines refused, measured: a checksum after {@code sha256:} is a pin and passes.
      */
-    static final int LOCKFILE_REFUSED_MEASURED = 1;
+    static final int LOCKFILE_REFUSED_MEASURED = 0;
 
     /** The held-out corpus, its groups in file order, each snippet stripped. */
     static Map<String, List<String>> groups() throws Exception {
@@ -89,7 +88,7 @@ class HeldOutCodeRatesTest {
         }
     }
 
-    /** A lockfile's checksum lines are pins and pass, but for the one measured. */
+    /** A lockfile's checksum lines are pins and pass. */
     @Test
     void aLockfilesChecksumLinesPassAsPins() throws Exception {
         final List<String> lines = groups().get("pubspec.lock");
