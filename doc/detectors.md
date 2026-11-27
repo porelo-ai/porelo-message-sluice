@@ -45,8 +45,8 @@ that are treated as the payload they then are.
 after a capital, random letters switch every one or two characters. Words joined by dashes or
 underscores are a name, not base64url.
 
-**A full hash in hex is refused**, because 32 hex characters of a payload and an MD5 look the same.
-Name a commit by its short form.
+**A full hash in hex is refused**, because 32 hex characters of a payload and an MD5 look the same,
+except where a pin stands (below). Name a commit by its short form.
 
 **A payload cut into pieces is the payload.** Pieces of one alphabet that stand in a row with only
 whitespace between them - spaces, line breaks, tabs, or `\n` written out - are joined and judged as
@@ -193,6 +193,9 @@ With the defaults:
 - **A lockfile's checksums:** all 109 `sha256` lines of a `pubspec.lock` pass as pins, one of them
   holding 13 digits that pass a card network's checksum: inside a pin's hash, digits are no card or
   social insurance number (a test holds the same digits found anywhere else).
+- **An id holding a pin is never echoed**: an answer leaves out a `messageId`, `contextId` or `taskId`
+  that holds one, a recovered `messageId` too, since the pin's hash may hold what the text is refused
+  for (a test holds each).
 - **Encodings in code that must not pass:** 500 random samples of each encoding at 32, 48 and 64
   characters, each as a string literal in a line of Java: at 32 characters 1 base58 and 2 base85
   missed, none else (a test keeps every one under 1 %). Uuencode needs letter bounds of its own in code

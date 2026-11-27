@@ -625,6 +625,40 @@ class MessageSluiceTest {
     }
 
     @Test
+    void anIdShapedLikeAPinIsNeverEchoed() throws Exception {
+        // The harm: a pin's hash passes the detectors, so an id written as a pin would carry what
+        // the refusal of the text refuses back out in its answer.
+        final String card = "4012888888881881";
+        final String hex = HEX_ID.substring(0, 64);
+        final Mailbox mail = new Mailbox(tmp);
+        mail.deliver(
+                "card.json",
+                """
+                {"messageId":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%sffffffffffffffff",
+                 "contextId":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%sffffffffffffffff",
+                 "role":"ROLE_AGENT","parts":[{"text":"Card %s on file."}]}"""
+                        .formatted(card, card, card));
+        mail.deliver(
+                "hex.json",
+                """
+                {"messageId":"m-h","contextId":"sha256:%s","taskId":"sha256:%s",
+                 "role":"ROLE_AGENT","parts":[{"text":"Key %s here."}]}"""
+                        .formatted(hex, hex, hex));
+        mail.deliver("broken.json", "{\"messageId\":\"sha256:" + hex + "\",\"parts\":[");
+
+        mail.sluice("blocking", "true").runOnce();
+
+        assertThat(mail.files(mail.rejected())).hasSize(2);
+        assertThat(mail.error().resolve("broken.json")).exists();
+        final String everything = mail.everythingThatLeaves();
+        assertThat(everything)
+                .contains("ENCODING/HEX")
+                .contains("UNPROCESSABLE/MALFORMED_JSON")
+                .doesNotContain(card)
+                .doesNotContain(hex);
+    }
+
+    @Test
     void aMessageFiledBeforeACrashIsNotRefusedAsItsOwnDuplicate() throws Exception {
         // The harm: a pass killed between filing and deleting leaves the original behind; the next
         // pass would refuse it as a duplicate and answer that nothing was sent, while the copy in

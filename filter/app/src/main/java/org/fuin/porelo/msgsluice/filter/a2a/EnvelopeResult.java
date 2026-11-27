@@ -7,7 +7,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.fuin.porelo.msgsluice.filter.decision.Finding;
+import org.fuin.porelo.msgsluice.filter.detect.Masked;
 import org.fuin.porelo.msgsluice.filter.detect.TextUnderCheck;
+import org.jspecify.annotations.Nullable;
 
 /**
  * What stage A found, and every text it hands on to the detectors.
@@ -33,14 +35,19 @@ public record EnvelopeResult(
 
     /**
      * The facts an answer may echo: an id that anything was found at is left out, because an answer
-     * must not carry what a rule matched.
+     * must not carry what a rule matched. An id holding a pin is left out too: the pin's hash is
+     * not checked, so it may hold what a rule matched in the text.
      */
     public MessageFacts echoable(final List<Finding> all) {
         final Set<String> hit = locations(all);
         return new MessageFacts(
-                hit.contains("messageId") ? null : facts.messageId(),
-                hit.contains("contextId") ? null : facts.contextId(),
-                hit.contains("taskId") || hit.contains("id") ? null : facts.taskId());
+                hit.contains("messageId") ? null : unpinned(facts.messageId()),
+                hit.contains("contextId") ? null : unpinned(facts.contextId()),
+                hit.contains("taskId") || hit.contains("id") ? null : unpinned(facts.taskId()));
+    }
+
+    private static @Nullable String unpinned(final @Nullable String id) {
+        return id == null || Masked.holdsPin(id) ? null : id;
     }
 
     /**

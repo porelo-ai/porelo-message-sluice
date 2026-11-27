@@ -42,6 +42,7 @@ import org.fuin.porelo.msgsluice.filter.decision.Severity;
 import org.fuin.porelo.msgsluice.filter.decision.Verdict;
 import org.fuin.porelo.msgsluice.filter.detect.ContentDetector;
 import org.fuin.porelo.msgsluice.filter.detect.DetectorRunner;
+import org.fuin.porelo.msgsluice.filter.detect.Masked;
 import org.fuin.porelo.msgsluice.filter.detect.TextUnderCheck;
 import org.fuin.porelo.msgsluice.filter.io.FileOps;
 import org.fuin.porelo.msgsluice.filter.io.MessageArchive;
@@ -833,11 +834,13 @@ public final class MessageSluice {
     }
 
     /**
-     * A recovered id is echoed only if no detector finds anything in it: it could be a payload too.
+     * A recovered id is echoed only if no detector finds anything in it and it holds no pin, whose
+     * hash the detectors pass unchecked: it could be a payload too.
      */
     private @Nullable String recoverMessageId(final byte[] bytes) {
         final String id = A2aReader.recoverMessageId(bytes);
         return id == null
+                        || Masked.holdsPin(id)
                         || !detectors
                                 .run(List.of(new TextUnderCheck("messageId", -1, id)))
                                 .isEmpty()

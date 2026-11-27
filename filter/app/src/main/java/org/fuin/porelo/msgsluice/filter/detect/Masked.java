@@ -215,6 +215,14 @@ public final class Masked {
                 to.stream().mapToInt(Integer::intValue).toArray());
     }
 
+    /**
+     * Whether {@code source} holds a pin. A pin's hash passes the detectors unchecked, so a text
+     * holding one may carry what they would refuse anywhere else.
+     */
+    public static boolean holdsPin(final String source) {
+        return PIN.matcher(source).find();
+    }
+
     /** The span of every pin's hash in {@code source}: what {@link #of} masks as a pin. */
     static List<int[]> pinSpans(final String source) {
         final List<int[]> spans = new ArrayList<>();

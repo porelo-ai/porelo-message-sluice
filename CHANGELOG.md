@@ -40,7 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A full commit id or digest, 40 or 64 lowercase hex characters, passes where a pin stands: after `@` in a `uses:`
   line and after `sha256:`, bare or quoted, an image reference's `@sha256:` included, in code and in prose alike, so
   pinned workflows, image references and lockfiles are no longer refused, not even when a pin's digits happen to pass
-  a card's or a social insurance number's checksum. The same hash anywhere else is judged as before.
+  a card's or a social insurance number's checksum. The same hash anywhere else is judged as before. An answer never
+  echoes an id that holds a pin, since the pin's hash may hold what the message was refused for.
 - In code, string literals joined by `+` or written side by side, on one line or over lines, are judged as the
   one string they make, so a payload cut into short literals is found.
 - In code, the escapes `\uXXXX`, `\u{X}`, `\UXXXXXXXX` and `\xXX` are read as the characters they write, so a payload written

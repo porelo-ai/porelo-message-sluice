@@ -227,7 +227,8 @@ An id's alphabet, `[A-Za-z0-9._:-]` up to 128 characters, is hex's and base64url
 proves the shape and nothing about the content. 5000 ids of 128 hex characters in
 `referenceTaskIds` - 660 KB - pass a shape check with no finding, and so does a 128-hex `messageId`.
 So every id goes to the detectors like any other string, `referenceTaskIds` is counted
-(`check.maxReferenceTaskIds`), and an answer echoes an id only when nothing was found in it. A UUID,
+(`check.maxReferenceTaskIds`), and an answer echoes an id only when nothing was found in it and it
+holds no pin, whose hash the detectors pass unchecked. A UUID,
 alone or behind a short prefix, stays clean; a dashless UUID is 32 hex characters and is refused like
 a hash.
 
