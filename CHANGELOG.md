@@ -72,6 +72,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Names in capitals and digits joined by dashes, such as `A2A-In` or `E2E-Run1`, pass as prose instead of
   being refused as base64.
 - A pass started through the Java API checks the directories when nobody did first.
+- A code text whose readings report many findings is judged in n log n of them, not n²: a reading's finding is
+  matched against those already reported through spans kept sorted, not one by one.
 - The Build runs a signed message, and one signed in the old namespace, through both packages.
 - The `Shared rules check` fetches the pinned `shfmt`, which the style check needs for the two scripts in
   every Maven run.

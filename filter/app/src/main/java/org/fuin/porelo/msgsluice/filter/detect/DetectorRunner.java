@@ -1,9 +1,14 @@
 package org.fuin.porelo.msgsluice.filter.detect;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 import org.fuin.porelo.msgsluice.filter.decision.Finding;
 import org.fuin.porelo.msgsluice.filter.decision.Redactor;
@@ -85,10 +90,11 @@ public final class DetectorRunner {
             final List<Finding> own = judge(original, normalized);
             findings.addAll(own);
             if (original.kind() == TextKind.CODE) {
-                final List<Finding> seen = new ArrayList<>(own);
+                final Reported seen = new Reported();
+                own.forEach(seen::add);
                 for (final Normalizer.Normalized view : CodeView.views(normalized)) {
                     for (final Finding f : judge(original, view)) {
-                        if (seen.stream().noneMatch(o -> sameMatch(o, f))) {
+                        if (!seen.says(f)) {
                             findings.add(f);
                             seen.add(f);
                         }
@@ -160,17 +166,55 @@ public final class DetectorRunner {
     }
 
     /**
-     * Whether the text's own finding already says what the view's does: the same rule over a span
-     * that holds the view's, or the same failure of the same detector.
+     * The findings already reported for one text, so that a reading's finding is reported only when
+     * none says it yet: the same rule over a span that holds its own, or, for one without a span,
+     * the same rule from the same detector. Each lookup and addition costs log n in the findings,
+     * so a text full of them is judged in n log n, not n².
      */
-    private static boolean sameMatch(final Finding own, final Finding view) {
-        if (!own.ruleId().equals(view.ruleId())) {
-            return false;
+    private static final class Reported {
+
+        private record RuleOf(String ruleId, String detector) {}
+
+        private final Set<RuleOf> rules = new HashSet<>();
+
+        /**
+         * Per rule, the spans reported that no other one holds, by start: as none holds another,
+         * their ends rise with their starts, so the one that could hold a span is the last starting
+         * at or before it.
+         */
+        private final Map<String, TreeMap<Integer, Integer>> spans = new HashMap<>();
+
+        boolean says(final Finding f) {
+            if (f.start() < 0) {
+                return rules.contains(new RuleOf(f.ruleId(), f.detector()));
+            }
+            final TreeMap<Integer, Integer> kept = spans.get(f.ruleId());
+            return kept != null && holds(kept, f.start(), f.end());
         }
-        if (view.start() < 0) {
-            return own.detector().equals(view.detector());
+
+        void add(final Finding f) {
+            rules.add(new RuleOf(f.ruleId(), f.detector()));
+            if (f.start() < 0) {
+                return;
+            }
+            final TreeMap<Integer, Integer> kept =
+                    spans.computeIfAbsent(f.ruleId(), r -> new TreeMap<>());
+            if (holds(kept, f.start(), f.end())) {
+                return;
+            }
+            final Iterator<Map.Entry<Integer, Integer>> later =
+                    kept.tailMap(f.start(), true).entrySet().iterator();
+            while (later.hasNext() && later.next().getValue() <= f.end()) {
+                later.remove();
+            }
+            kept.put(f.start(), f.end());
         }
-        return own.start() <= view.start() && view.end() <= own.end();
+
+        private static boolean holds(
+                final TreeMap<Integer, Integer> kept, final int start, final int end) {
+            final Map.Entry<Integer, Integer> before = kept.floorEntry(start);
+            return before != null && before.getValue() >= end;
+        }
     }
 
     /**

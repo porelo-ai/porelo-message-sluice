@@ -1,15 +1,20 @@
 package org.fuin.porelo.msgsluice.filter.detect;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Function;
 import org.fuin.porelo.msgsluice.filter.Settings;
 import org.fuin.porelo.msgsluice.filter.decision.Finding;
 import org.fuin.porelo.msgsluice.filter.decision.Redactor;
+import org.fuin.porelo.msgsluice.filter.decision.Severity;
+import org.fuin.porelo.msgsluice.filter.decision.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -46,6 +51,107 @@ class DetectorRunnerCodeTest {
             seen.add(text);
             return List.of();
         }
+    }
+
+    /** Reports the spans it is given for whatever text it sees, or fails on every text. */
+    private static final class Spans implements ContentDetector {
+
+        static final String HIT = "TEST/HIT";
+
+        private final Function<String, List<int[]>> spans;
+
+        Spans(final Function<String, List<int[]>> spans) {
+            this.spans = spans;
+        }
+
+        @Override
+        public String id() {
+            return "test/spans@1";
+        }
+
+        @Override
+        public Set<String> ruleIds() {
+            return Set.of(HIT);
+        }
+
+        @Override
+        public Set<String> categories() {
+            return Set.of("TEST");
+        }
+
+        @Override
+        public List<DetectorFinding> inspect(final TextUnderCheck text) {
+            return spans.apply(text.text()).stream()
+                    .map(
+                            s ->
+                                    new DetectorFinding(
+                                            HIT,
+                                            Stage.TEXT,
+                                            Severity.BLOCKING,
+                                            "TEST",
+                                            s[0],
+                                            s[1],
+                                            "a test hit"))
+                    .toList();
+        }
+    }
+
+    private static List<Finding> runCode(final ContentDetector detector, final String code) {
+        return new DetectorRunner(List.of(), List.of(detector), new Redactor(Redactor.Mode.PARTIAL))
+                .run(List.of(TextUnderCheck.code("t", 0, code)));
+    }
+
+    /**
+     * A reading of the code with its escapes read reports again what the text itself reported; it
+     * is reported once, unless its span reaches past every span the rule already reported.
+     */
+    @Test
+    void aFindingOfAReadingIsReportedOnlyWhereTheTextsOwnDoNotHoldIt() {
+        final String code = "\\u0041abcd";
+
+        assertThat(runCode(new Spans(t -> List.of(new int[] {0, t.length()})), code))
+                .as("the whole text, held by the text's own finding")
+                .singleElement()
+                .satisfies(f -> assertThat(f.end()).as("end").isEqualTo(code.length()));
+        assertThat(runCode(new Spans(t -> List.of(new int[] {0, 1})), code))
+                .as("the first character: the escape in the text, all of it in the reading")
+                .extracting(f -> f.start() + ".." + f.end())
+                .containsExactly("0..1", "0..6");
+        assertThat(
+                        runCode(
+                                new Spans(
+                                        t -> {
+                                            throw new IllegalStateException("fails");
+                                        }),
+                                code))
+                .as("a detector failing on the text and on the reading")
+                .extracting(Finding::ruleId)
+                .containsExactly(DetectorRunner.DETECTOR_FAILED);
+    }
+
+    /** A text whose every reading is full of findings is still judged in about linear time. */
+    @Test
+    void aCodeTextFullOfFindingsIsJudgedQuickly() {
+        final String code = "\\u0041" + "ab".repeat(32 * 1024);
+        final Spans everyPair =
+                new Spans(
+                        t -> {
+                            final List<int[]> pairs = new ArrayList<>();
+                            for (int i = 0; i + 2 <= t.length(); i += 2) {
+                                pairs.add(new int[] {i, i + 2});
+                            }
+                            return pairs;
+                        });
+
+        final List<Finding> findings =
+                assertTimeoutPreemptively(
+                        Duration.ofSeconds(5),
+                        () -> runCode(everyPair, code),
+                        "judging 64 KB of code with a finding every two characters");
+
+        assertThat(findings)
+                .as("the text's own findings at least, each pair of it")
+                .hasSizeGreaterThanOrEqualTo(code.length() / 2);
     }
 
     private static List<String> ruleIds(final List<Finding> findings) {
