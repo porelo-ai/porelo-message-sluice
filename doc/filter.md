@@ -113,7 +113,7 @@ page rather than passing it outbound. A configuration file cannot name the direc
 **A page is a pull request's**: its run names `porelo/pullRequest` and the forge's repository URL,
 never a push of Porelo's. **A submission is a pull request run or a push run**: a run naming
 `porelo/pullRequest` is a pull request's; one naming instead `porelo/project`, `porelo/repository` and
-`porelo/push`, each one line of 1 to 256 characters, is a push's, as a task reading another task's
+`porelo/push`, each one line of 1 to 256 characters (the schema admits a line break or tab there; the filter does not), is a push's, as a task reading another task's
 waiting push sends it, and its `repositoryUri` is `urn:porelo:repository:<project>:<repository>`, each
 part of `A-Z`, `a-z`, `0-9`, `.`, `_`, `~`, `%` and `-`. Either may name the threads its producer
 marks resolved, `porelo/resolveThreads`: 1 to 100 distinct ids, each 1 to 64 ASCII letters, digits or

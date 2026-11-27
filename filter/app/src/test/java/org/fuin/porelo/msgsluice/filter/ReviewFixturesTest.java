@@ -3,6 +3,9 @@ package org.fuin.porelo.msgsluice.filter;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -492,6 +495,58 @@ class ReviewFixturesTest {
                         f ->
                                 f.ruleId().startsWith("ENCODING/")
                                         && requireNonNull(f.location()).contains(where));
+    }
+
+    /** A forge has no push of Porelo's: a page naming one, as a push run names it, is refused. */
+    @Test
+    void aPageNamingAPushIsRefused() throws Exception {
+        final String page = read(REVIEW.resolve("forge-page.sarif.json"));
+        final String repository = "\"https://github.com/shop/app\"";
+        final String pullRequest =
+                "\"porelo/pullRequest\": \"https://github.com/shop/app/pull/42\"";
+        assertThat(page).as("the page's run").contains(repository).containsOnlyOnce(pullRequest);
+        final String pushPage =
+                page.replace(repository, "\"urn:porelo:repository:shop:app\"")
+                        .replace(
+                                pullRequest,
+                                "\"porelo/project\": \"shop\", \"porelo/repository\": \"app\","
+                                        + " \"porelo/push\": \"fix-login\"");
+
+        final FileResult result = run("push-page", pushPage, true, false);
+
+        assertThat(result.outcome())
+                .as("refused even while the filter only reports")
+                .isEqualTo(Outcome.REJECTED);
+        assertThat(envelopeRules(result))
+                .as("a page's run is a pull request's")
+                .contains("PROFILE/MISSING_FIELD", "PROFILE/UNKNOWN_FIELD");
+    }
+
+    /**
+     * A push run's submission may hold comments and replies beside its one reject, and name threads
+     * to resolve.
+     */
+    @Test
+    void aPushRunHoldsCommentsAReplyAResolveAndOneReject() throws Exception {
+        final ObjectMapper json = new ObjectMapper();
+        final ObjectNode document =
+                (ObjectNode) json.readTree(read(REVIEW.resolve("submitted-reject.sarif.json")));
+        final ObjectNode run = (ObjectNode) document.get("runs").get(0);
+        final ArrayNode results = (ArrayNode) run.get("results");
+        for (final String name : List.of("submitted-comment", "submitted-reply")) {
+            results.add(
+                    json.readTree(read(REVIEW.resolve(name + ".sarif.json")))
+                            .path("runs")
+                            .path(0)
+                            .path("results")
+                            .path(0));
+        }
+        ((ObjectNode) run.path("properties")).putArray("porelo/resolveThreads").add("1834527690");
+
+        final FileResult result = run("push", json.writeValueAsString(document));
+
+        assertThat(envelopeRules(result)).as("all of it in one push run").isEmpty();
+        assertThat(result.outcome()).isEqualTo(Outcome.ACCEPTED);
     }
 
     static String withReason(final String reason) throws Exception {
