@@ -3,7 +3,8 @@
 Review profile 2 documents, each the one data part of a review comment; `ReviewFixturesTest` wraps
 each into a comment to `review` and runs it through a mailbox.
 
-- **`forge-page`, `submitted-comment`, `submitted-reply`** are Porelo's own passing fixtures from the
+- **`forge-page`, `submitted-comment`, `submitted-reply`, `submitted-resolve`, `submitted-reject`** are
+  Porelo's own passing fixtures from the
   tests jar of `porelo-build-api`, copied unchanged. A page passes only with `--inbound`, a submission
   only without it; each is refused in the other direction.
 - **`refused/`** holds this repository's adversarial documents, each one of the passing ones with one

@@ -75,7 +75,12 @@ class ReviewFixturesTest {
     }
 
     static Stream<String> passing() {
-        return Stream.of("forge-page", "submitted-comment", "submitted-reply");
+        return Stream.of(
+                "forge-page",
+                "submitted-comment",
+                "submitted-reply",
+                "submitted-resolve",
+                "submitted-reject");
     }
 
     @ParameterizedTest
@@ -407,6 +412,94 @@ class ReviewFixturesTest {
 
         assertThat(envelopeRules(result)).as(instant + " is a real instant").isEmpty();
         assertThat(result.outcome()).isEqualTo(Outcome.ACCEPTED);
+    }
+
+    /** A reject's reason of exactly 2000 characters, the bound Porelo reads, passes. */
+    @Test
+    void aRejectReasonOfTwoThousandCharactersIsAdmitted() throws Exception {
+        final String reason = "The login accepts a blank password. ".repeat(60).substring(0, 2000);
+
+        final FileResult result = run("reason", withReason(reason));
+
+        assertThat(envelopeRules(result)).as("2000 characters bound a reason").isEmpty();
+        assertThat(result.outcome()).isEqualTo(Outcome.ACCEPTED);
+    }
+
+    /** A reason is counted in characters, not in UTF-16 units: 2000 emoji pass. */
+    @Test
+    void aRejectReasonIsCountedInCharacters() throws Exception {
+        final FileResult result = run("emoji", withReason("\uD83D\uDE00".repeat(2000)));
+
+        assertThat(envelopeRules(result)).as("2000 characters of two UTF-16 units each").isEmpty();
+    }
+
+    @Test
+    void aCredentialInARejectsReasonIsFoundByTheDetectors() throws Exception {
+        final String token = "ghp_" + "0123456789" + "abcdefghijklmnopqrstuvwxyz";
+
+        final FileResult result = run("reason", withReason("Discard it: " + token));
+
+        assertThat(envelopeRules(result)).as("the reject has the profile's shape").isEmpty();
+        assertThat(result.findings())
+                .as("a token in the reason")
+                .anyMatch(f -> f.ruleId().startsWith("CREDENTIAL/"));
+        assertThat(result.outcome()).isEqualTo(Outcome.REJECTED);
+    }
+
+    @Test
+    void aPayloadInAThreadToResolveIsFoundByTheDetectors() throws Exception {
+        final String document = read(REVIEW.resolve("submitted-resolve.sarif.json"));
+        assertThat(document).as("the fixture's one thread").containsOnlyOnce("\"1834527690\"");
+
+        final FileResult result =
+                run("resolve", document.replace("\"1834527690\"", "\"" + BASE64_48 + "\""));
+
+        assertThat(envelopeRules(result)).as("48 letters and digits are a thread's id").isEmpty();
+        assertThat(result.findings())
+                .as("48 characters of base64 as a thread to resolve")
+                .anyMatch(
+                        f ->
+                                f.ruleId().startsWith("ENCODING/")
+                                        && requireNonNull(f.location())
+                                                .contains("porelo/resolveThreads"));
+        assertThat(result.outcome()).isEqualTo(Outcome.REJECTED);
+    }
+
+    /** A payload in a push run's names, which Porelo's own fields hold, reaches the detectors. */
+    @ParameterizedTest
+    @CsvSource({
+        "\"porelo/push\": \"fix-login\", porelo/push",
+        "\"porelo/project\": \"shop\", porelo/project",
+        "urn:porelo:repository:shop:app, repositoryUri",
+    })
+    void aPayloadInAPushRunsNamesIsFoundByTheDetectors(final String field, final String where)
+            throws Exception {
+        final String document = read(REVIEW.resolve("submitted-reject.sarif.json"));
+        assertThat(document).as("the fixture names it once").containsOnlyOnce(field);
+        final String changed =
+                document.replace(
+                        field,
+                        field.endsWith("app")
+                                ? "urn:porelo:repository:shop:" + BASE64_48
+                                : field.replaceFirst("\"[^\"]*\"$", "\"" + BASE64_48 + "\""));
+
+        final FileResult result = run("push", changed);
+
+        assertThat(envelopeRules(result)).as(where + " keeps its shape").isEmpty();
+        assertThat(result.findings())
+                .as("48 characters of base64 in " + where)
+                .anyMatch(
+                        f ->
+                                f.ruleId().startsWith("ENCODING/")
+                                        && requireNonNull(f.location()).contains(where));
+    }
+
+    static String withReason(final String reason) throws Exception {
+        final String document = read(REVIEW.resolve("submitted-reject.sarif.json"));
+        final String given =
+                "\"The login now accepts a blank password; this cannot be reviewed into shape.\"";
+        assertThat(document).as("the fixture's reason").containsOnlyOnce(given);
+        return document.replace(given, "\"" + reason + "\"");
     }
 
     static String withUrls(final String repository, final String pullRequest) throws Exception {

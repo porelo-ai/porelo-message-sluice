@@ -110,8 +110,17 @@ page whose every result names the forge account that wrote it (`porelo/sourceKin
 (`porelo/createdAt`, an instant in UTC in whole seconds, `2026-11-25T10:15:30Z`, a real calendar
 instant with no hour 24 and no second 60). A host that forgets the flag refuses a forge's
 page rather than passing it outbound. A configuration file cannot name the direction.
-**Either way the document is a pull request's**: its run names `porelo/pullRequest` and the forge's
-repository URL, never a push of Porelo's. Both URLs keep profile 2's forge-neutral shape: a pull request
+**A page is a pull request's**: its run names `porelo/pullRequest` and the forge's repository URL,
+never a push of Porelo's. **A submission is a pull request run or a push run**: a run naming
+`porelo/pullRequest` is a pull request's; one naming instead `porelo/project`, `porelo/repository` and
+`porelo/push`, each one line of 1 to 256 characters, is a push's, as a task reading another task's
+waiting push sends it, and its `repositoryUri` is `urn:porelo:repository:<project>:<repository>`, each
+part of `A-Z`, `a-z`, `0-9`, `.`, `_`, `~`, `%` and `-`. Either may name the threads its producer
+marks resolved, `porelo/resolveThreads`: 1 to 100 distinct ids, each 1 to 64 ASCII letters, digits or
+`-`; a submission naming some may hold no result, and a page never names one. **A push run's
+submission may hold one reject**: a result whose properties are `"porelo/judgment": "reject"` alone,
+with no location, no fix and no guid, its message the reason in at most 2000 characters; a pull
+request run and a page hold none. Both URLs keep profile 2's forge-neutral shape: a pull request
 run's `repositoryUri` is `https://<host>[:<port>]` and 2 to 8 path segments, and its `porelo/pullRequest` that
 URL and 1 to 3 more segments, the last all digits (`pull/42`, `pulls/42`, `-/merge_requests/42`); each segment
 1 to 100 of `A-Z`, `a-z`, `0-9`, `.`, `_`, `~` and `-`, neither `.` nor `..`, so no percent-encoding, no empty
@@ -128,10 +137,10 @@ segment and no trailing slash. The filter also holds the host to DNS labels and 
 | a producer, guid, thread, thread state or time of writing in a submission; a page's result by anyone but a forge account, without its account's id and name, or naming a task | `PROFILE/PRODUCER_NOT_ALLOWED` |
 | a region of more than 100 lines | `PROFILE/REGION_TOO_LARGE` |
 | a replacement outside its comment's lines, or more than 10 lines longer | `PROFILE/REPLACEMENT_OUTSIDE_ANCHOR` |
-| a text over 8192 bytes, a replacement over 8 KiB, a replaced line over 400 characters | `PROFILE/TEXT_TOO_LONG` |
+| a text over 8192 bytes, a reject's reason over 2000 characters, a replacement over 8 KiB, a replaced line over 400 characters | `PROFILE/TEXT_TOO_LONG` |
 
-**What the detectors see of it:** `message.text` as prose; the suggested replacement, each file's
-path, each URL's host, its path segments one by one and its whole path once more, the thread ids and the forge account's id and name as code (see [the
+**What the detectors see of it:** `message.text` as prose, a reject's reason with it; the suggested replacement, each file's
+path, each URL's host, its path segments one by one and its whole path once more, a push run's project, repository and push and the two parts of its `repositoryUri`, the thread ids, each thread to resolve included, and the forge account's id and name as code (see [the
 detectors](detectors.md)). The guid, the two commit ids and a result's time of writing are held to their grammar alone, since a
 full commit id trips the encoding rules by design, and so are a URL's port and the pull request's
 number. **A field name is never shown**: a finding names an

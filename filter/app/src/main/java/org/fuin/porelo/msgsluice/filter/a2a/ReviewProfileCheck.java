@@ -96,7 +96,32 @@ public final class ReviewProfileCheck {
 
     static final int MAX_MESSAGE_WRITTEN = 16_384;
 
+    /** The most characters a reject's reason holds, as Porelo reads a task's reject. */
+    static final int MAX_REASON = 2000;
+
+    static final int MAX_RESOLVES = 100;
+
+    /**
+     * The most characters of a push run's project, repository and push, as the schema bounds them.
+     */
+    static final int MAX_PUSH_NAME = 256;
+
     private static final String SUBMISSION = "submission";
+
+    private static final String JUDGMENT = "porelo/judgment";
+
+    private static final String RESOLVE = "porelo/resolveThreads";
+
+    /** A push run's names: their presence makes a run a push's. */
+    private static final List<String> PUSH_NAMES =
+            List.of("porelo/project", "porelo/repository", "porelo/push");
+
+    /** A Porelo repository, which a push run names: its project and its name. */
+    private static final Pattern PORELO_REPOSITORY =
+            Pattern.compile("urn:porelo:repository:([A-Za-z0-9._~%-]+):([A-Za-z0-9._~%-]+)");
+
+    /** A thread to resolve, as the conversation gave its id: tighter than {@link #OPAQUE}. */
+    private static final Pattern THREAD = Pattern.compile("[A-Za-z0-9-]{1,64}");
 
     private static final String PAGE = "page";
 
@@ -306,19 +331,41 @@ public final class ReviewProfileCheck {
             }
             constant(f, "columnKind", "unicodeCodePoints", at);
             final String pat = at + ".properties";
-            // A comment's document is a pull request's, in either direction: a forge has no push
-            // of Porelo's, and a task submits only to a pull request's review.
-            final @Nullable String repository =
-                    provenance(f.get("versionControlProvenance"), at + ".versionControlProvenance");
+            // A page is a pull request's: a forge has no push of Porelo's. A submission is a pull
+            // request's or, from a task reading another task's waiting push, that push's. As the
+            // schema reads it, a run naming its pull request is a pull request run; one naming
+            // none but any of a push's names is a push run.
+            final JsonNode named = f.get("properties");
+            final boolean push =
+                    submission
+                            && !named.has("porelo/pullRequest")
+                            && PUSH_NAMES.stream().anyMatch(named::has);
+            final String vat = at + ".versionControlProvenance";
+            final @Nullable String repository;
+            if (push) {
+                poreloProvenance(f.get("versionControlProvenance"), vat);
+                repository = null;
+            } else {
+                repository = provenance(f.get("versionControlProvenance"), vat);
+            }
             final @Nullable Fields props =
                     object(
-                            f.get("properties"),
+                            named,
                             pat,
-                            Set.of("porelo/pullRequest"),
-                            Set.of("porelo/baseRevisionId", "porelo/completeness"));
+                            push ? Set.copyOf(PUSH_NAMES) : Set.of("porelo/pullRequest"),
+                            Set.of("porelo/baseRevisionId", "porelo/completeness", RESOLVE));
             if (props != null) {
-                pullRequest(
-                        props.get("porelo/pullRequest"), pat + ".porelo/pullRequest", repository);
+                if (push) {
+                    for (final String name : PUSH_NAMES) {
+                        name(props, name, MAX_PUSH_NAME, pat);
+                    }
+                } else {
+                    pullRequest(
+                            props.get("porelo/pullRequest"),
+                            pat + ".porelo/pullRequest",
+                            repository);
+                }
+                resolveThreads(props, pat, submission);
                 grammar(props, "porelo/baseRevisionId", COMMIT, pat, "a full commit id");
                 if (submission && props.containsKey("porelo/completeness")) {
                     refuse(
@@ -342,27 +389,95 @@ public final class ReviewProfileCheck {
                 refuse(MALFORMED, at + ".results", "The results are a list.");
                 return;
             }
-            if (submission && results.isEmpty()) {
-                refuse(MISSING_FIELD, at + ".results", "A submission holds at least one result.");
+            if (submission && results.isEmpty() && (props == null || !props.containsKey(RESOLVE))) {
+                refuse(
+                        MISSING_FIELD,
+                        at + ".results",
+                        "A submission holds at least one result or names a thread to resolve.");
             }
+            int rejects = 0;
             for (int i = 0; i < results.size(); i++) {
-                result(results.get(i), at + ".results[" + i + "]", submission);
+                final String rat = at + ".results[" + i + "]";
+                if (submission && results.get(i).path("properties").has(JUDGMENT)) {
+                    if (!push) {
+                        refuse(
+                                MALFORMED,
+                                rat + ".properties." + JUDGMENT,
+                                "Only a task's submission at a push carries a reject.");
+                    } else if (++rejects > 1) {
+                        refuse(MALFORMED, rat, "A submission carries at most one reject.");
+                    }
+                }
+                result(results.get(i), rat, submission);
             }
+        }
+
+        /**
+         * The threads a submission marks resolved: 1 to 100 distinct ids of a thread's alphabet,
+         * each judged as code, since its writer chose it. A page never names one.
+         */
+        void resolveThreads(final Fields props, final String pat, final boolean submission) {
+            if (!props.containsKey(RESOLVE)) {
+                return;
+            }
+            final String at = pat + "." + RESOLVE;
+            if (!submission) {
+                refuse(MALFORMED, at, "A page resolves no thread; only a submission does.");
+                return;
+            }
+            final JsonNode ids = props.get(RESOLVE);
+            if (!ids.isArray() || ids.isEmpty() || ids.size() > MAX_RESOLVES) {
+                refuse(
+                        MALFORMED,
+                        at,
+                        "The threads to resolve are a list of 1 to " + MAX_RESOLVES + " ids.");
+                return;
+            }
+            final Set<String> seen = new HashSet<>();
+            for (int i = 0; i < ids.size(); i++) {
+                final JsonNode id = ids.get(i);
+                final String iat = at + "[" + i + "]";
+                if (!id.isTextual() || !THREAD.matcher(id.asText()).matches()) {
+                    refuse(
+                            MALFORMED,
+                            iat,
+                            "A thread to resolve is 1 to 64 ASCII letters, digits or '-'.");
+                } else if (!seen.add(id.asText())) {
+                    refuse(MALFORMED, iat, "A thread is named once.");
+                } else {
+                    code(id.asText(), iat);
+                }
+            }
+        }
+
+        /** A push run's repository: Porelo's, by its project and name, each judged as code. */
+        void poreloProvenance(final JsonNode vcp, final String at) {
+            final @Nullable Fields v = provenanceEntry(vcp, at);
+            if (v == null) {
+                return;
+            }
+            final JsonNode uri = v.get("repositoryUri");
+            final String uat = at + "[0].repositoryUri";
+            final Matcher m = PORELO_REPOSITORY.matcher(uri.asText(""));
+            if (!uri.isTextual() || !m.matches()) {
+                refuse(
+                        MALFORMED,
+                        uat,
+                        "A push run's repository is urn:porelo:repository:<project>:<repository>,"
+                                + " each of letters, digits, '.', '_', '~', '%' or '-'.");
+                return;
+            }
+            code(Objects.requireNonNullElse(m.group(1), ""), uat + "(project)");
+            code(Objects.requireNonNullElse(m.group(2), ""), uat + "(repository)");
         }
 
         /** The repository's URL, when it has the profile's shape. */
         @Nullable String provenance(final JsonNode vcp, final String at) {
-            if (!vcp.isArray() || vcp.size() != 1) {
-                refuse(MALFORMED, at, "A review document names exactly one repository.");
-                return null;
-            }
-            final String vat = at + "[0]";
-            final @Nullable Fields v =
-                    object(vcp.get(0), vat, Set.of("repositoryUri", "revisionId"), Set.of());
+            final @Nullable Fields v = provenanceEntry(vcp, at);
             if (v == null) {
                 return null;
             }
-            grammar(v, "revisionId", COMMIT, vat, "a full commit id");
+            final String vat = at + "[0]";
             final JsonNode uri = v.get("repositoryUri");
             final String uat = vat + ".repositoryUri";
             final Matcher m = REPOSITORY.matcher(uri.asText(""));
@@ -380,6 +495,21 @@ public final class ReviewProfileCheck {
             code(host, uat + "(host)");
             code(host + path, uat + "(host and path)");
             return uri.asText();
+        }
+
+        /** The one repository a document names, with its commit held to its grammar. */
+        @Nullable Fields provenanceEntry(final JsonNode vcp, final String at) {
+            if (!vcp.isArray() || vcp.size() != 1) {
+                refuse(MALFORMED, at, "A review document names exactly one repository.");
+                return null;
+            }
+            final String vat = at + "[0]";
+            final @Nullable Fields v =
+                    object(vcp.get(0), vat, Set.of("repositoryUri", "revisionId"), Set.of());
+            if (v != null) {
+                grammar(v, "revisionId", COMMIT, vat, "a full commit id");
+            }
+            return v;
         }
 
         /** A port, when there is one, is 1 to 65535; the pattern already refuses a leading zero. */
@@ -431,6 +561,10 @@ public final class ReviewProfileCheck {
         }
 
         void result(final JsonNode r, final String at, final boolean submission) {
+            if (submission && r.path("properties").has(JUDGMENT)) {
+                reject(r, at);
+                return;
+            }
             final @Nullable Fields f =
                     object(
                             r,
@@ -475,14 +609,79 @@ public final class ReviewProfileCheck {
             }
         }
 
+        /**
+         * A reject: its reason alone, at most {@value #MAX_REASON} characters, judged as prose. It
+         * names no line, file, thread or fix; the run says where it may stand, which {@link #run}
+         * holds.
+         */
+        void reject(final JsonNode r, final String at) {
+            final @Nullable Fields f =
+                    object(
+                            r,
+                            at,
+                            Set.of("kind", "level", "message", "properties"),
+                            Set.of("guid", "locations", "fixes"));
+            if (f == null) {
+                return;
+            }
+            if (f.containsKey("guid")) {
+                refuse(
+                        PRODUCER,
+                        at + ".guid",
+                        "A submission carries no guid: Porelo gives each item its own.");
+            }
+            for (final String name : List.of("locations", "fixes")) {
+                if (f.containsKey(name)) {
+                    refuse(
+                            MALFORMED,
+                            at + "." + name,
+                            "A reject names no line and suggests nothing: its place is the push.");
+                }
+            }
+            constant(f, "kind", "review", at);
+            constant(f, "level", "none", at);
+            final String pat = at + ".properties";
+            final JsonNode props = f.get("properties");
+            if (!props.isObject() || props.size() != 1) {
+                refuse(
+                        MALFORMED,
+                        pat,
+                        "A reject's properties are its judgment alone: no line, side, thread or"
+                                + " producer.");
+            }
+            final JsonNode judgment = props.path(JUDGMENT);
+            if (!judgment.isTextual() || !"reject".equals(judgment.asText())) {
+                refuse(MALFORMED, pat + "." + JUDGMENT, "The field must be 'reject'.");
+            }
+            final @Nullable Fields message =
+                    object(f.get("message"), at + ".message", Set.of("text"), Set.of());
+            if (message == null) {
+                return;
+            }
+            final JsonNode text = message.get("text");
+            message(text, at + ".message.text");
+            final String given = unescape(text.asText(""));
+            if (text.isTextual() && given.codePointCount(0, given.length()) > MAX_REASON) {
+                refuse(
+                        TEXT,
+                        at + ".message.text",
+                        "A reject's reason is at most " + MAX_REASON + " characters.");
+            }
+        }
+
         @Nullable Fields properties(
                 final JsonNode node, final String at, final boolean submission) {
             final Set<String> optional = new HashSet<>(PAGE_ONLY);
             optional.add("porelo/replyTo");
+            optional.add(JUDGMENT);
             final @Nullable Fields f =
                     object(node, at, Set.of("porelo/anchorKind", "porelo/diffSide"), optional);
             if (f == null) {
                 return null;
+            }
+            if (f.containsKey(JUDGMENT)) {
+                // A submission's reject takes its own walk; only a page reaches here with one.
+                refuse(MALFORMED, at + "." + JUDGMENT, "A page holds no reject.");
             }
             oneOf(f, "porelo/anchorKind", Set.of("line"), at);
             oneOf(f, "porelo/diffSide", Set.of("old", "new"), at);
