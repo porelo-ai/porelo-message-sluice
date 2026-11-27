@@ -76,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   matched against those already reported through spans kept sorted, not one by one.
 - A review comment whose text is not escaped as SARIF reads a message - a lone backslash, a square bracket or a
   single brace - is refused as `PROFILE/VALUE_MALFORMED`, as review profile 2 asks and Porelo's review refuses
-  it, instead of passing the filter.
+  it.
 - The Build runs a signed message, and one signed in the old namespace, through both packages.
 - The `Shared rules check` fetches the pinned `shfmt`, which the style check needs for the two scripts in
   every Maven run.

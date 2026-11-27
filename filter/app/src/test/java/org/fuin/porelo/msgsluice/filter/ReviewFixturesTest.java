@@ -581,6 +581,34 @@ class ReviewFixturesTest {
                         });
     }
 
+    /** A reject's reason is a comment's text too, held to the same escaping. */
+    @Test
+    void aRejectWhoseReasonIsNotEscapedIsRefused() throws Exception {
+        final FileResult result =
+                run("reject", withReason("The blank password reaches items[0] first."));
+
+        assertThat(envelopeRules(result))
+                .as("a lone bracket in the reason")
+                .containsExactly("PROFILE/VALUE_MALFORMED");
+    }
+
+    /** What stood in a text refused for its escaping leaves in no answer, log line or name. */
+    @Test
+    void aTextRefusedForItsEscapingLeavesNothingOfIt() throws Exception {
+        final String marker = "Qz7Wv9Kx";
+        final Mailbox mail = new Mailbox(tmp);
+        mail.deliver("leak.json", comment("leak", withText(marker + "[")));
+
+        final FileResult result = mail.sluice("blocking", "true").runOnce().results().get(0);
+
+        assertThat(envelopeRules(result))
+                .as("refused for its escaping")
+                .containsExactly("PROFILE/VALUE_MALFORMED");
+        assertThat(mail.everythingThatLeaves())
+                .as("nothing that leaves the filter holds the text")
+                .doesNotContain(marker);
+    }
+
     /** The same characters escaped as SARIF reads a message pass. */
     @ParameterizedTest
     @ValueSource(strings = {"joining(\\\"\\\\\\\\n\\\")", "items\\\\[0\\\\]", "{{0}}"})
