@@ -132,6 +132,60 @@ class PinPlaceTest {
                 .isLessThan(5_000);
     }
 
+    /** 64 KB of every pin place, each line with a hash of its own, so every prefix reaches one. */
+    @Test
+    void sixtyFourKilobytesOfRealPinsPassQuickly() {
+        final StringBuilder text = new StringBuilder();
+        for (int i = 0; text.length() < 64 * 1024; i++) {
+            final String hash = MaskedTest.hex(i % 2 == 0 ? 20 : 32, 2000 + i);
+            text.append(PLACES.get(i % PLACES.size()).formatted(hash)).append('\n');
+        }
+
+        assertJudgedQuickly(text.toString(), true);
+    }
+
+    /** 64 KB of pins one after the other on one line, so no line break ends a path. */
+    @Test
+    void sixtyFourKilobytesOfPinsOnOneLinePassQuickly() {
+        final StringBuilder text = new StringBuilder();
+        for (int i = 0; text.length() < 64 * 1024; i++) {
+            text.append("uses: actions/step@").append(MaskedTest.hex(20, 3000 + i)).append(' ');
+        }
+
+        assertJudgedQuickly(text.toString(), true);
+    }
+
+    /**
+     * 64 KB of the longest path a pin may take, each ending in a hash one character short, so every
+     * prefix is read to its end and fails there.
+     */
+    @Test
+    void sixtyFourKilobytesOfNearPinsAreRefusedQuickly() {
+        final StringBuilder text = new StringBuilder();
+        for (int i = 0; text.length() < 64 * 1024; i++) {
+            text.append("uses: ")
+                    .append("a".repeat(255))
+                    .append('@')
+                    .append(MaskedTest.hex(20, 4000 + i), 1, 40)
+                    .append('\n');
+        }
+
+        assertJudgedQuickly(text.toString(), false);
+    }
+
+    private static void assertJudgedQuickly(final String text, final boolean accepted) {
+        final long start = System.nanoTime();
+
+        final boolean code = CodeRatesTest.judge(text).accepted();
+        final boolean prose = EncodedPayloadRatesTest.judge(text).accepted();
+
+        assertThat((System.nanoTime() - start) / 1_000_000)
+                .as("milliseconds to judge %d characters as code and prose", text.length())
+                .isLessThan(5_000);
+        assertThat(code).as("accepted as code").isEqualTo(accepted);
+        assertThat(prose).as("accepted as prose").isEqualTo(accepted);
+    }
+
     @ParameterizedTest
     @MethodSource("nearPins")
     void aHashWhereNoPinStandsIsRefusedInCodeAndProse(final String line) {
