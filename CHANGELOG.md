@@ -74,6 +74,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A pass started through the Java API checks the directories when nobody did first.
 - A code text whose readings report many findings is judged in n log n of them, not n²: a reading's finding is
   matched against those already reported through spans kept sorted, not one by one.
+- A review comment whose text is not escaped as SARIF reads a message - a lone backslash, a square bracket or a
+  single brace - is refused as `PROFILE/VALUE_MALFORMED`, as review profile 2 asks and Porelo's review refuses
+  it, instead of passing the filter.
 - The Build runs a signed message, and one signed in the old namespace, through both packages.
 - The `Shared rules check` fetches the pinned `shfmt`, which the style check needs for the two scripts in
   every Maven run.

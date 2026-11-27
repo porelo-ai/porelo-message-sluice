@@ -919,6 +919,13 @@ public final class ReviewProfileCheck {
                 return;
             }
             final String text = node.asText();
+            if (!escaped(text)) {
+                refuse(
+                        MALFORMED,
+                        at,
+                        "A comment's text escapes each backslash and square bracket with a"
+                                + " backslash and doubles each brace, as SARIF reads a message.");
+            }
             if (utf8(unescape(text)) > MAX_MESSAGE_BYTES) {
                 refuse(
                         TEXT,
@@ -1239,6 +1246,25 @@ public final class ReviewProfileCheck {
             }
         }
         return given.toString();
+    }
+
+    /**
+     * Whether a message's text is written as SARIF reads it, so no part of it becomes a link or a
+     * placeholder: a backslash only before a backslash or a square bracket, every square bracket
+     * after one, every brace doubled.
+     */
+    static boolean escaped(final String written) {
+        for (int i = 0; i < written.length(); i++) {
+            final char c = written.charAt(i);
+            final char next = i + 1 < written.length() ? written.charAt(i + 1) : 0;
+            if (c == '\\' && (next == '\\' || next == '[' || next == ']')
+                    || (c == '{' || c == '}') && next == c) {
+                i++;
+            } else if (c == '\\' || c == '[' || c == ']' || c == '{' || c == '}') {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static int utf8(final String text) {

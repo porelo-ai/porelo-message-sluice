@@ -557,6 +557,48 @@ class ReviewFixturesTest {
         return document.replace(given, "\"" + reason + "\"");
     }
 
+    /**
+     * A comment's text with a backslash, square bracket or brace SARIF reads as markup, each as
+     * JSON writes it: a backslash not before a backslash or bracket, a bracket and a single brace.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"joining(\\\"\\\\n\\\")", "\\\\d+", "items[0]", "a]", "{0}", "x}"})
+    void aCommentWhoseTextIsNotEscapedAsSarifReadsItIsRefused(final String written)
+            throws Exception {
+        final FileResult result = run("escape", withText(written));
+
+        assertThat(envelopeRules(result))
+                .as("%s in a comment's text", written)
+                .containsExactly("PROFILE/VALUE_MALFORMED");
+        assertThat(result.findings())
+                .as("refused at the text, which no reason repeats")
+                .filteredOn(f -> f.stage() == Stage.ENVELOPE)
+                .singleElement()
+                .satisfies(
+                        f -> {
+                            assertThat(f.location()).endsWith("message.text");
+                            assertThat(f.reason()).doesNotContain(written);
+                        });
+    }
+
+    /** The same characters escaped as SARIF reads a message pass. */
+    @ParameterizedTest
+    @ValueSource(strings = {"joining(\\\"\\\\\\\\n\\\")", "items\\\\[0\\\\]", "{{0}}"})
+    void aCommentWhoseTextIsEscapedAsSarifReadsItPasses(final String written) throws Exception {
+        final FileResult result = run("escaped", withText(written));
+
+        assertThat(envelopeRules(result)).as("%s in a comment's text", written).isEmpty();
+        assertThat(result.outcome()).as(written).isEqualTo(Outcome.ACCEPTED);
+    }
+
+    /** The submitted comment with its text ending in what JSON writes as {@code written}. */
+    static String withText(final String written) throws Exception {
+        final String given = "refuse it before the lookup.";
+        final String document = read(REVIEW.resolve("submitted-comment.sarif.json"));
+        assertThat(document).as("the fixture's text").containsOnlyOnce(given);
+        return document.replace(given, "refuse it before " + written + ".");
+    }
+
     static String withUrls(final String repository, final String pullRequest) throws Exception {
         final String document = read(REVIEW.resolve("submitted-comment.sarif.json"));
         assertThat(document)

@@ -131,7 +131,7 @@ segment and no trailing slash. The filter also holds the host to DNS labels and 
 | a document over a parser budget: 1 MiB, 32 KiB per result, 100 results, nesting 24, 100000 tokens, strings of 16384 characters, names of 128, numbers of 20 digits | `PROFILE/BUDGET_EXCEEDED` |
 | a field profile 2 does not list | `PROFILE/UNKNOWN_FIELD` |
 | a field it requires, missing | `PROFILE/MISSING_FIELD` |
-| a value of the wrong type, word or grammar | `PROFILE/VALUE_MALFORMED` |
+| a value of the wrong type, word or grammar; a comment's text with a backslash not before a backslash or square bracket, a square bracket not after one, or a single brace, as SARIF reads a message | `PROFILE/VALUE_MALFORMED` |
 | a format character, variation selector, line or paragraph separator, lone surrogate or control character other than line feed and tab, anywhere | `PROFILE/FORBIDDEN_CHARACTER` |
 | a submission sent inbound, or a page sent outbound | `PROFILE/WRONG_DIRECTION` |
 | a producer, guid, thread, thread state or time of writing in a submission; a page's result by anyone but a forge account, without its account's id and name, or naming a task | `PROFILE/PRODUCER_NOT_ALLOWED` |
