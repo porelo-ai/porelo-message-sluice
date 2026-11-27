@@ -171,7 +171,7 @@ public final class DetectorRunner {
      * the same rule from the same detector. Each lookup and addition costs log n in the findings,
      * so a text full of them is judged in n log n, not n².
      */
-    private static final class Reported {
+    static final class Reported {
 
         private record RuleOf(String ruleId, String detector) {}
 

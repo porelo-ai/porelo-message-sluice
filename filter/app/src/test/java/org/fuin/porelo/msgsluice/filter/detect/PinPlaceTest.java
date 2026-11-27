@@ -173,6 +173,23 @@ class PinPlaceTest {
         assertJudgedQuickly(text.toString(), false);
     }
 
+    /**
+     * 64 KB of paths each holding as many prefixes as fit, as a bracket may start a prefix inside a
+     * path: every prefix reads the rest of its path, the most work a byte can ask of a pin.
+     */
+    @Test
+    void sixtyFourKilobytesOfPrefixesInsidePathsAreRefusedQuickly() {
+        final StringBuilder text = new StringBuilder();
+        for (int i = 0; text.length() < 64 * 1024; i++) {
+            text.append("uses:(".repeat(42))
+                    .append('@')
+                    .append(MaskedTest.hex(32, 5000 + i), 1, 64)
+                    .append('\n');
+        }
+
+        assertJudgedQuickly(text.toString(), false);
+    }
+
     private static void assertJudgedQuickly(final String text, final boolean accepted) {
         final long start = System.nanoTime();
 

@@ -150,8 +150,67 @@ class DetectorRunnerCodeTest {
                         "judging 64 KB of code with a finding every two characters");
 
         assertThat(findings)
-                .as("the text's own findings at least, each pair of it")
-                .hasSizeGreaterThanOrEqualTo(code.length() / 2);
+                .as("each pair of the text, and the reading's pairs, shifted by the escape")
+                .hasSizeGreaterThan(code.length() / 2 + code.length() / 4);
+    }
+
+    /**
+     * Whatever findings come in whatever order, the kept ones answer as the plain rule does: a
+     * finding is said already when one before it has its rule and, with a span, holds its span, or,
+     * without one, comes from its detector.
+     */
+    @Test
+    void theKeptFindingsAnswerAsComparingWithEachOneBeforeWould() {
+        final Random random = new Random(11);
+        for (int round = 0; round < 2_000; round++) {
+            final DetectorRunner.Reported reported = new DetectorRunner.Reported();
+            final List<Finding> before = new ArrayList<>();
+            for (int i = 0; i < 30; i++) {
+                final Finding f = randomFinding(random);
+                final boolean said = before.stream().anyMatch(o -> says(o, f));
+
+                assertThat(reported.says(f))
+                        .as("round %d, finding %d after %s", round, i, before)
+                        .isEqualTo(said);
+                if (!said || random.nextBoolean()) {
+                    reported.add(f);
+                    before.add(f);
+                }
+            }
+        }
+    }
+
+    private static boolean says(final Finding before, final Finding f) {
+        if (!before.ruleId().equals(f.ruleId())) {
+            return false;
+        }
+        if (f.start() < 0) {
+            return before.detector().equals(f.detector());
+        }
+        return before.start() <= f.start() && f.end() <= before.end();
+    }
+
+    private static Finding randomFinding(final Random random) {
+        final String ruleId = random.nextBoolean() ? "TEST/ONE" : "TEST/TWO";
+        final String detector = random.nextBoolean() ? "test/a@1" : "test/b@1";
+        if (random.nextInt(5) == 0) {
+            return Finding.frame(ruleId, "t", 0, "a test failure", detector);
+        }
+        final int start = random.nextInt(20);
+        final int end = start + 1 + random.nextInt(8);
+        return new Finding(
+                ruleId,
+                Stage.TEXT,
+                Severity.BLOCKING,
+                "TEST",
+                "t",
+                0,
+                start,
+                end,
+                "[x]",
+                "a test hit",
+                List.of(),
+                detector);
     }
 
     private static List<String> ruleIds(final List<Finding> findings) {
