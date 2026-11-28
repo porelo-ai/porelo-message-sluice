@@ -81,6 +81,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `Shared rules check` fetches the pinned `shfmt`, which the style check needs for the two scripts in
   every Maven run.
 
+### Security
+
+- The filter is built by GraalVM CE 25.6.5.1, whose Base64 decoder no longer overflows on a malformed string
+  (CVE-2026-114938); the filter decodes the text an agent sends. A build on an older JDK stops at its start, and a
+  Porelo task on this repository is built from an image with that GraalVM.
+
 ## [0.5.0] - 2026-10-17
 
 ### Changed
